@@ -27,58 +27,58 @@ const DashboardList = () => {
     queryFn: async () => getDashboardList(filterDashboard),
   });
   const isLoading = dashboardListQuery.isLoading;
-  // const data = useMemo(() => dashboardListQuery.data?.groups || [], [dashboardListQuery.data]);
-  const data = [
-    {
-      id: "1",
-      name: "Dashboard 1",
-      description: "3 widgets",
-      created_at: "2021-09-01",
-      updated_at: "2021-09-01",
-    },
-    {
-      id: "2",
-      name: "Dashboard 2",
-      description: "2 widgets",
-      created_at: "2021-09-01",
-      updated_at: "2021-09-01",
-    },
-    {
-      id: "3",
-      name: "Dashboard 3",
-      description: "4 widgets",
-      created_at: "2021-09-01",
-      updated_at: "2021-09-01",
-    },
-    {
-      id: "4",
-      name: "Dashboard 4",
-      description: "3 widgets",
-      created_at: "2021-09-01",
-      updated_at: "2021-09-01",
-    },
-    {
-      id: "5",
-      name: "Dashboard 5",
-      description: "1 widget",
-      created_at: "2021-09-01",
-      updated_at: "2021-09-01",
-    },
-    {
-      id: "6",
-      name: "Dashboard 6",
-      description: "2 widgets",
-      created_at: "2021-09-01",
-      updated_at: "2021-09-01",
-    },
-    {
-      id: "7",
-      name: "Dashboard 7",
-      description: "1 widget",
-      created_at: "2021-09-01",
-      updated_at: "2021-09-01",
-    },
-  ];
+  const data = useMemo(() => dashboardListQuery.data?.groups || [], [dashboardListQuery.data]);
+  // const data = [
+  //   {
+  //     id: "1",
+  //     name: "Dashboard 1",
+  //     description: "3 widgets",
+  //     created_at: "2021-09-01",
+  //     updated_at: "2021-09-01",
+  //   },
+  //   {
+  //     id: "2",
+  //     name: "Dashboard 2",
+  //     description: "2 widgets",
+  //     created_at: "2021-09-01",
+  //     updated_at: "2021-09-01",
+  //   },
+  //   {
+  //     id: "3",
+  //     name: "Dashboard 3",
+  //     description: "4 widgets",
+  //     created_at: "2021-09-01",
+  //     updated_at: "2021-09-01",
+  //   },
+  //   {
+  //     id: "4",
+  //     name: "Dashboard 4",
+  //     description: "3 widgets",
+  //     created_at: "2021-09-01",
+  //     updated_at: "2021-09-01",
+  //   },
+  //   {
+  //     id: "5",
+  //     name: "Dashboard 5",
+  //     description: "1 widget",
+  //     created_at: "2021-09-01",
+  //     updated_at: "2021-09-01",
+  //   },
+  //   {
+  //     id: "6",
+  //     name: "Dashboard 6",
+  //     description: "2 widgets",
+  //     created_at: "2021-09-01",
+  //     updated_at: "2021-09-01",
+  //   },
+  //   {
+  //     id: "7",
+  //     name: "Dashboard 7",
+  //     description: "1 widget",
+  //     created_at: "2021-09-01",
+  //     updated_at: "2021-09-01",
+  //   },
+  // ];
   const columns = useMemo(() => dashboardColumns, []);
   const { getTableProps, getTableBodyProps, headers, rows, prepareRow } = useTable({
     columns,
