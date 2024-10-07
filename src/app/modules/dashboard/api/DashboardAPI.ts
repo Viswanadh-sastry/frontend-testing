@@ -31,7 +31,7 @@ export async function deleteDashboard(id: string) {
 const searchDashboard = (data: any) => {
     let query = "";
     query += `?limit=${data.limit}`;
-    query += `&page=${data.page}`;
+    query += `&page=${data.page+1}`;
     if (data.name) {
         if (query) {
             query += `&name=${data.name}`;
