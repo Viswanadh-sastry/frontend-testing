@@ -1,9 +1,12 @@
 import clsx from "clsx";
 import { useFormik } from "formik";
 import { toast } from "react-toastify";
+import { v4 as uuidv4 } from "uuid";
 import * as Yup from "yup";
 import { KTIcon } from "../../../../../_metronic/helpers";
-import { createDashboard } from "../../api/DashboardAPI";
+import { useAuth } from "../../../auth";
+import { updateDashboard } from "../../api/DashboardAPI";
+import { addDashboard } from "../../api/DashboardHelper";
 
 interface IAddDashboardProps {
   onCloseAddDashboard: () => void;
@@ -11,6 +14,8 @@ interface IAddDashboardProps {
 }
 
 const AddDashboard = ({ onCloseAddDashboard, onGetDashboardList }: IAddDashboardProps) => {
+  const { currentUser } = useAuth();
+  const { id: userId } = currentUser || { id: "" };
   const dashboardSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
     description: Yup.string(),
@@ -23,7 +28,11 @@ const AddDashboard = ({ onCloseAddDashboard, onGetDashboardList }: IAddDashboard
     },
     validationSchema: dashboardSchema,
     onSubmit: async (values, { setSubmitting }) => {
-      createDashboard(values)
+      const payload = addDashboard({
+        id: uuidv4(),
+        ...values,
+      });
+      updateDashboard(userId, payload)
         .then(() => {
           toast.success("Dashboard created successfully");
           onCloseAddDashboard();
@@ -87,9 +96,9 @@ const AddDashboard = ({ onCloseAddDashboard, onGetDashboardList }: IAddDashboard
                     <div className="col-md-12">
                       <div className="fv-row mb-6">
                         <label className="fw-bold fs-6 mb-2">Description</label>
-                        <input
+                        <textarea
                           {...formik.getFieldProps("description")}
-                          type="text"
+                          rows={4}
                           name="description"
                           placeholder="Dashboard Description"
                           className="form-control mb-3 mb-lg-0"

@@ -57,10 +57,11 @@ const ImportUser = ({ onCloseImportUser, onGetUserList, onShowImportUser }: IAdd
             }
 
             // Parse the TAGS field to convert it to an array
-            let tags = [];
+            let tags: string[] = [];
             try {
               if (row.TAGS) {
-                tags = JSON.parse(row.TAGS.replace(/\\\"/g, '"').replace(/\\/g, ""));
+                // Split the TAGS string by commas and trim spaces
+                tags = row.TAGS.split(",").map((tag: string) => tag.trim());
               }
             } catch (e) {
               toast.error("Error parsing tags. Ensure they are in valid JSON format.");
@@ -70,10 +71,13 @@ const ImportUser = ({ onCloseImportUser, onGetUserList, onShowImportUser }: IAdd
 
             const userData = {
               name: row.NAME,
-              metadata, // Add the parsed metadata object
-              status: row.STATUS,
+              credentials: {
+                identity: row.IDENTITY,
+                secret: row.SECRET,
+              },
               tags, // Add the parsed tags array
-              identity: row.IDENTITY,
+              metadata, // Add the parsed metadata object
+              status: "enabled",
             };
             await createUser(userData);
           }

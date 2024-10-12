@@ -2,7 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { FC, useState } from "react";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import { deleteDashboard, getDashboardList } from "../../../api/DashboardAPI";
+import { useAuth } from "../../../../auth";
+import { getDashboardList, updateDashboard } from "../../../api/DashboardAPI";
+import { removeDashboard } from "../../../api/DashboardHelper";
 import { EditDashboard } from "../../AddEditDashboard/EditDashboard";
 
 type Props = {
@@ -10,18 +12,15 @@ type Props = {
 };
 
 const DashboardActionsCell: FC<Props> = ({ id }) => {
+  const { currentUser } = useAuth();
+  const { id: userId } = currentUser || { id: "" };
   const [showEditDashboard, setShowEditDashboard] = useState({
     id: "",
     edit: false,
   });
-  const filterDashboard = {
-    limit: 100,
-    page: 1,
-    name: "",
-  };
   const dashboardListQuery = useQuery({
-    queryKey: [`dashboardList`, filterDashboard],
-    queryFn: async () => getDashboardList(filterDashboard),
+    queryKey: [`dashboardList`, userId],
+    queryFn: async () => getDashboardList(userId).catch((error) => toast.error(error.message)),
     enabled: false,
   });
 
@@ -37,7 +36,10 @@ const DashboardActionsCell: FC<Props> = ({ id }) => {
       cancelButtonText: "No",
     }).then((result) => {
       if (result.isConfirmed) {
-        deleteDashboard(id)
+        const payload = removeDashboard({
+          id: id,
+        });
+        updateDashboard(userId, payload)
           .then(() => {
             toast.success("Dashboard deleted successfully");
             onGetDashboardList();

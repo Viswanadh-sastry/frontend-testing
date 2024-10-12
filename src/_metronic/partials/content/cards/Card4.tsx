@@ -2,9 +2,11 @@ import { FC, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import { deleteDashboard } from "../../../../app/modules/dashboard/api/DashboardAPI";
-import { KTIcon, toAbsoluteUrl } from "../../../helpers";
+import { useAuth } from "../../../../app/modules/auth";
+import { updateDashboard } from "../../../../app/modules/dashboard/api/DashboardAPI";
+import { removeDashboard } from "../../../../app/modules/dashboard/api/DashboardHelper";
 import { EditDashboard } from "../../../../app/modules/dashboard/components/AddEditDashboard/EditDashboard";
+import { KTIcon, toAbsoluteUrl } from "../../../helpers";
 
 type Props = {
   id: string;
@@ -17,6 +19,8 @@ type Props = {
 
 const Card4: FC<Props> = ({ id, url, icon, title, description, onGetDashboardList }) => {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const { id: userId } = currentUser || { id: "" };
   const [showEditDashboard, setShowEditDashboard] = useState({
     id: "",
     edit: false,
@@ -34,10 +38,15 @@ const Card4: FC<Props> = ({ id, url, icon, title, description, onGetDashboardLis
       cancelButtonText: "No",
     }).then((result) => {
       if (result.isConfirmed) {
-        deleteDashboard(id)
+        const payload = removeDashboard({
+          id: id,
+          name: title,
+          description: description,
+        });
+        updateDashboard(userId, payload)
           .then(() => {
             toast.success("Dashboard deleted successfully");
-            navigate("/dashboard");
+            onGetDashboardList();
           })
           .catch((error) => toast.error(error.message));
       }

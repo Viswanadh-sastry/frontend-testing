@@ -1,17 +1,15 @@
 import clsx from "clsx";
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { KTIcon, toAbsoluteUrl } from "../../../../../../_metronic/helpers";
 import { AddSensor } from "./AddSensor";
 import { CreateView } from "./CreateView";
 
 interface IWidgetDrawerProps {
-  selectedLayout: any;
-  setSelectedLayout: Dispatch<SetStateAction<any>>;
   onGetPreviewWidget: (data: any) => void;
 }
 
-const WidgetDrawer = ({ selectedLayout, setSelectedLayout, onGetPreviewWidget }: IWidgetDrawerProps) => {
+const WidgetDrawer = ({ onGetPreviewWidget }: IWidgetDrawerProps) => {
   const [isActivated, setIsActivated] = useState({
     chart: true,
     sensor: false,
@@ -19,6 +17,7 @@ const WidgetDrawer = ({ selectedLayout, setSelectedLayout, onGetPreviewWidget }:
   });
   const [isSelectChart, setIsSelectChart] = useState(false);
   const [isSelectSensor, setIsSelectSensor] = useState(false);
+  const [selectedLayout, setSelectedLayout] = useState<any>(null);
 
   const onSelectWidget = (data: any) => {
     setSelectedLayout(data);
@@ -26,10 +25,6 @@ const WidgetDrawer = ({ selectedLayout, setSelectedLayout, onGetPreviewWidget }:
 
   const onSelectSensor = (data: any) => {
     setSelectedLayout(data);
-  };
-
-  const onGetChartList = () => {
-    console.log("Get Widget List");
   };
 
   const onGetPreviewWidgetList = (data: any) => {
@@ -773,15 +768,7 @@ const WidgetDrawer = ({ selectedLayout, setSelectedLayout, onGetPreviewWidget }:
         </div>
         {/* end::Card */}
       </div>
-      {isSelectChart && (
-        <CreateView
-          selectedLayout={selectedLayout}
-          isActivated={isActivated}
-          onCloseAddChart={onCloseAddChart}
-          onGetChartList={onGetChartList}
-          onGetPreviewWidgetList={(data) => onGetPreviewWidgetList(data)}
-        />
-      )}
+      {isSelectChart && <CreateView selectedLayout={selectedLayout} onCloseAddChart={onCloseAddChart} onGetPreviewWidgetList={(data) => onGetPreviewWidgetList(data)} />}
 
       {isSelectSensor && (
         <AddSensor selectedLayout={selectedLayout} isActivated={isActivated} onCloseAddSensor={onCloseAddSensor} onGetPreviewWidgetList={(data) => onGetPreviewWidgetList(data)} />

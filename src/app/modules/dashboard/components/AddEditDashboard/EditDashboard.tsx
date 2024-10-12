@@ -1,11 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import { useFormik } from "formik";
-import { useMemo } from "react";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { KTIcon } from "../../../../../_metronic/helpers";
-import { getDashboard, updateDashboard } from "../../api/DashboardAPI";
+import { useAuth } from "../../../auth";
+import { updateDashboard } from "../../api/DashboardAPI";
+import { editDashboard, getDashboardById } from "../../api/DashboardHelper";
 
 interface IEditDashboardProps {
   id: string;
@@ -14,12 +14,9 @@ interface IEditDashboardProps {
 }
 
 const EditDashboard = ({ id, onCloseEditDashboard, onGetDashboardList }: IEditDashboardProps) => {
-  const dashboardQuery = useQuery({
-    queryKey: [`dashboard`, id],
-    queryFn: async () => getDashboard(id).catch((error) => toast.error(error.message)),
-    enabled: true,
-  });
-  const dashboard = useMemo(() => dashboardQuery.data?.dashboard || [], [dashboardQuery.data]);
+  const { currentUser } = useAuth();
+  const { id: userId } = currentUser || { id: "" };
+  const dashboard = getDashboardById(id);
   const dashboardSchema = Yup.object().shape({
     id: Yup.string().required("Id is required"),
     name: Yup.string().required("Name is required"),
@@ -35,7 +32,12 @@ const EditDashboard = ({ id, onCloseEditDashboard, onGetDashboardList }: IEditDa
     enableReinitialize: true,
     validationSchema: dashboardSchema,
     onSubmit: async (values, { setSubmitting }) => {
-      updateDashboard(values)
+      const payload = editDashboard({
+        ...values,
+        layout: dashboard?.layout,
+        data: dashboard?.data,
+      });
+      updateDashboard(userId, payload)
         .then(() => {
           toast.success("Dashboard updated successfully");
           onCloseEditDashboard();
@@ -99,9 +101,9 @@ const EditDashboard = ({ id, onCloseEditDashboard, onGetDashboardList }: IEditDa
                     <div className="col-md-12">
                       <div className="fv-row text-start mb-6">
                         <label className="fw-bold fs-6 mb-2">Description</label>
-                        <input
+                        <textarea
                           {...formik.getFieldProps("description")}
-                          type="text"
+                          rows={4}
                           name="description"
                           placeholder="Dashboard Description"
                           className="form-control mb-3 mb-lg-0"

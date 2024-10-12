@@ -2,7 +2,7 @@ export type Dashboard = {
     id: string
     name: string
     description: string
-    metadata?: string
+    data?: string
     layout?: string
     created_by?: string
     created_at?: string

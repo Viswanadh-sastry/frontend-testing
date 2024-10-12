@@ -1,8 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ColumnInstance, Row, useTable } from "react-table";
+import { toast } from "react-toastify";
 import { KTCard, KTCardBody } from "../../../../../_metronic/helpers";
+import { useAuth } from "../../../auth";
 import { getDashboardList } from "../../api/DashboardAPI";
+import { setDashboard } from "../../api/DashboardHelper";
 import { Dashboard } from "../../api/_models";
 import { AddDashboard } from "../AddEditDashboard/AddDashboard";
 import { DashboardListHeader } from "./DashboardListHeader";
@@ -13,17 +16,15 @@ import { DashboardListLoading } from "./pagination/DashboardListLoading";
 // import { DashboardListPagination } from "./pagination/DashboardListPagination";
 
 const DashboardList = () => {
+  const { currentUser } = useAuth();
+  const { id: userId } = currentUser || { id: "" };
   const [view, setView] = useState("list");
   const [showAddDashboard, setShowAddDashboard] = useState(false);
-  const [filterDashboard, setFilterDashboard] = useState({
-    limit: 100,
-    page: 1,
-    name: "",
-  });
 
   const dashboardListQuery = useQuery({
-    queryKey: [`dashboardList`, filterDashboard],
-    queryFn: async () => getDashboardList(filterDashboard),
+    queryKey: [`dashboardList`, userId],
+    queryFn: async () => getDashboardList(userId).catch((error) => toast.error(error.message)),
+    enabled: !!userId,
   });
   const isLoading = dashboardListQuery.isLoading;
   const data = useMemo(() => dashboardListQuery.data?.dashboards || [], [dashboardListQuery.data]);
@@ -32,6 +33,12 @@ const DashboardList = () => {
     columns,
     data,
   });
+
+  useEffect(() => {
+    if (data) {
+      setDashboard(data);
+    }
+  }, [data]);
 
   const onGetDashboardList = () => {
     dashboardListQuery.refetch();
@@ -49,7 +56,7 @@ const DashboardList = () => {
 
   return (
     <KTCard>
-      <DashboardListHeader view={view} setView={setView} onShowAddDashboard={onShowAddDashboard} setFilterDashboard={setFilterDashboard} />
+      <DashboardListHeader view={view} setView={setView} onShowAddDashboard={onShowAddDashboard} />
       <KTCardBody className="py-4">
         <div className="table-responsive">
           <table id="kt_table_channels" className="table align-middle table-row-dashed fs-6 dataTable no-footer" {...getTableProps()}>

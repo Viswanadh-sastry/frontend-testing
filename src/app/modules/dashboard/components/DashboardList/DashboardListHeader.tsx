@@ -6,16 +6,9 @@ interface IDashboardListHeaderProps {
   view: string;
   setView: Dispatch<SetStateAction<string>>;
   onShowAddDashboard: () => void;
-  setFilterDashboard: Dispatch<
-    SetStateAction<{
-      limit: number;
-      page: number;
-      name: string;
-    }>
-  >;
 }
 
-const DashboardListHeader = ({ onShowAddDashboard, setFilterDashboard, view, setView }: IDashboardListHeaderProps) => {
+const DashboardListHeader = ({ view, setView, onShowAddDashboard }: IDashboardListHeaderProps) => {
   const navigate = useNavigate();
   return (
     <>
@@ -23,17 +16,7 @@ const DashboardListHeader = ({ onShowAddDashboard, setFilterDashboard, view, set
         <div className="card-title">
           {/* begin::Search */}
           <div className="d-flex align-items-center position-relative my-1">
-            <input
-              type="text"
-              className="form-control form-control form-control-lg mx-2"
-              placeholder="Search"
-              onChange={(e) =>
-                setFilterDashboard((prevState: any) => ({
-                  ...prevState,
-                  name: e.target.value,
-                }))
-              }
-            />
+            <input type="text" className="form-control form-control form-control-lg mx-2" placeholder="Search" onChange={(e) => e.preventDefault()} />
           </div>
           {/* end::Search */}
         </div>

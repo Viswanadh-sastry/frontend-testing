@@ -44,22 +44,21 @@ const WidgetParameters = ({ deviceData, setDeviceData }: IWidgetParameters) => {
   ).map((tag) => ({ label: tag }));
 
   const selectDevice = (selected: any, index: number) => {
-    if (selected.length === 0) {
-      return;
-    }
     const onChangeValue: any = [...inputs];
-    onChangeValue[index]["deviceValue"] = selected[0].value;
-    onChangeValue[index]["deviceName"] = selected[0].label;
+    if (selected.length > 0) {
+      onChangeValue[index]["deviceValue"] = selected[0].value;
+      onChangeValue[index]["deviceName"] = selected[0].label;
+    } else {
+      onChangeValue[index]["deviceValue"] = "";
+      onChangeValue[index]["deviceName"] = "";
+    }
     setInputs(onChangeValue);
     setDeviceData(convertArrayToObject(onChangeValue));
   };
 
   const selectSensorType = (selected: any, index: number) => {
-    if (selected.length === 0) {
-      return;
-    }
     const onChangeValue: any = [...inputs];
-    onChangeValue[index]["sensorType"] = selected[0].label;
+    onChangeValue[index]["sensorType"] = selected.length > 0 ? selected[0].label : "";
     setInputs(onChangeValue);
     setDeviceData(convertArrayToObject(onChangeValue));
   };

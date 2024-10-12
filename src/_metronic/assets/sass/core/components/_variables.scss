@@ -75,10 +75,15 @@ $light-clarity: rgba($white, 0.2) !default;
 $light-inverse: $gray-800 !default;
 
 // Success colors
-$success: #17c653 !default;
-$success-active: #04b440 !default;
-$success-light: #dfffea !default;
-$success-clarity: rgba(#17c653, 0.2) !default;
+// $success: #17c653 !default;
+// $success-active: #04b440 !default;
+// $success-light: #dfffea !default;
+// $success-clarity: rgba(#17c653, 0.2) !default;
+// $success-inverse: $white !default;
+$success: #f29a25 !default;
+$success-active: #f9942a !default;
+$success-light: #ffeee1 !default;
+$success-clarity: rgba(#f29a25, 0.2) !default;
 $success-inverse: $white !default;
 
 // Info colors
@@ -593,7 +598,7 @@ $font-sizes: (
   // 88.25px
   7hx: $font-size-base * 7.5,
   // 91.5px
-  7tx: $font-size-base * 7.75 // 94.75px,,
+  7tx: $font-size-base * 7.75 // 94.75px,,,,
 ) !default;
 
 $headings-font-weight: 600 !default;

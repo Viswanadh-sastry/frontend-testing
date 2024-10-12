@@ -6,12 +6,10 @@ import { KTIcon, toAbsoluteUrl, WidgetParameters } from "../../../../../../_metr
 interface ICreateViewProps {
   selectedLayout: any;
   onCloseAddChart: () => void;
-  onGetChartList: () => void;
-  isActivated: any;
   onGetPreviewWidgetList: (data: any) => void;
 }
 
-const CreateView = ({ selectedLayout, onCloseAddChart, onGetChartList, onGetPreviewWidgetList }: ICreateViewProps) => {
+const CreateView = ({ selectedLayout, onCloseAddChart, onGetPreviewWidgetList }: ICreateViewProps) => {
   const chartSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
     devices: Yup.array().min(1, "Device is required"),
@@ -34,17 +32,8 @@ const CreateView = ({ selectedLayout, onCloseAddChart, onGetChartList, onGetPrev
     },
     validationSchema: chartSchema,
     onSubmit: async (values) => {
-      onGetChartList();
       onGetPreviewWidgetList(values);
       onCloseAddChart();
-      //   createChart(values)
-      //     .then(() => {
-      //       toast.success("Widget created successfully");
-      //       onCloseAddChart();
-      //       onGetChartList();
-      //     })
-      //     .catch((error) => toast.error(error.message))
-      //     .finally(() => setSubmitting(false));
     },
   });
 

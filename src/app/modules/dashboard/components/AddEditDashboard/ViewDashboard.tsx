@@ -1,19 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
 import { KTCard, KTCardBody, KTIcon } from "../../../../../_metronic/helpers";
-import { getDashboard } from "../../api/DashboardAPI";
+import { getDashboardById } from "../../api/DashboardHelper";
 
 const ViewDashboard = () => {
   const navigate = useNavigate();
   const params = useParams();
   const id = params.id as string;
-  const dashboardQuery = useQuery({
-    queryKey: [`dashboard`, id],
-    queryFn: async () => getDashboard(id).catch((error) => toast.error(error.message)),
-    enabled: true,
-  });
-  const dashboard = dashboardQuery.data;
+  const dashboard = getDashboardById(id);
   console.log("dashboard", dashboard);
 
   const redirectToLayout = () => {

@@ -40,7 +40,7 @@ const searchAsset = (data: any) => {
         query += `&publisher=${data.publisher}`;
     }
 
-    if (data.name) {
+    if (data.name.length > 0) {
         if (query) {
             query += `&name=${data.name}`;
         } else {

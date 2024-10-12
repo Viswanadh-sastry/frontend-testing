@@ -40,14 +40,15 @@ const ImportDomain = ({ onCloseImportDomain, onGetDomainList, onShowImportDomain
         try {
           for (const row of data) {
             // Convert METADATA string to an object
-            let metadata;
+            let metadata = {};
             try {
-              // Check if metadata is a string that needs parsing
               if (row.METADATA) {
-                // Remove any extra escaping characters and parse JSON
-                metadata = JSON.parse(row.METADATA.replace(/\\\"/g, '"').replace(/\\/g, ""));
-              } else {
-                metadata = {}; // Default to empty object if metadata is not provided
+                // Split the METADATA string by commas to get key-value pairs
+                const metadataPairs = row.METADATA.split(",");
+                metadataPairs.forEach((pair: string) => {
+                  const [key, value] = pair.split(":").map((str) => str.trim());
+                  metadata = { ...metadata, [key]: value };
+                });
               }
             } catch (e) {
               toast.error("Error parsing metadata. Ensure it is in valid JSON format.");
@@ -56,10 +57,11 @@ const ImportDomain = ({ onCloseImportDomain, onGetDomainList, onShowImportDomain
             }
 
             // Parse the TAGS field to convert it to an array
-            let tags = [];
+            let tags: string[] = [];
             try {
               if (row.TAGS) {
-                tags = JSON.parse(row.TAGS.replace(/\\\"/g, '"').replace(/\\/g, ""));
+                // Split the TAGS string by commas and trim spaces
+                tags = row.TAGS.split(",").map((tag: string) => tag.trim());
               }
             } catch (e) {
               toast.error("Error parsing tags. Ensure they are in valid JSON format.");

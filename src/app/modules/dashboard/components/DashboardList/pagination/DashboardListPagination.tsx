@@ -1,8 +1,9 @@
-import clsx from "clsx";
-import { toast } from "react-toastify";
 import { useQuery } from "@tanstack/react-query";
-import { PaginationState } from "../../../../../../_metronic/helpers";
+import clsx from "clsx";
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
+import { PaginationState } from "../../../../../../_metronic/helpers";
+import { useAuth } from "../../../../auth";
 import { getDashboardList } from "../../../api/DashboardAPI";
 
 const mappedLabel = (label: string): string => {
@@ -24,21 +25,23 @@ interface IDashboardListPaginationProps {
       limit: number;
       offset: number;
       name: string;
-      metadata: string;
+      data: string;
       status: string;
     }>
   >;
 }
 
 const DashboardListPagination = ({ filterDashboard, setFilterDashboard }: IDashboardListPaginationProps) => {
+  const { currentUser } = useAuth();
+  const { id: userId } = currentUser || { id: "" };
   const [pagination, setPagination] = useState<PaginationState>({
     page: 1,
     items_per_page: filterDashboard.limit,
     links: [],
   });
   const dashboardListQuery = useQuery({
-    queryKey: [`dashboardList`, filterDashboard],
-    queryFn: async () => getDashboardList(filterDashboard).catch((error) => toast.error(error.message)),
+    queryKey: [`dashboardList`, userId],
+    queryFn: async () => getDashboardList(userId).catch((error) => toast.error(error.message)),
     enabled: false,
   });
   const isLoading = dashboardListQuery.isLoading;
