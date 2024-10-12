@@ -7,7 +7,7 @@ import { getChannelThingList } from "../../../channels/api/ChannelThingAPI";
 import { getHistoryList } from "../../../histories/api/HistoryAPI";
 import { getThingChannelList } from "../../../things/api/ThingChannelAPI";
 import { updateDashboard } from "../../api/DashboardAPI";
-import { editDashboard, getDashboardById } from "../../api/DashboardHelper";
+import { editDashboard, getDashboard, getDashboardById } from "../../api/DashboardHelper";
 import { WidgetDrawer } from "./Widget/WidgetDrawer";
 import { WidgetItem } from "./Widget/WidgetItem";
 
@@ -126,18 +126,37 @@ const LayoutBuilder = () => {
     }
   };
 
+  const onClickSaveLayout = () => {
+    const payload = getDashboard();
+    updateDashboard(userId, payload)
+      .then(() => toast.success("Layout saved successfully"))
+      .catch((error: any) => toast.error(error.message));
+  };
+
   return (
     <>
       <div className="card-header d-flex justify-content-between py-6 px-9">
         <div className="card-title"></div>
         <div className="card-toolbar">
-          <button type="button" className="btn btn-light mx-2" onClick={() => window.history.back()}>
+          <button type="button" className="btn btn-light" onClick={() => window.history.back()}>
             <i className="bi bi-arrow-left"></i>
             Back
           </button>
-          <button id="kt_widget_toggle" type="button" className="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-dismiss="click" data-bs-trigger="hover">
+          <button
+            id="kt_widget_toggle"
+            type="button"
+            className="btn btn-primary mx-2"
+            data-bs-toggle="tooltip"
+            data-bs-placement="left"
+            data-bs-dismiss="click"
+            data-bs-trigger="hover"
+          >
             <KTIcon iconName="plus" className="fs-2" />
             Add New Widget
+          </button>
+          <button type="button" className="btn btn-light-primary" onClick={onClickSaveLayout}>
+            <KTIcon iconName="save" className="fs-2" />
+            Save Layout
           </button>
         </div>
       </div>

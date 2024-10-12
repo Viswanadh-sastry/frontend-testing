@@ -3,11 +3,9 @@ import moment from "moment";
 import { useEffect, useRef, useState } from "react";
 import { Rnd } from "react-rnd";
 import { toast } from "react-toastify";
-import { useAuth } from "../../../../auth";
 import { getChannelThingList } from "../../../../channels/api/ChannelThingAPI";
 import { getHistoryList } from "../../../../histories/api/HistoryAPI";
 import { getThingChannelList } from "../../../../things/api/ThingChannelAPI";
-import { updateDashboard } from "../../../api/DashboardAPI";
 import { editDashboard } from "../../../api/DashboardHelper";
 
 interface IWidgetItemProps {
@@ -18,8 +16,6 @@ interface IWidgetItemProps {
 
 const WidgetItem = ({ widgetData, dashboardData }: IWidgetItemProps) => {
   const chartRef = useRef<HTMLDivElement | null>(null);
-  const { currentUser } = useAuth();
-  const { id: userId } = currentUser || { id: "" };
   const layoutData = {
     height: widgetData.layouts.widgetSize.height,
     width: widgetData.layouts.widgetSize.width,
@@ -255,14 +251,13 @@ const WidgetItem = ({ widgetData, dashboardData }: IWidgetItemProps) => {
               },
             },
           };
-          const payload = editDashboard({
+          editDashboard({
             ...dashboardData,
             data: {
               ...dashboardData.data,
               widgets: dashboardData.data.widgets.map((item: any) => (item.widgetId === widget.widgetId ? widget : item)),
             },
           });
-          updateDashboard(userId, payload);
         }}
         onResizeStop={(e, direction, ref, delta, position) => {
           setSelectedLayout({
@@ -288,14 +283,13 @@ const WidgetItem = ({ widgetData, dashboardData }: IWidgetItemProps) => {
               },
             },
           };
-          const payload = editDashboard({
+          editDashboard({
             ...dashboardData,
             data: {
               ...dashboardData.data,
               widgets: dashboardData.data.widgets.map((item: any) => (item.widgetId === widget.widgetId ? widget : item)),
             },
           });
-          updateDashboard(userId, payload);
         }}
       >
         <div className="d-flex justify-content-between w-100">

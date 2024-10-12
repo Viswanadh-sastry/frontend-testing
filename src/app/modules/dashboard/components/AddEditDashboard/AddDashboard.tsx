@@ -31,6 +31,10 @@ const AddDashboard = ({ onCloseAddDashboard, onGetDashboardList }: IAddDashboard
       const payload = addDashboard({
         id: uuidv4(),
         ...values,
+        layout: "",
+        data: {
+          widgets: [],
+        },
       });
       updateDashboard(userId, payload)
         .then(() => {

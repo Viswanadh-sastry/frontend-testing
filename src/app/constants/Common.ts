@@ -15,6 +15,10 @@ export const convertUnixTimestampToLocalDateTime = (unixTimestamp: any) => {
     if (!unixTimestamp) {
         return '';
     }
+    // Check if the unixTimestamp length is 10 digits
+    if (unixTimestamp.toString().length === 10) {
+        unixTimestamp = unixTimestamp * 1000000;
+    }
 
     // Convert from microseconds to milliseconds by dividing by 1,000
     const date = new Date(unixTimestamp / 1000);
