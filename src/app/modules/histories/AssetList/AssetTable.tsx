@@ -4,7 +4,7 @@ import { useLocation, useParams } from "react-router-dom";
 import { ColumnInstance, Row, useTable } from "react-table";
 import { toast } from "react-toastify";
 import { KTCardBody } from "../../../../_metronic/helpers";
-import { getHistoryList } from "../api/HistoryAPI";
+import { getHistoryListAll } from "../api/HistoryAPI";
 import { History } from "../api/_models";
 import { AssetListHeader } from "./AssetListHeader";
 import { CustomHeaderColumn } from "./columns/CustomHeaderColumn";
@@ -14,6 +14,7 @@ import { AssetListLoading } from "./pagination/AssetListLoading";
 import { AssetListPagination } from "./pagination/AssetListPagination";
 
 const AssetTable = () => {
+  const [data, setData] = useState<any>([]);
   const [filterAsset, setFilterAsset] = useState({
     limit: 100,
     offset: 0,
@@ -29,7 +30,7 @@ const AssetTable = () => {
   }
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10); // Dynamic items per page
+  const [itemsPerPage, setItemsPerPage] = useState<any>(10); // Dynamic items per page
   const params = useParams();
   const channelId = params.id;
 
@@ -48,7 +49,7 @@ const AssetTable = () => {
       if (channelId) {
         let channelListByThingId;
         if (filterAsset.name && filterAsset.name.length == 0) {
-          channelListByThingId = await getHistoryList(channelId, filterAsset);
+          channelListByThingId = await getHistoryListAll(channelId, filterAsset);
         }
         // when filterAsset.name.length > 0, we need to pass the name one by one to get the data
         if (filterAsset.name && filterAsset.name.length > 0) {
@@ -56,7 +57,7 @@ const AssetTable = () => {
           for (const name of filterAsset.name) {
             try {
               const filterWithName = { ...filterAsset, name: [name] }; // Pass the name one by one
-              const historyData = await getHistoryList(channelId, filterWithName);
+              const historyData = await getHistoryListAll(channelId, filterWithName);
               if (historyData.messages) {
                 channelList.push(...historyData.messages);
               }
@@ -79,7 +80,7 @@ const AssetTable = () => {
               for (const name of filterAsset.name) {
                 try {
                   const filterWithName = { ...filterAsset, name: [name] }; // Pass the name one by one
-                  const historyData = await getHistoryList(assetId, filterWithName);
+                  const historyData = await getHistoryListAll(assetId, filterWithName);
                   if (historyData.messages) {
                     channelList.push(...historyData.messages);
                   }
@@ -88,7 +89,7 @@ const AssetTable = () => {
                 }
               }
             } else {
-              const channelListByThingId = await getHistoryList(assetId, filterAsset);
+              const channelListByThingId = await getHistoryListAll(assetId, filterAsset);
               if (channelListByThingId.messages) {
                 channelList.push(...channelListByThingId.messages);
               }
@@ -103,11 +104,17 @@ const AssetTable = () => {
   });
 
   const isLoading = assetHistoryListQuery.isLoading;
-  const data = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    return (assetHistoryListQuery.data || []).slice(start, end);
+
+  useEffect(() => {
+    if (assetHistoryListQuery.data) {
+      setData(
+        (assetHistoryListQuery.data || []).filter((_: any, index: number) => {
+          return index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage;
+        })
+      );
+    }
   }, [assetHistoryListQuery.data, currentPage, itemsPerPage]);
+
   const columns = useMemo(() => assetColumns, []);
   const { getTableProps, getTableBodyProps, headers, rows, prepareRow } = useTable({
     columns,
@@ -146,9 +153,11 @@ const AssetTable = () => {
         <AssetListPagination
           assetHistoryListQuery={assetHistoryListQuery}
           currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
           itemsPerPage={itemsPerPage}
+          data={data}
+          setCurrentPage={setCurrentPage}
           setItemsPerPage={setItemsPerPage}
+          setData={setData}
         />
         {isLoading && <AssetListLoading />}
       </KTCardBody>

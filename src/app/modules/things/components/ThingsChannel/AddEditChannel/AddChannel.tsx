@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { KTIcon } from "../../../../../../_metronic/helpers";
 import { ThemeModeComponent } from "../../../../../../_metronic/assets/ts/layout";
-import { getChannelList } from "../../../../channels/api/ChannelsAPI";
+import { getChannelListAll } from "../../../../channels/api/ChannelsAPI";
 import { connectThingChannel } from "../../../api/ThingChannelAPI";
 
 interface IAddChannelProps {
@@ -33,7 +33,7 @@ const AddChannel = ({ onCloseAddChannel, onGetChannelList }: IAddChannelProps) =
 
   const channelListQuery = useQuery({
     queryKey: [`channelList`, filterChannel],
-    queryFn: async () => getChannelList(filterChannel).catch((error) => toast.error(error.message)),
+    queryFn: async () => getChannelListAll(filterChannel).catch((error) => toast.error(error.message)),
     enabled: true,
   });
 

@@ -1,6 +1,6 @@
 import { toAbsoluteUrl } from "../../../../../_metronic/helpers";
 import { getThingChannelList } from "../../../things/api/ThingChannelAPI";
-import { getHistoryList } from "../../../histories/api/HistoryAPI";
+import { getHistoryListAll } from "../../../histories/api/HistoryAPI";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import "./EditSensor.css"; // Add CSS for the progress bar
@@ -59,7 +59,7 @@ const EditSensor = ({ dashboardData }: IEditSensorProps) => {
         const filterWithPublisher = { ...filterDevice, publisher: channel.thingId };
 
         try {
-          const historyData = await getHistoryList(channel.id, filterWithPublisher);
+          const historyData = await getHistoryListAll(channel.id, filterWithPublisher);
           if (historyData.messages) {
             allHistoryData.push(...historyData.messages);
           }

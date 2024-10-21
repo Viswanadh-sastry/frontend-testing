@@ -87,7 +87,7 @@ const MembersListPagination = ({ filterMember, setFilterMember }: IMembersListPa
     if (!page || isLoading || pagination.page === page) {
       return;
     }
-    updateState({ page, items_per_page: pagination.items_per_page });
+    updateState({ page, items_per_page: filterMember.limit });
   };
 
   const PAGINATION_PAGES_COUNT = filterMember.limit;

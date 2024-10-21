@@ -8,7 +8,7 @@ import { useAuth } from "../../../../app/modules/auth/core/Auth";
 import { getCred } from "../../../../app/modules/auth/core/CredentialHelpers";
 import { getDomain, removeDAuth, setDomain } from "../../../../app/modules/auth/core/DomainHelpers";
 import { setRole } from "../../../../app/modules/auth/core/RoleHelpers";
-import { getDomainList } from "../../../../app/modules/domain/api/DomainAPI";
+import { getDomainListAll } from "../../../../app/modules/domain/api/DomainAPI";
 import { KTIcon, toAbsoluteUrl } from "../../../helpers";
 import { HeaderUserMenu, ThemeModeSwitcher } from "../../../partials";
 import { useLayout } from "../../core";
@@ -32,7 +32,7 @@ const Navbar = () => {
   };
   const domainListQuery = useQuery({
     queryKey: [`domainListQuery`, filterDomain],
-    queryFn: async () => getDomainList(filterDomain).catch((error) => toast.error(error.message)),
+    queryFn: async () => getDomainListAll(filterDomain).catch((error) => toast.error(error.message)),
     enabled: true,
   });
   // const isLoading = domainListQuery.isLoading;

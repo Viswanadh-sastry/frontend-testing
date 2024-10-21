@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { ThemeModeComponent } from "../../../../../../_metronic/assets/ts/layout";
 import { KTIcon, toAbsoluteUrl } from "../../../../../../_metronic/helpers";
-import { getThingList } from "../../../../things/api/ThingAPI";
+import { getThingListAll } from "../../../../things/api/ThingAPI";
 
 interface IAddWidgetProps {
   selectedLayout: any;
@@ -27,7 +27,7 @@ const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetPreviewWidgetList, i
   };
   const deviceListQuery = useQuery({
     queryKey: [`deviceList`, filterDevice],
-    queryFn: async () => getThingList(filterDevice).catch((error) => toast.error(error.message)),
+    queryFn: async () => getThingListAll(filterDevice).catch((error) => toast.error(error.message)),
     enabled: true,
   });
   const deviceList = deviceListQuery.data?.things.map((thing: any) => ({ label: thing.name, value: thing.id })) || [];

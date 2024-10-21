@@ -1,8 +1,9 @@
 import clsx from "clsx";
 import { FC, useState } from "react";
 import { Row } from "react-table";
-import { GroupActionsCell } from "./GroupActionsCell";
+import { convertGMTToLocalDateTime } from "../../../../../constants/Common";
 import { Group } from "../../../api/_models";
+import { GroupActionsCell } from "./GroupActionsCell";
 
 type Props = {
   row: Row<Group>;
@@ -95,7 +96,7 @@ const ChildRow: FC<ChildRowProps> = ({ child, parentCells, onRowClick, level }) 
                 </div>
               )
             ) : cell.column.id === "created_at" ? (
-              child.created_at
+              convertGMTToLocalDateTime(child.created_at)
             ) : cell.column.id === "status" ? (
               child.status === "enabled" ? (
                 <div className="badge badge-light-success fw-bolder">enabled</div>

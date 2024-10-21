@@ -4,7 +4,7 @@ import { Dispatch, SetStateAction, useRef, useState } from "react";
 import { Typeahead } from "react-bootstrap-typeahead";
 import { toast } from "react-toastify";
 import { KTIcon } from "../../../../_metronic/helpers";
-import { getThingList } from "../../things/api/ThingAPI";
+import { getThingListAll } from "../../things/api/ThingAPI";
 
 interface IAssetListHeaderProps {
   setFilterAsset: Dispatch<
@@ -36,7 +36,7 @@ const AssetListFilter = ({ setFilterAsset }: IAssetListHeaderProps) => {
 
   const deviceListQuery = useQuery({
     queryKey: [`deviceList`, filterDevice],
-    queryFn: async () => getThingList(filterDevice).catch((error) => toast.error(error.message)),
+    queryFn: async () => getThingListAll(filterDevice).catch((error) => toast.error(error.message)),
     enabled: true,
   });
 
@@ -129,11 +129,11 @@ const AssetListFilter = ({ setFilterAsset }: IAssetListHeaderProps) => {
               />
             </div>
           </div>
-          <div className="mb-5 mt-2">
+          <div className="mt-2">
             <label className="form-label fs-6 fw-bold">From Date</label>
             <input type="date" className="form-control" name="from" onChange={handleChange} value={filter.from ? new Date(filter.from).toISOString().split("T")[0] : ""} />
           </div>
-          <div className="mb-5">
+          <div className="mt-2 mb-5">
             <label className="form-label fs-6 fw-bold">To Date</label>
             <input type="date" className="form-control" name="to" onChange={handleChange} value={filter.to ? new Date(filter.to).toISOString().split("T")[0] : ""} />
           </div>

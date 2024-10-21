@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { KTIcon } from "../../../../../_metronic/helpers";
 import { getRolePermission, MODULENAME } from "../../../auth/core/RoleHelpers";
-import { getUserList } from "../../api/UserAPI";
+import { getUserListAll } from "../../api/UserAPI";
 
 interface IUsersListHeaderProps {
   onShowAddUser: () => void;
@@ -60,7 +60,7 @@ const UsersListHeader = ({ onShowAddUser, setFilterUser, onShowImportUser, filte
       tags: "",
       status: filterUser.status,
     };
-    return await getUserList(filterUsers).catch((error) => toast.error(error.message));
+    return await getUserListAll(filterUsers).catch((error) => toast.error(error.message));
   };
 
   const convertToCSV = (data: any[], headerOrder: string[]) => {

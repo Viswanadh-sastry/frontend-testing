@@ -14,6 +14,18 @@ export async function getAddUserList(domainId: string, data: any) {
     return response.data;
 }
 
+export async function getAddUserListAll(domainId: string, data: any) {
+    const query = searchChannelUser(data);
+    const response = await axios.get(`${API_URL}/domains/${domainId}/users${query}`);
+    const totalRecords = response.data.total;
+    for (let i = 100; i < totalRecords; i += 100) {
+        const query = searchChannelUser({ ...data, offset: i });
+        const result = await axios.get(`${API_URL}/domains/${domainId}/users${query}`);
+        response.data.users.push(...result.data.users);
+    }
+    return response.data;
+}
+
 export async function createChannelUser(id: string, data: any) {
     const response = await axios.post(`${API_URL}/channels/${id}/users/assign`, data);
     return response.data;

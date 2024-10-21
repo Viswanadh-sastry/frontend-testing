@@ -37,7 +37,7 @@ const AddUser = ({ onCloseAddUser, onGetUserList }: IAddUserProps) => {
           identity: values.identity,
           secret: values.secret,
         },
-        tags: values.tags.map((tag: any) => tag.label),
+        tags: values.tags.map((tag: any) => (tag.label ? tag.label : tag)),
         metadata: values.metadata,
         status: "enabled",
       };
@@ -169,7 +169,6 @@ const AddUser = ({ onCloseAddUser, onGetUserList }: IAddUserProps) => {
                         <label className="fw-bold fs-6 mb-2">Tags</label>
                         <Typeahead
                           id="tags"
-                          {...formik.getFieldProps("tags")}
                           allowNew
                           multiple
                           options={[]}

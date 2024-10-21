@@ -1,57 +1,29 @@
-import moment from "moment";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { KTCard, KTCardBody, KTIcon } from "../../../../../_metronic/helpers";
+import Swal from "sweetalert2";
+import { KTCardBody, KTIcon } from "../../../../../_metronic/helpers";
 import { useAuth } from "../../../auth";
-import { getHistoryList } from "../../../histories/api/HistoryAPI";
 import { updateDashboard } from "../../api/DashboardAPI";
-import { editDashboard, getDashboard, getDashboardById } from "../../api/DashboardHelper";
+import { deleteWidgetById, editDashboard, getDashboard, getDashboardById, updateWidgetById } from "../../api/DashboardHelper";
+import { EditView } from "./Widget/EditView";
 import { WidgetDrawer } from "./Widget/WidgetDrawer";
 import { WidgetItem } from "./Widget/WidgetItem";
 
 const LayoutBuilder = () => {
-  const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { id: userId } = currentUser || { id: "" };
+  const handle = useFullScreenHandle();
   const params = useParams();
   const id = params.id as string;
-  const dashboard = getDashboardById(id);
+  const [dashboard, setDashboard] = useState<any>(getDashboardById(id));
+  const [editWidget, setEditWidget] = useState({
+    open: false,
+    data: null,
+  });
 
   const refreshChart = async (data: any) => {
-    // Set the current time for from and to
-    let fromTime: number = 0;
-    let toTime: number = 0;
-    if (data.timeline === "0") {
-      fromTime = moment.utc(data.fromDate).startOf("day").valueOf() * 1000;
-      toTime = moment.utc(data.toDate).startOf("day").valueOf() * 1000;
-    } else {
-      fromTime = moment.utc(moment().subtract(data.timeline, "days").format("YYYY-MM-DD")).startOf("day").valueOf() * 1000;
-      toTime = moment.utc(moment().format("YYYY-MM-DD")).startOf("day").valueOf() * 1000;
-    }
-
-    const allHistoryData = [];
-    const filterDevice = {
-      limit: 100,
-      offset: 0,
-      thingId: [],
-      status: "enabled",
-      name: data.tempSensorTypeList[0],
-      from: fromTime,
-      to: toTime,
-      publisher: "",
-    };
-    for (const device of data.uniqueDeviceList) {
-      const filterWithPublisher = { ...filterDevice, publisher: device.thingId };
-      try {
-        const historyData = await getHistoryList(device.channelId, filterWithPublisher);
-        if (historyData.messages) {
-          allHistoryData.push(...historyData.messages);
-        }
-      } catch (error: any) {
-        toast.error(error.message);
-      }
-    }
-
     // Save the dashboard
     const selectedLayout = {
       height: 400,
@@ -80,7 +52,7 @@ const LayoutBuilder = () => {
       });
       await updateDashboard(userId, payload);
       toast.success("Widget saved successfully");
-      navigate(`/dashboard/${id}/layout`);
+      setDashboard(getDashboardById(id));
     } catch (error: any) {
       toast.error(error.message);
     }
@@ -93,45 +65,136 @@ const LayoutBuilder = () => {
       .catch((error: any) => toast.error(error.message));
   };
 
+  const onOpenWidget = (data: any) => {
+    const layout = data.layouts;
+    const metadata = data.metadata;
+    const devices = metadata.parameters.map((parameter: any) => {
+      if (parameter.type === "thing") {
+        return {
+          deviceLabel: parameter.type,
+          deviceValue: parameter.thing,
+          deviceName: parameter.thingName,
+          sensorType: parameter.sensorType,
+        };
+      } else {
+        return {
+          deviceLabel: parameter.type,
+          deviceValue: parameter.channel,
+          sensorType: parameter.sensorType,
+        };
+      }
+    });
+    const payload: any = {
+      id: data.widgetId,
+      name: metadata.title,
+      devices: devices,
+      timeline: metadata.timeline,
+      fromDate: metadata.fromDate,
+      toDate: metadata.toDate,
+      interval: metadata.updateInterval,
+      layout: layout.widgetType,
+      uniqueDeviceList: [],
+      tempSensorTypeList: [],
+    };
+    setEditWidget({ open: true, data: payload });
+  };
+
+  const onCloseWidget = () => {
+    setEditWidget({ open: false, data: null });
+  };
+
+  const onSaveWidget = (data: any) => {
+    const widgetData = updateToMetadata(data, data.uniqueDeviceList);
+    const payload = updateWidgetById(id, widgetData);
+    updateDashboard(userId, payload)
+      .then(() => {
+        toast.success("Widget updated successfully");
+        setEditWidget({ open: false, data: null });
+        setDashboard(getDashboardById(id));
+      })
+      .catch((error: any) => toast.error(error.message));
+  };
+
+  const onRemoveWidget = (widgetId: string) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Are you sure you want to delete this record?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+      customClass: {
+        confirmButton: "btn btn-danger",
+        cancelButton: "btn btn-secondary",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const payload = deleteWidgetById(id, widgetId);
+        updateDashboard(userId, payload)
+          .then(() => {
+            toast.success("Widget removed successfully");
+            setDashboard(getDashboardById(id));
+          })
+          .catch((error: any) => toast.error(error.message));
+      }
+    });
+  };
+
   return (
     <>
       <div className="card-header d-flex justify-content-between py-6 px-9">
         <div className="card-title"></div>
         <div className="card-toolbar">
-          <button type="button" className="btn btn-light" onClick={() => window.history.back()}>
+          <button type="button" className="btn btn-light mx-2" onClick={() => window.history.back()}>
             <i className="bi bi-arrow-left"></i>
             Back
           </button>
-          <button
-            id="kt_widget_toggle"
-            type="button"
-            className="btn btn-primary mx-2"
-            data-bs-toggle="tooltip"
-            data-bs-placement="left"
-            data-bs-dismiss="click"
-            data-bs-trigger="hover"
-          >
+          <button type="button" className="btn btn-light-primary" onClick={handle.enter}>
+            <KTIcon iconName="maximize" className="fs-2" />
+            Full Screen
+          </button>
+          <button type="button" className="btn btn-light-primary mx-2" onClick={onClickSaveLayout}>
+            <KTIcon iconName="save-2" className="fs-2" />
+            Save Layout
+          </button>
+          <button id="kt_widget_toggle" type="button" className="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-dismiss="click" data-bs-trigger="hover">
             <KTIcon iconName="plus" className="fs-2" />
             Add New Widget
           </button>
-          <button type="button" className="btn btn-light-primary" onClick={onClickSaveLayout}>
-            <KTIcon iconName="save" className="fs-2" />
-            Save Layout
-          </button>
         </div>
       </div>
-      <KTCard className="h-1000px">
-        <KTCardBody className="py-4">
-          {dashboard?.data?.widgets?.map((widget: any, index: number) => (
-            <WidgetItem
-              key={index}
-              widgetData={widget}
-              dashboardData={dashboard}
-              onSaveDashboard={(inputData: any, selectedLayout: any, deviceList: any[]) => saveDashboard(inputData, selectedLayout, deviceList)}
-            />
-          ))}
-        </KTCardBody>
-      </KTCard>
+      <FullScreen handle={handle}>
+        <div
+          className="card"
+          style={{
+            width: "1920px",
+            height: "1080px",
+            background: `
+            linear-gradient(-90deg, rgba(0, 0, 0, .04) 1px, transparent 1px),
+            linear-gradient(rgba(0, 0, 0, .04) 1px, transparent 1px),
+            #f2f2f2
+          `,
+            backgroundSize: `
+            12px 12px,
+            12px 12px,
+            80px 80px,
+            80px 80px,
+            80px 80px,
+            80px 80px,
+            80px 80px,
+            80px 80px
+          `,
+            backgroundColor: "#f2f2f2",
+          }}
+        >
+          <KTCardBody className="py-4">
+            {dashboard?.data?.widgets?.map((widget: any, index: number) => (
+              <WidgetItem key={index} widgetData={widget} editWidget={(data) => onOpenWidget(data)} removeWidget={(id) => onRemoveWidget(id)} />
+            ))}
+          </KTCardBody>
+        </div>
+        {editWidget.open && <EditView inputData={editWidget.data} onEditView={(data) => onSaveWidget(data)} onClose={onCloseWidget} />}
+      </FullScreen>
       <WidgetDrawer onGetPreviewWidget={(data) => refreshChart(data)} />
     </>
   );
@@ -193,3 +256,39 @@ const convertToJson = (inputData: any, selectedLayout: any, deviceList: any[]) =
     },
   ];
 };
+
+const updateToMetadata = (inputData: any, deviceList: any[]) => ({
+  widgetId: inputData.id,
+  metadata: {
+    parameters: inputData.devices.map((device: any) => {
+      if (device.deviceLabel === "thing") {
+        return {
+          type: device.deviceLabel,
+          thing: device.deviceValue,
+          thingName: device.deviceName,
+          sensorType: device.sensorType,
+        };
+      } else {
+        return {
+          type: device.deviceLabel,
+          channel: device.deviceValue,
+          thing: deviceList
+            .filter((deviceItem: any) => deviceItem.channelId === device.deviceValue)
+            .map((deviceItem: any) => {
+              return {
+                thingId: deviceItem.thingId,
+                thingName: deviceItem.thingName,
+              };
+            }),
+          sensorType: device.sensorType,
+        };
+      }
+    }),
+    updateInterval: inputData.interval,
+    timeline: inputData.timeline,
+    fromDate: inputData.fromDate,
+    toDate: inputData.toDate,
+    aggregationType: "",
+    title: inputData.name,
+  },
+});

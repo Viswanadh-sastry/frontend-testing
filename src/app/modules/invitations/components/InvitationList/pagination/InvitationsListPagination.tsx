@@ -87,7 +87,7 @@ const InvitationsListPagination = ({ filterInvitation, setFilterInvitation }: II
     if (!page || isLoading || pagination.page === page) {
       return;
     }
-    updateState({ page, items_per_page: pagination.items_per_page });
+    updateState({ page, items_per_page: filterInvitation.limit });
   };
 
   const PAGINATION_PAGES_COUNT = filterInvitation.limit;

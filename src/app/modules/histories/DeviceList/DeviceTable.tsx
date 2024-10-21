@@ -5,7 +5,7 @@ import { ColumnInstance, Row, useTable } from "react-table";
 import { toast } from "react-toastify";
 import { KTCardBody } from "../../../../_metronic/helpers";
 import { getThingChannelList } from "../../things/api/ThingChannelAPI";
-import { getHistoryList } from "../api/HistoryAPI";
+import { getHistoryListAll } from "../api/HistoryAPI";
 import { History } from "../api/_models";
 import { DeviceListHeader } from "./DeviceListHeader";
 import { CustomHeaderColumn } from "./columns/CustomHeaderColumn";
@@ -15,6 +15,7 @@ import { DeviceListLoading } from "./pagination/DeviceListLoading";
 import { DeviceListPagination } from "./pagination/DeviceListPagination";
 
 const DeviceTable = () => {
+  const [data, setData] = useState<any>([]);
   const [filterDevice, setFilterDevice] = useState({
     limit: 100, // Always fetch 100 records from the API
     offset: 0,
@@ -27,7 +28,7 @@ const DeviceTable = () => {
   });
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10); // Dynamic items per page
+  const [itemsPerPage, setItemsPerPage] = useState<any>(10); // Dynamic items per page
 
   const filterGroupChannel = {
     offset: 0,
@@ -94,7 +95,7 @@ const DeviceTable = () => {
         const filterWithPublisher = { ...filterDevice, publisher: channel.thingId };
 
         try {
-          const historyData = await getHistoryList(channel.id, filterWithPublisher);
+          const historyData = await getHistoryListAll(channel.id, filterWithPublisher);
           if (historyData.messages) {
             allHistoryData.push(...historyData.messages);
           }
@@ -110,11 +111,14 @@ const DeviceTable = () => {
 
   const isLoading = deviceHistoryListQuery.isLoading || channelListByThingIdQuery.isLoading;
 
-  // Paginate the data based on currentPage and itemsPerPage
-  const data = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    return (deviceHistoryListQuery.data || []).slice(start, end);
+  useEffect(() => {
+    if (deviceHistoryListQuery.data) {
+      setData(
+        (deviceHistoryListQuery.data || []).filter((_: any, index: number) => {
+          return index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage;
+        })
+      );
+    }
   }, [deviceHistoryListQuery.data, currentPage, itemsPerPage]);
 
   const columns = useMemo(() => assetColumns, []);
@@ -155,9 +159,11 @@ const DeviceTable = () => {
         <DeviceListPagination
           deviceHistoryListQuery={deviceHistoryListQuery}
           currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
           itemsPerPage={itemsPerPage}
+          data={data}
+          setCurrentPage={setCurrentPage}
           setItemsPerPage={setItemsPerPage}
+          setData={setData}
         />
         {isLoading && <DeviceListLoading />}
       </KTCardBody>

@@ -8,6 +8,18 @@ export async function getMemberList(domainId: string, data: any) {
     return response.data;
 }
 
+export async function getMemberListAll(domainId: string, data: any) {
+    const query = searchMember(data);
+    const response = await axios.get(`${API_URL}/domains/${domainId}/users?limit=${data.limit}&offset=${data.offset}${query}`);
+    const totalRecords = response.data.total;
+    for (let i = 100; i < totalRecords; i += 100) {
+        const query = searchMember({ ...data, offset: i });
+        const result = await axios.get(`${API_URL}/domains/${domainId}/users?limit=${data.limit}&offset=${data.offset}${query}`);
+        response.data.users.push(...result.data.users);
+    }
+    return response.data;
+}
+
 export async function getMember(domainId: string, userId: string) {
     const response = await axios.get(`${API_URL}/domains/${domainId}/users/${userId}`);
     return response.data;

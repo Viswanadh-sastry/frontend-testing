@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTable, ColumnInstance, Row } from "react-table";
 import { toast } from "react-toastify";
 import { KTCard, KTCardBody } from "../../../../../_metronic/helpers";
-import { getGroupList } from "../../api/GroupAPI";
+import { getGroupListAll } from "../../api/GroupAPI";
 import { Group } from "../../api/_models";
 import { AddGroup } from "../AddEditGroup/AddGroup";
 import { GroupListHeader } from "./GroupListHeader";
@@ -30,7 +30,7 @@ const GroupTable: FC = () => {
 
   const groupListQuery = useQuery({
     queryKey: [`groupList`, filterGroup],
-    queryFn: async () => getGroupList(filterGroup).catch((error) => toast.error(error.message)),
+    queryFn: async () => getGroupListAll(filterGroup).catch((error) => toast.error(error.message)),
     enabled: true,
   });
 

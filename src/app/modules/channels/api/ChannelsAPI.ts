@@ -8,6 +8,18 @@ export async function getChannelList(data: any) {
     return response.data;
 }
 
+export async function getChannelListAll(data: any) {
+    const query = searchChannel(data);
+    const response = await axios.get(`${API_URL}/channels${query}`);
+    const totalRecords = response.data.total;
+    for (let i = 100; i < totalRecords; i += 100) {
+        const query = searchChannel({ ...data, offset: i });
+        const result = await axios.get(`${API_URL}/channels${query}`);
+        response.data.groups.push(...result.data.groups);
+    }
+    return response.data;
+}
+
 export async function createChannel(data: any) {
     const response = await axios.post(`${API_URL}/channels`, data);
     return response.data;

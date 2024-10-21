@@ -1,0 +1,118 @@
+.temperature-display {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.progress-bar-container {
+    position: relative;
+    height: 20px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #ff4500;
+    border-radius: 10px;
+}
+
+.progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #666;
+}
+
+
+/* vertical */
+
+/* For vertical progress bar */
+.progress-bar-container.vertical {
+    position: relative;
+    height: 200px;
+    /* Adjust height as needed */
+    width: 40px;
+    /* Adjust width as needed */
+    background-color: #f1f1f1;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-bar-container.vertical .progress-bar {
+    position: absolute;
+    bottom: 0;
+    /* Start the progress from the bottom */
+    background-color: #ff5722;
+    height: 0;
+    transition: height 0.5s ease;
+}
+
+.progress-labels-vertical {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.progress-labels span {
+    font-size: 12px;
+    color: #333;
+}
+
+.temperature-display-vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 15px;
+}
+
+
+/* horizontal line card */
+
+/* HorizontalLineCard specific styles */
+.horizontal-line-card-container {
+    margin-top: 10px;
+    padding: 0 15px;
+}
+
+.horizontal-line-card {
+    position: relative;
+    width: 100%;
+}
+
+.horizontal-line-card .temperature-line {
+    position: relative;
+    height: 4px;
+    /* Make the bar thin */
+    background-color: #ddd;
+    /* Background for the unfilled part */
+    width: 100%;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.horizontal-line-card .temperature-progress {
+    height: 100%;
+    background-color: #ff5722;
+    /* Orange color for the filled part */
+    border-radius: 2px;
+    transition: width 0.4s ease-in-out;
+}
+
+.horizontal-line-card .line-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+}
+
+.horizontal-line-card .line-labels span {
+    font-size: 12px;
+    color: #333;
+}
+
+.horizontal-line-card .temperature-value {
+    margin-top: 10px;
+    font-size: 16px;
+    color: #333;
+}

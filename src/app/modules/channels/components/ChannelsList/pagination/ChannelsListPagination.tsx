@@ -86,7 +86,7 @@ const ChannelsListPagination = ({ filterChannel, setFilterChannel }: IChannelsLi
     if (!page || isLoading || pagination.page === page) {
       return;
     }
-    updateState({ page, items_per_page: pagination.items_per_page });
+    updateState({ page, items_per_page: filterChannel.limit });
   };
 
   const PAGINATION_PAGES_COUNT = filterChannel.limit;

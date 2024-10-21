@@ -42,6 +42,7 @@
     "react-copy-to-clipboard": "5.1.0",
     "react-dom": "^18.2.0",
     "react-flatpickr": "^3.10.13",
+    "react-full-screen": "^1.1.1",
     "react-inlinesvg": "4.1.0",
     "react-intl": "^6.4.4",
     "react-query": "3.38.0",

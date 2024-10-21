@@ -8,6 +8,18 @@ export async function getUserList(data?: any) {
     return response.data;
 }
 
+export async function getUserListAll(data?: any) {
+    const query = searchUser(data);
+    const response = await axios.get(`${API_URL}/users${query}`);
+    const totalRecords = response.data.total;
+    for (let i = 100; i < totalRecords; i += 100) {
+        const query = searchUser({ ...data, offset: i });
+        const result = await axios.get(`${API_URL}/users${query}`);
+        response.data.users.push(...result.data.users);
+    }
+    return response.data;
+}
+
 export async function createUser(data: any) {
     const response = await axios.post(`${API_URL}/users`, data);
     return response.data;

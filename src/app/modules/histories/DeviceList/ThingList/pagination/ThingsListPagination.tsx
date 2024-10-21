@@ -86,7 +86,7 @@ const ThingsListPagination = ({ filterThing, setFilterThing }: IThingsListPagina
     if (!page || isLoading || pagination.page === page) {
       return;
     }
-    updateState({ page, items_per_page: pagination.items_per_page });
+    updateState({ page, items_per_page: filterThing.limit });
   };
 
   const PAGINATION_PAGES_COUNT = filterThing.limit;

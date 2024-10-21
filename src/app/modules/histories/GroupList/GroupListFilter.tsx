@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useRef, useState } from "react";
 import { KTIcon } from "../../../../_metronic/helpers";
 import { Typeahead } from "react-bootstrap-typeahead";
 import { useQuery } from "@tanstack/react-query";
-import { getThingList } from "../../things/api/ThingAPI";
+import { getThingListAll } from "../../things/api/ThingAPI";
 import { toast } from "react-toastify";
 import moment from "moment";
 
@@ -36,7 +36,7 @@ const GroupListFilter = ({ setFilterGroup }: IGroupListHeaderProps) => {
 
   const deviceListQuery = useQuery({
     queryKey: [`deviceList`, filterDevice],
-    queryFn: async () => getThingList(filterDevice).catch((error) => toast.error(error.message)),
+    queryFn: async () => getThingListAll(filterDevice).catch((error) => toast.error(error.message)),
     enabled: true,
   });
 

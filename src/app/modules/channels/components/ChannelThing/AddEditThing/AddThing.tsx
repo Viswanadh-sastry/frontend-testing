@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { KTIcon } from "../../../../../../_metronic/helpers";
 import { ThemeModeComponent } from "../../../../../../_metronic/assets/ts/layout";
-import { getThingList } from "../../../../things/api/ThingAPI";
+import { getThingListAll } from "../../../../things/api/ThingAPI";
 import { connectChannelThing } from "../../../api/ChannelThingAPI";
 
 interface IAddThingProps {
@@ -36,7 +36,7 @@ const AddThing = ({ onCloseAddThing, onGetThingList }: IAddThingProps) => {
 
   const thingListQuery = useQuery({
     queryKey: [`thingList`, filterThing],
-    queryFn: async () => getThingList(filterThing).catch((error) => toast.error(error.message)),
+    queryFn: async () => getThingListAll(filterThing).catch((error) => toast.error(error.message)),
     enabled: true,
   });
 

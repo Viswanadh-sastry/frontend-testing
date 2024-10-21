@@ -9,6 +9,18 @@ export async function getGroupList(data: any) {
     return response.data;
 }
 
+export async function getGroupListAll(data: any) {
+    const query = searchGroup(data);
+    const response = await axios.get(`${API_URL}/groups${query}`);
+    const totalRecords = response.data.total;
+    for (let i = 100; i < totalRecords; i += 100) {
+        const query = searchGroup({ ...data, offset: i });
+        const result = await axios.get(`${API_URL}/groups${query}`);
+        response.data.groups.push(...result.data.groups);
+    }
+    return response.data;
+}
+
 export async function createGroup(data: any) {
     const response = await axios.post(`${API_URL}/groups`, data);
     return response.data;

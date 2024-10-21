@@ -8,6 +8,18 @@ export async function getThingList(data: any) {
     return response.data;
 }
 
+export async function getThingListAll(data: any) {
+    const query = searchThing(data);
+    const response = await axios.get(`${API_URL}/things${query}`);
+    const totalRecords = response.data.total;
+    for (let i = 100; i < totalRecords; i += 100) {
+        const query = searchThing({ ...data, offset: i });
+        const result = await axios.get(`${API_URL}/things${query}`);
+        response.data.things.push(...result.data.things);
+    }
+    return response.data;
+}
+
 export async function createThing(data: any) {
     const response = await axios.post(`${API_URL}/things`, data);
     return response.data;

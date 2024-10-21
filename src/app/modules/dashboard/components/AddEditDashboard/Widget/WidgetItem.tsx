@@ -1,20 +1,24 @@
-import ApexCharts, { ApexOptions } from "apexcharts";
+import ApexCharts from "apexcharts";
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
 import { Rnd } from "react-rnd";
+import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getChannelThingList } from "../../../../channels/api/ChannelThingAPI";
-import { getHistoryList } from "../../../../histories/api/HistoryAPI";
+import { getHistoryListAll } from "../../../../histories/api/HistoryAPI";
+import { getThing } from "../../../../things/api/ThingAPI";
 import { getThingChannelList } from "../../../../things/api/ThingChannelAPI";
-import { editDashboard } from "../../../api/DashboardHelper";
+import { editDashboard, getChartOptions, getDashboardById } from "../../../api/DashboardHelper";
 
 interface IWidgetItemProps {
   widgetData: any;
-  dashboardData: any;
-  onSaveDashboard: (inputData: any, selectedLayout: any, deviceList: any[]) => void;
+  editWidget: (data: any) => void;
+  removeWidget: (id: any) => void;
 }
 
-const WidgetItem = ({ widgetData, dashboardData }: IWidgetItemProps) => {
+const WidgetItem = ({ widgetData, editWidget, removeWidget }: IWidgetItemProps) => {
+  const params = useParams();
+  const id = params.id as string;
   const chartRef = useRef<HTMLDivElement | null>(null);
   const layoutData = {
     height: widgetData.layouts.widgetSize.height,
@@ -35,7 +39,7 @@ const WidgetItem = ({ widgetData, dashboardData }: IWidgetItemProps) => {
     // alignItems: "center",
     // justifyContent: "center",
     border: "solid 1px #ddd",
-    background: "#f0f0f0",
+    background: "#fff",
   };
 
   useEffect(() => {
@@ -69,6 +73,12 @@ const WidgetItem = ({ widgetData, dashboardData }: IWidgetItemProps) => {
       };
       refreshChart(data);
     }
+
+    return () => {
+      if (chartRef.current) {
+        chartRef.current.innerHTML = "";
+      }
+    };
   }, [widgetData]);
 
   const refreshChart = async (data: any) => {
@@ -143,9 +153,22 @@ const WidgetItem = ({ widgetData, dashboardData }: IWidgetItemProps) => {
     for (const device of deviceList) {
       const filterWithPublisher = { ...filterDevice, publisher: device.thingId };
       try {
-        const historyData = await getHistoryList(device.channelId, filterWithPublisher);
+        const historyData = await getHistoryListAll(device.channelId, filterWithPublisher);
         if (historyData.messages) {
           allHistoryData.push(...historyData.messages);
+
+          // Check device's Alert_Threshold value with history data
+          getThing(device.thingId).then((thingData) => {
+            if (thingData.metadata) {
+              const alertThreshold = thingData.metadata.Alert_Threshold;
+              if (alertThreshold) {
+                const alertData = historyData.messages.filter((message: any) => message.value > alertThreshold);
+                if (alertData.length > 0) {
+                  toast.warning(`Widget: ${data.name} - Device: ${device.thingName} has exceeded the alert threshold`);
+                }
+              }
+            }
+          });
         }
       } catch (error: any) {
         toast.error(error.message);
@@ -160,15 +183,11 @@ const WidgetItem = ({ widgetData, dashboardData }: IWidgetItemProps) => {
         ...selectedLayout,
         title: data.name,
       });
-
-      // Save the dashboard
-      // onSaveDashboard(data, selectedLayout, deviceList);
     }
     return chart;
   };
 
   const submitChart = async (sensorType: string) => {
-    console.log("inputData", inputData);
     // Set the current time for from and to
     let fromTime: number = 0;
     let toTime: number = 0;
@@ -194,9 +213,22 @@ const WidgetItem = ({ widgetData, dashboardData }: IWidgetItemProps) => {
     for (const device of deviceData) {
       const filterWithPublisher = { ...filterDevice, publisher: device.thingId };
       try {
-        const historyData = await getHistoryList(device.channelId, filterWithPublisher);
+        const historyData = await getHistoryListAll(device.channelId, filterWithPublisher);
         if (historyData.messages) {
           allHistoryData.push(...historyData.messages);
+
+          // Check device's Alert_Threshold value with history data
+          getThing(device.thingId).then((thingData) => {
+            if (thingData.metadata) {
+              const alertThreshold = thingData.metadata.Alert_Threshold;
+              if (alertThreshold) {
+                const alertData = historyData.messages.filter((message: any) => message.value > alertThreshold);
+                if (alertData.length > 0) {
+                  toast.warning(`Widget: ${inputData.name} - Device: ${device.thingName} has exceeded the alert threshold`);
+                }
+              }
+            }
+          });
         }
       } catch (error: any) {
         toast.error(error.message);
@@ -249,6 +281,7 @@ const WidgetItem = ({ widgetData, dashboardData }: IWidgetItemProps) => {
               },
             },
           };
+          const dashboardData = getDashboardById(id);
           editDashboard({
             ...dashboardData,
             data: {
@@ -281,6 +314,7 @@ const WidgetItem = ({ widgetData, dashboardData }: IWidgetItemProps) => {
               },
             },
           };
+          const dashboardData = getDashboardById(id);
           editDashboard({
             ...dashboardData,
             data: {
@@ -294,7 +328,13 @@ const WidgetItem = ({ widgetData, dashboardData }: IWidgetItemProps) => {
           <div>
             <h4>{selectedLayout.title}</h4>
           </div>
-          <div>
+          <div className="d-flex">
+            <button type="button" className="btn btn-sm btn-icon btn-color-primary btn-active-light-primary" onClick={() => editWidget(widgetData)}>
+              <i className="bi bi-pencil fs-6"></i>
+            </button>
+            <button type="button" className="btn btn-sm btn-icon btn-color-danger btn-active-light-danger mx-2" onClick={() => removeWidget(widgetData.widgetId)}>
+              <i className="bi bi-trash fs-6"></i>
+            </button>
             {sensorTypeList.length > 0 && (
               <select className="form-select form-select-sm" aria-label=".form-select-sm example" onChange={onSelectSensorType}>
                 {sensorTypeList.map((sensorType: any, index: number) => (
@@ -310,8 +350,8 @@ const WidgetItem = ({ widgetData, dashboardData }: IWidgetItemProps) => {
           ref={chartRef}
           id="kt_charts_widget"
           style={{
-            height: `${selectedLayout.height - 85}px`, // Deducting some space for padding/margins if needed
-            width: `${selectedLayout.width - 40}px`,
+            height: `calc(100% - 80px)`, // Using calc to dynamically adjust the height
+            width: `calc(100% - 40px)`, // Adjust the width dynamically as well
           }}
         ></div>
       </Rnd>
@@ -320,327 +360,3 @@ const WidgetItem = ({ widgetData, dashboardData }: IWidgetItemProps) => {
 };
 
 export { WidgetItem };
-
-// Final code for getChartOptions function
-function getChartOptions(sensorType: string, inputData: any, deviceData: any, messages: any): ApexOptions {
-  const categories: any = [];
-  if (inputData.timeline === "0") {
-    for (let i = moment.utc(inputData.fromDate).startOf("day").valueOf(); i <= moment.utc(inputData.toDate).startOf("day").valueOf(); i += 86400000) {
-      categories.push({
-        timeInFromTimestamp: i * 1000,
-        timeInToTimestamp: (i + 86400000) * 1000,
-        timeInDisplay: moment.utc(i).format("DD/MM"),
-      });
-    }
-  } else {
-    for (let i = inputData.timeline - 1; i >= 0; i--) {
-      categories.push({
-        timeInFromTimestamp: moment.utc(moment().subtract(i, "days").format("YYYY-MM-DD")).startOf("day").valueOf() * 1000,
-        timeInToTimestamp: moment.utc(moment().subtract(i, "days").format("YYYY-MM-DD")).endOf("day").valueOf() * 1000,
-        timeInDisplay: moment().subtract(i, "days").format("DD/MM"),
-      });
-    }
-  }
-  console.log("categories", categories);
-
-  const series: any = [];
-  deviceData.map((device: any) => {
-    const categoryData: any = [];
-    categories.map((category: any) => {
-      // Filter messages per device and category (day)
-      const data = messages.filter(
-        (message: any) => message.publisher === device.thingId && message.time > category.timeInFromTimestamp && message.time < category.timeInToTimestamp
-      );
-
-      // For histogram, we use the count of messages
-      categoryData.push(data.length || 0);
-    });
-
-    series.push({
-      name: device.thingName,
-      data: categoryData,
-    });
-  });
-  console.log("deviceData", deviceData);
-  console.log("series", series);
-
-  // Chart Options for different layouts
-  const { layout } = inputData;
-  if (layout === "pie" || layout === "donut") {
-    return {
-      series: series.map((series: any) => series.data.reduce((a: any, b: any) => a + b, 0)),
-      chart: {
-        height: 300,
-        type: layout,
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      labels: deviceData.map((device: any) => device.thingName),
-      colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
-    };
-  } else if (layout === "histogram") {
-    return {
-      series: series,
-      chart: {
-        height: 300,
-        type: layout,
-      },
-      plotOptions: {
-        bar: {
-          horizontal: false,
-          borderRadius: 4,
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      xaxis: {
-        categories: categories.map((category: any) => category.timeInDisplay),
-      },
-      yaxis: {
-        title: {
-          text: sensorType,
-        },
-      },
-      colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
-    };
-  } else if (layout === "radialBar") {
-    return {
-      series: series.map((series: any) => series.data.reduce((a: any, b: any) => a + b, 0)),
-      chart: {
-        height: 300,
-        type: layout,
-      },
-      plotOptions: {
-        radialBar: {
-          dataLabels: {
-            total: {
-              show: true,
-              label: "Total",
-            },
-          },
-        },
-      },
-      labels: deviceData.map((device: any) => device.thingName),
-      colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
-    };
-  } else if (layout === "scatter") {
-    return {
-      series: series,
-      chart: {
-        height: 300,
-        type: layout,
-      },
-      xaxis: {
-        categories: categories.map((category: any) => category.timeInDisplay),
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
-    };
-  } else if (layout === "heatmap") {
-    return {
-      series: series,
-      chart: {
-        height: 300,
-        type: layout,
-      },
-      plotOptions: {
-        heatmap: {
-          shadeIntensity: 0.5,
-          colorScale: {
-            ranges: [
-              { from: 0, to: 25, color: "#00A100" },
-              { from: 26, to: 50, color: "#128FD9" },
-              { from: 51, to: 75, color: "#FFB200" },
-              { from: 76, to: 100, color: "#FF0000" },
-            ],
-          },
-        },
-      },
-      xaxis: {
-        categories: categories.map((category: any) => category.timeInDisplay),
-      },
-      dataLabels: {
-        enabled: false,
-      },
-    };
-  } else if (layout === "radar") {
-    return {
-      series: series,
-      chart: {
-        height: 300,
-        type: layout,
-      },
-      labels: deviceData.map((device: any) => device.thingName),
-      dataLabels: {
-        enabled: false,
-      },
-      colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
-    };
-  } else if (layout === "polarArea") {
-    const seriesData = series.map((series: any) => {
-      // Ensure that we sum up valid numerical data for each device
-      return series.data.reduce((a: number, b: number) => a + (b || 0), 0);
-    });
-
-    return {
-      series: seriesData, // Pass the summed up data
-      chart: {
-        height: 300,
-        type: layout,
-      },
-      labels: deviceData.map((device: any) => device.thingName),
-      dataLabels: {
-        enabled: false,
-      },
-      colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
-      fill: {
-        opacity: 0.8,
-      },
-      stroke: {
-        width: 1,
-      },
-    };
-  } else if (layout === "treemap") {
-    return {
-      series: [
-        {
-          data: deviceData.map((device: any) => ({
-            x: device.name,
-            y: series.find((series: any) => series.name === device.thingName)?.data.reduce((a: any, b: any) => a + b, 0),
-          })),
-        },
-      ],
-      chart: {
-        height: 300,
-        type: layout,
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
-    };
-  } else if (layout === "rangeBar") {
-    return {
-      series: deviceData.map((device: any) => ({
-        name: device.name,
-        data: categories.map((category: any, index: number) => {
-          const value = series.find((series: any) => series.name === device.thingName)?.data[index];
-          return {
-            x: category.timeInDisplay,
-            y: value === 0 ? [0, 0] : [value - 5, value + 5],
-          };
-        }),
-      })),
-      chart: {
-        height: 300,
-        type: layout,
-      },
-      plotOptions: {
-        bar: {
-          horizontal: true,
-        },
-      },
-      xaxis: {
-        categories: categories.map((category: any) => category.timeInDisplay),
-      },
-      colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
-    };
-  } else if (layout === "candlestick") {
-    return {
-      series: deviceData.map((device: any) => ({
-        name: device.thingName,
-        data: categories.map((category: any, index: number) => {
-          const value = series.find((series: any) => series.name === device.thingName)?.data[index];
-          return {
-            x: category.timeInDisplay,
-            y: value === 0 ? [0, 0, 0, 0] : [value - 5, value + 5, value - 2, value + 2],
-          };
-        }),
-      })),
-      chart: {
-        height: 300,
-        type: layout,
-      },
-      xaxis: {
-        categories: categories.map((category: any) => category.timeInDisplay),
-      },
-      colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
-    };
-  } else if (layout === "boxPlot") {
-    return {
-      series: deviceData.map((device: any) => ({
-        name: device.thingName,
-        data: categories.map((category: any, index: number) => {
-          const value = series.find((series: any) => series.name === device.thingName)?.data[index];
-          return {
-            x: category.timeInDisplay,
-            y: value === 0 ? [0, 0, 0, 0, 0] : [value - 10, value + 10, value - 5, value + 5, value],
-          };
-        }),
-      })),
-      chart: {
-        height: 300,
-        type: layout,
-      },
-      xaxis: {
-        categories: categories.map((category: any) => category.timeInDisplay),
-      },
-      colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
-    };
-  } else if (layout === "bubble") {
-    return {
-      series: deviceData.map((device: any) => ({
-        name: device.thingName,
-        data: categories.map((category: any, index: number) => {
-          const value = series.find((series: any) => series.name === device.thingName)?.data[index];
-          return {
-            x: category.timeInDisplay,
-            y: value,
-            z: value * 2,
-          };
-        }),
-      })),
-      chart: {
-        height: 300,
-        type: layout,
-      },
-      xaxis: {
-        categories: categories.map((category: any) => category.timeInDisplay),
-      },
-      colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
-    };
-  } else {
-    // Default chart type (for other types like line, area, etc.)
-    console.log("series ---> ", series);
-    return {
-      series: series,
-      chart: {
-        height: 300,
-        type: layout,
-        zoom: {
-          enabled: false,
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        curve: "straight",
-      },
-      grid: {
-        row: {
-          colors: ["#f3f3f3", "transparent"],
-          opacity: 0.5,
-        },
-      },
-      xaxis: {
-        categories: categories.map((category: any) => category.timeInDisplay),
-      },
-      colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
-    };
-  }
-}

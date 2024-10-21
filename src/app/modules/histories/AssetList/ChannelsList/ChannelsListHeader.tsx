@@ -48,6 +48,21 @@ const ChannelsListHeader = ({ setFilterChannel }: IChannelsListHeaderProps) => {
                 }))
               }
             />
+            <input
+              type="text"
+              className="form-control form-control form-control-lg mx-2"
+              placeholder="Asset_Type"
+              onChange={(e) =>
+                setFilterChannel((prevState: any) => ({
+                  ...prevState,
+                  metadata: e.target.value
+                    ? `{
+                  "Asset_Type": "${e.target.value}"
+                  }`
+                    : "",
+                }))
+              }
+            />
             <select className="form-select form-select-solid w-200px ps-8" onChange={onChangeStatus} defaultValue={"enabled"}>
               <option value="all">Status: all</option>
               <option value="enabled">Status: enabled</option>

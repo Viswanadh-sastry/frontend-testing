@@ -89,7 +89,7 @@ const DashboardListPagination = ({ filterDashboard, setFilterDashboard }: IDashb
     if (!page || isLoading || pagination.page === page) {
       return;
     }
-    updateState({ page, items_per_page: pagination.items_per_page });
+    updateState({ page, items_per_page: filterDashboard.limit });
   };
 
   const PAGINATION_PAGES_COUNT = filterDashboard.limit;

@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { KTIcon } from "../../../../../_metronic/helpers";
 import { getRolePermission, MODULENAME } from "../../../auth/core/RoleHelpers";
-import { getGroupList } from "../../api/GroupAPI";
+import { getGroupListAll } from "../../api/GroupAPI";
 
 interface IGroupsListHeaderProps {
   onShowAddGroup: () => void;
@@ -60,7 +60,7 @@ const GroupListHeader = ({ onShowAddGroup, setFilterGroup, onShowImportGroup, fi
       status: filterGroup.status,
       tree: true,
     };
-    return await getGroupList(filterGroups).catch((error) => toast.error(error.message));
+    return await getGroupListAll(filterGroups).catch((error) => toast.error(error.message));
   };
 
   const convertToCSV = (data: any[], headerOrder: string[]): string => {

@@ -4,12 +4,12 @@ import { toast } from "react-toastify";
 import { LineWidget } from "./LineWidget";
 import { BarWidget } from "./BarWidget";
 import { DonutWidget } from "./DonutWidget";
-import { getUserList } from "../users/api/UserAPI";
-import { getGroupList } from "../groups/api/GroupAPI";
-import { getChannelList } from "../channels/api/ChannelsAPI";
-import { getThingList } from "../things/api/ThingAPI";
+import { getUserListAll } from "../users/api/UserAPI";
+import { getGroupListAll } from "../groups/api/GroupAPI";
+import { getChannelListAll } from "../channels/api/ChannelsAPI";
+import { getThingListAll } from "../things/api/ThingAPI";
 import { getThingChannelList } from "../things/api/ThingChannelAPI";
-import { getHistoryList } from "../histories/api/HistoryAPI";
+import { getHistoryListAll } from "../histories/api/HistoryAPI";
 import { KTIcon } from "../../../_metronic/helpers";
 import "./HomePage.css";
 
@@ -28,7 +28,7 @@ const HomePage: React.FC = () => {
   };
   const userListQuery = useQuery({
     queryKey: [`userList`, filterUser],
-    queryFn: async () => getUserList(filterUser).catch((error) => toast.error(error.message)),
+    queryFn: async () => getUserListAll(filterUser).catch((error) => toast.error(error.message)),
     enabled: true,
   });
   const userData = useMemo(() => userListQuery.data?.users || [], [userListQuery.data]);
@@ -43,7 +43,7 @@ const HomePage: React.FC = () => {
   };
   const disabledUserListQuery = useQuery({
     queryKey: [`disabledUserList`, disabledFilterUser],
-    queryFn: async () => getUserList(disabledFilterUser).catch((error) => toast.error(error.message)),
+    queryFn: async () => getUserListAll(disabledFilterUser).catch((error) => toast.error(error.message)),
     enabled: true,
   });
   const disabledUserData = useMemo(() => disabledUserListQuery.data?.users || [], [disabledUserListQuery.data]);
@@ -58,7 +58,7 @@ const HomePage: React.FC = () => {
   };
   const groupListQuery = useQuery({
     queryKey: [`groupList`, filterGroup],
-    queryFn: async () => getGroupList(filterGroup).catch((error) => toast.error(error.message)),
+    queryFn: async () => getGroupListAll(filterGroup).catch((error) => toast.error(error.message)),
     enabled: true,
   });
   const groupData = useMemo(() => groupListQuery.data?.groups || [], [groupListQuery.data]);
@@ -72,7 +72,7 @@ const HomePage: React.FC = () => {
   };
   const disabledGroupListQuery = useQuery({
     queryKey: [`disabledGroupList`, disabledFilterGroup],
-    queryFn: async () => getGroupList(disabledFilterGroup).catch((error) => toast.error(error.message)),
+    queryFn: async () => getGroupListAll(disabledFilterGroup).catch((error) => toast.error(error.message)),
     enabled: true,
   });
   const disabledGroupData = useMemo(() => disabledGroupListQuery.data?.groups || [], [disabledGroupListQuery.data]);
@@ -86,7 +86,7 @@ const HomePage: React.FC = () => {
   };
   const channelListQuery = useQuery({
     queryKey: [`channelList`, filterChannel],
-    queryFn: async () => getChannelList(filterChannel).catch((error) => toast.error(error.message)),
+    queryFn: async () => getChannelListAll(filterChannel).catch((error) => toast.error(error.message)),
     enabled: true,
   });
   const assetData = useMemo(() => channelListQuery.data?.groups || [], [channelListQuery.data]);
@@ -99,7 +99,7 @@ const HomePage: React.FC = () => {
   };
   const disabledChannelListQuery = useQuery({
     queryKey: [`disabledChannelList`, disabledFilterChannel],
-    queryFn: async () => getChannelList(disabledFilterChannel).catch((error) => toast.error(error.message)),
+    queryFn: async () => getChannelListAll(disabledFilterChannel).catch((error) => toast.error(error.message)),
     enabled: true,
   });
   const disabledAssetData = useMemo(() => disabledChannelListQuery.data?.groups || [], [disabledChannelListQuery.data]);
@@ -115,7 +115,7 @@ const HomePage: React.FC = () => {
   const thingListQuery = useQuery({
     queryKey: [`thingList`, filterThing],
     queryFn: async () =>
-      getThingList(filterThing)
+      getThingListAll(filterThing)
         .then(async (response) => {
           const things = await Promise.all(
             response.things.map(async (thing: any) => {
@@ -131,7 +131,7 @@ const HomePage: React.FC = () => {
                         publisher: thing.id,
                         status: "enabled",
                       };
-                      const history = await getHistoryList(group.id, filterHistory);
+                      const history = await getHistoryListAll(group.id, filterHistory);
                       return history;
                     } catch (error) {
                       return [];
@@ -192,7 +192,7 @@ const HomePage: React.FC = () => {
   };
   const disabledThingListQuery = useQuery({
     queryKey: [`disabledThingList`, disabledFilterThing],
-    queryFn: async () => getThingList(disabledFilterThing).catch((error) => toast.error(error.message)),
+    queryFn: async () => getThingListAll(disabledFilterThing).catch((error) => toast.error(error.message)),
     enabled: true,
   });
   const disabledDeviceData = useMemo(() => disabledThingListQuery.data?.things || [], [disabledThingListQuery.data]);

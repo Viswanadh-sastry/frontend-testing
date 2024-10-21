@@ -3,7 +3,7 @@ import { FC, useMemo, useState } from "react";
 import { ColumnInstance, Row, useTable } from "react-table";
 import { toast } from "react-toastify";
 import { KTCard, KTCardBody } from "../../../../../_metronic/helpers";
-import { getGroupList } from "../../../groups/api/GroupAPI";
+import { getGroupListAll } from "../../../groups/api/GroupAPI";
 import { Group } from "../../api/_models";
 import { GroupListHeader } from "./GroupListHeader";
 import { CustomHeaderColumn } from "./columns/CustomHeaderColumn";
@@ -27,7 +27,7 @@ const AssetGroupTable: FC = () => {
 
   const groupListQuery = useQuery({
     queryKey: [`groupList`, filterGroup],
-    queryFn: async () => getGroupList(filterGroup).catch((error: any) => toast.error(error.message)),
+    queryFn: async () => getGroupListAll(filterGroup).catch((error: any) => toast.error(error.message)),
     enabled: true,
   });
 

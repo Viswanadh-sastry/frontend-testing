@@ -3,7 +3,7 @@ import { useFormik } from "formik";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { createThingUser } from "../../api/ThingUserAPI";
-import { getUserList } from "../../../users/api/UserAPI";
+import { getUserListAll } from "../../../users/api/UserAPI";
 import { KTIcon } from "../../../../../_metronic/helpers";
 import { ThemeModeComponent } from "../../../../../_metronic/assets/ts/layout";
 import { useMemo, useState } from "react";
@@ -35,7 +35,7 @@ const AddUser = ({ onCloseAddUser, onGetUserList }: IAddUserProps) => {
 
   const userListQuery = useQuery({
     queryKey: [`userList`, filterUser],
-    queryFn: async () => getUserList(filterUser).catch((error) => toast.error(error.message)),
+    queryFn: async () => getUserListAll(filterUser).catch((error) => toast.error(error.message)),
     enabled: true,
   });
 

@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { KTIcon } from "../../../../../_metronic/helpers";
 import * as roleHelper from "../../../auth/core/RoleHelpers";
-import { getDomainList } from "../../api/DomainAPI";
+import { getDomainListAll } from "../../api/DomainAPI";
 
 interface IDomainListHeaderProps {
   onShowAddDomain: () => void;
@@ -45,7 +45,7 @@ const DomainListHeader = ({ onShowAddDomain, setFilterDomain, onShowImportDomain
       permission: "",
       status: filterDomain.status,
     };
-    return await getDomainList(filterDomains).catch((error) => toast.error(error.message));
+    return await getDomainListAll(filterDomains).catch((error) => toast.error(error.message));
   };
 
   const convertToCSV = (data: any[], headerOrder: string[]) => {

@@ -37,7 +37,7 @@ const CreateView = ({ selectedLayout, onCloseAddChart, onGetPreviewWidgetList }:
     },
     validationSchema: chartSchema,
     onSubmit: async (values) => {
-      const isValid = await isValidateDevices();
+      const isValid = await isValidateDevices(values);
       if (!isValid) {
         return;
       }
@@ -46,11 +46,11 @@ const CreateView = ({ selectedLayout, onCloseAddChart, onGetPreviewWidgetList }:
     },
   });
 
-  const isValidateDevices = async () => {
-    const devices: any[] = formik.values.devices;
+  const isValidateDevices = async (values: any) => {
+    const devices: any[] = values.devices;
     const isValid = devices.every((device: any) => device.deviceValue && device.sensorType);
     if (!isValid) {
-      toast.error("Device and Sensor Type is required");
+      toast.info("Device and Sensor Type is required");
       return false;
     }
     const filterGroupChannel = {
@@ -69,6 +69,7 @@ const CreateView = ({ selectedLayout, onCloseAddChart, onGetPreviewWidgetList }:
             channelId: group.id,
             thingName: device.deviceName,
             thingId: device.deviceValue,
+            sensorType: device.sensorType,
           }));
           if (groupsWithThingId.length > 0) {
             deviceList.push(groupsWithThingId[0]);
@@ -81,6 +82,7 @@ const CreateView = ({ selectedLayout, onCloseAddChart, onGetPreviewWidgetList }:
             channelId: device.deviceValue,
             thingName: thing.name,
             thingId: thing.id,
+            sensorType: device.sensorType,
           }));
           deviceList.push(...groupsWithChannelId);
         }
@@ -90,9 +92,14 @@ const CreateView = ({ selectedLayout, onCloseAddChart, onGetPreviewWidgetList }:
         tempSensorTypeList.push(device.sensorType);
       }
     }
-    const uniqueDeviceList = deviceList.filter((thing, index, self) => index === self.findIndex((t) => t.thingId === thing.thingId));
-    formik.setFieldValue("uniqueDeviceList", uniqueDeviceList);
-    formik.setFieldValue("tempSensorTypeList", tempSensorTypeList);
+    const uniqueDeviceList = deviceList.filter((thing, index, self) => index === self.findIndex((t) => t.thingId === thing.thingId && t.sensorType === thing.sensorType));
+    if (deviceList.length !== uniqueDeviceList.length) {
+      toast.info("Duplicate device is not allowed");
+      return false;
+    }
+    values.uniqueDeviceList = uniqueDeviceList;
+    values.tempSensorTypeList = tempSensorTypeList;
+
     // if (uniqueDeviceList.length > 5) {
     //   Swal.fire({
     //     heightAuto: false,

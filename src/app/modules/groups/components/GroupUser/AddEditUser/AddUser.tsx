@@ -8,7 +8,7 @@ import * as Yup from "yup";
 import { KTIcon } from "../../../../../../_metronic/helpers";
 import { ThemeModeComponent } from "../../../../../../_metronic/assets/ts/layout";
 import { getDomain } from "../../../../auth/core/DomainHelpers";
-import { createGroupUser, getAddUsersList } from "../../../api/GroupUserAPI";
+import { createGroupUser, getAddUsersListAll } from "../../../api/GroupUserAPI";
 import { getRolePermission, MODULENAME } from "../../../../auth/core/RoleHelpers";
 
 interface IAddUserProps {
@@ -47,7 +47,7 @@ const AddUser = ({ onCloseAddUser, onGetUserList }: IAddUserProps) => {
 
   const userListQuery = useQuery({
     queryKey: [`userList`, domainId, filterUser],
-    queryFn: async () => getAddUsersList(domainId, filterUser).catch((error) => toast.error(error.message)),
+    queryFn: async () => getAddUsersListAll(domainId, filterUser).catch((error) => toast.error(error.message)),
     enabled: true,
   });
 

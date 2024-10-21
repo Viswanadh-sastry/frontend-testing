@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { KTIcon } from "../../../../../_metronic/helpers";
 import { getRolePermission, MODULENAME } from "../../../auth/core/RoleHelpers";
-import { getChannelList } from "../../api/ChannelsAPI";
+import { getChannelListAll } from "../../api/ChannelsAPI";
 import { getChannelThingList } from "../../api/ChannelThingAPI";
 import { getChannelGroupList } from "../../api/ChannelGroupAPI";
 
@@ -72,7 +72,7 @@ const ChannelsListHeader = ({ onShowAddChannel, setFilterChannel, onShowImportCh
       parentID: "",
       status: "all",
     };
-    return await getChannelList(filterChannels)
+    return await getChannelListAll(filterChannels)
       .then(async (response) => {
         const groups = await Promise.all(
           response.groups.map(async (group: any) => {

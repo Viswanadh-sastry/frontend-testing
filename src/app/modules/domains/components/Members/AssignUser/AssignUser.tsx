@@ -8,8 +8,8 @@ import * as Yup from "yup";
 import { createMember } from "../../../api/MembersAPI";
 import { KTIcon } from "../../../../../../_metronic/helpers";
 import { ThemeModeComponent } from "../../../../../../_metronic/assets/ts/layout";
-import { getMemberList } from "../../../../domains/api/MembersAPI";
-import { getUserList } from "../../../../users/api/UserAPI";
+import { getMemberListAll } from "../../../../domains/api/MembersAPI";
+import { getUserListAll } from "../../../../users/api/UserAPI";
 
 interface IAssignUserProps {
   onCloseAddMember: () => void;
@@ -36,7 +36,7 @@ const AssignUser = ({ onCloseAddMember, onGetMemberList }: IAssignUserProps) => 
   const userListQuery = useQuery({
     queryKey: [`userList`, filterUser],
     queryFn: async () =>
-      getUserList(filterUser)
+      getUserListAll(filterUser)
         .then(async (response) => {
           const filterMember = {
             limit: 100,
@@ -44,7 +44,7 @@ const AssignUser = ({ onCloseAddMember, onGetMemberList }: IAssignUserProps) => 
             metadata: "",
             status: "enabled",
           };
-          const memberList = await getMemberList(domainId, filterMember).catch((error) => toast.error(error.message));
+          const memberList = await getMemberListAll(domainId, filterMember).catch((error) => toast.error(error.message));
           const memberListIds = memberList.users.map((member: any) => member.id);
           response.users = response.users.filter((user: any) => !memberListIds.includes(user.id));
           return response;

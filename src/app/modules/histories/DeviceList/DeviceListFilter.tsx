@@ -4,7 +4,7 @@ import { Dispatch, SetStateAction, useRef, useState } from "react";
 import { Typeahead } from "react-bootstrap-typeahead";
 import { toast } from "react-toastify";
 import { KTIcon } from "../../../../_metronic/helpers";
-import { getThingList } from "../../things/api/ThingAPI";
+import { getThingListAll } from "../../things/api/ThingAPI";
 
 interface IDeviceListHeaderProps {
   setFilterDevice: Dispatch<
@@ -60,7 +60,7 @@ const DeviceListFilter = ({ setFilterDevice }: IDeviceListHeaderProps) => {
 
   const deviceListQuery = useQuery({
     queryKey: [`deviceList`, filterDevice],
-    queryFn: async () => getThingList(filterDevice).catch((error) => toast.error(error.message)),
+    queryFn: async () => getThingListAll(filterDevice).catch((error) => toast.error(error.message)),
     enabled: true,
   });
 

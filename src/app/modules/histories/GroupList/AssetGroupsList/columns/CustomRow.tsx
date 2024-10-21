@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { FC, useState } from "react";
 import { Row } from "react-table";
+import { convertGMTToLocalDateTime } from "../../../../../constants/Common";
 import { Group } from "../../../api/_models";
 import { useSelectedValues } from "../../../HistoryContext";
 
@@ -130,7 +131,13 @@ const ChildRow: FC<ChildRowProps> = ({ child, parentCells, onRowClick, level, ha
           >
             {cell.column.id === "checkbox" ? (
               <div className="form-check form-check-custom form-check-solid mx-5">
-                <input className="form-check-input" type="checkbox" checked={isChecked} onChange={(e) => handleCheckboxChange(e.target.checked, child.id)} />
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  checked={isChecked}
+                  onChange={(e) => handleCheckboxChange(e.target.checked, child.id)}
+                  style={{ backgroundColor: isChecked ? `#f29a25` : `var(--gray-${level + 1}00)` }}
+                />
               </div>
             ) : cell.column.id === "tree" ? (
               hasChildren ? (
@@ -157,7 +164,7 @@ const ChildRow: FC<ChildRowProps> = ({ child, parentCells, onRowClick, level, ha
                 </div>
               )
             ) : cell.column.id === "created_at" ? (
-              child.created_at
+              convertGMTToLocalDateTime(child.created_at)
             ) : cell.column.id === "status" ? (
               child.status === "enabled" ? (
                 <div className="badge badge-light-success fw-bolder">enabled</div>

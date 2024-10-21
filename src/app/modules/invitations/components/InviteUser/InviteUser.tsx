@@ -7,7 +7,7 @@ import * as Yup from "yup";
 import { sendInvitation } from "../../api/InvitationAPI";
 import { KTIcon } from "../../../../../_metronic/helpers";
 import { ThemeModeComponent } from "../../../../../_metronic/assets/ts/layout";
-import { getUserList } from "../../../users/api/UserAPI";
+import { getUserListAll } from "../../../users/api/UserAPI";
 import { getDomainList } from "../../../domain/api/DomainAPI";
 
 interface IInviteUserProps {
@@ -46,7 +46,7 @@ const InviteUser = ({ onCloseInviteUser, onGetInvitationList }: IInviteUserProps
   });
   const userListQuery = useQuery({
     queryKey: [`userList`, filterUser],
-    queryFn: async () => getUserList(filterUser).catch((error) => toast.error(error.message)),
+    queryFn: async () => getUserListAll(filterUser).catch((error) => toast.error(error.message)),
     enabled: true,
   });
   const userList = useMemo(() => userListQuery.data?.users || [], [userListQuery.data]);

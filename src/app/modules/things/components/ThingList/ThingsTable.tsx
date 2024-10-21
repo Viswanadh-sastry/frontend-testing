@@ -14,7 +14,7 @@ import { thingsColumns } from "./columns/_columns";
 import { ThingsListLoading } from "./pagination/ThingsListLoading";
 import { ThingsListPagination } from "./pagination/ThingsListPagination";
 import { ImportThings } from "../AddEditThing/ImportThings/ImportThings";
-import { getHistoryList } from "../../../histories/api/HistoryAPI";
+import { getHistoryListAll } from "../../../histories/api/HistoryAPI";
 
 const ThingsTable = () => {
   const [showAddThing, setShowAddThing] = useState(false);
@@ -57,7 +57,7 @@ const ThingsTable = () => {
                         publisher: thing.id,
                         status: "enabled",
                       };
-                      const history = await getHistoryList(group.id, filterHistory);
+                      const history = await getHistoryListAll(group.id, filterHistory);
                       return history;
                     } catch (error) {
                       return [];

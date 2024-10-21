@@ -5,7 +5,7 @@ import { ColumnInstance, Row, useTable } from "react-table";
 import { toast } from "react-toastify";
 import { KTCard, KTCardBody } from "../../../../_metronic/helpers";
 import { getGroupChannelList } from "../../groups/api/GroupChannelAPI";
-import { getHistoryList } from "../api/HistoryAPI";
+import { getHistoryListAll } from "../api/HistoryAPI";
 import { History } from "../api/_models";
 import { GroupListHeader } from "./GroupListHeader";
 import { CustomHeaderColumn } from "./columns/CustomHeaderColumn";
@@ -15,8 +15,9 @@ import { GroupListLoading } from "./pagination/GroupListLoading";
 import { GroupListPagination } from "./pagination/GroupListPagination";
 
 const GroupTable = () => {
+  const [data, setData] = useState<any>([]);
   const [filterGroup, setFilterGroup] = useState({
-    limit: 10,
+    limit: 100,
     offset: 0,
     groupId: [],
     status: "enabled",
@@ -33,7 +34,7 @@ const GroupTable = () => {
   };
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10); // Dynamic items per page
+  const [itemsPerPage, setItemsPerPage] = useState<any>(10); // Dynamic items per page
 
   interface LocationState {
     selectedValues: [];
@@ -78,7 +79,7 @@ const GroupTable = () => {
           for (const name of filterGroup.name) {
             const filterWithName = { ...filterGroup, name: [name] }; // Add publisher here
             try {
-              const historyData = await getHistoryList(channel.id, filterWithName);
+              const historyData = await getHistoryListAll(channel.id, filterWithName);
               if (historyData.messages) {
                 allHistoryData.push(...historyData.messages);
               }
@@ -88,7 +89,7 @@ const GroupTable = () => {
           }
         } else {
           try {
-            const historyData = await getHistoryList(channel.id, filterGroup);
+            const historyData = await getHistoryListAll(channel.id, filterGroup);
             if (historyData.messages) {
               allHistoryData.push(...historyData.messages);
             }
@@ -105,10 +106,15 @@ const GroupTable = () => {
 
   // Paginate the data based on currentPage and itemsPerPage
   const isLoading = groupHistoryListQuery.isLoading || channelListByDeviceIdQuery.isLoading;
-  const data = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    return (groupHistoryListQuery.data || []).slice(start, end);
+
+  useEffect(() => {
+    if (groupHistoryListQuery.data) {
+      setData(
+        (groupHistoryListQuery.data || []).filter((_: any, index: number) => {
+          return index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage;
+        })
+      );
+    }
   }, [groupHistoryListQuery.data, currentPage, itemsPerPage]);
 
   const columns = useMemo(() => assetColumns, []);
@@ -150,9 +156,11 @@ const GroupTable = () => {
           <GroupListPagination
             groupHistoryListQuery={groupHistoryListQuery}
             currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
             itemsPerPage={itemsPerPage}
+            data={data}
+            setCurrentPage={setCurrentPage}
             setItemsPerPage={setItemsPerPage}
+            setData={setData}
           />
           {isLoading && <GroupListLoading />}
         </KTCardBody>

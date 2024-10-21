@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { KTIcon } from "../../../../../_metronic/helpers";
 import { getRolePermission, MODULENAME } from "../../../auth/core/RoleHelpers";
-import { getThingList } from "../../api/ThingAPI";
+import { getThingListAll } from "../../api/ThingAPI";
 import { getThingChannelList } from "../../api/ThingChannelAPI";
 
 interface IThingsListHeaderProps {
@@ -65,7 +65,7 @@ const ThingsListHeader = ({ onShowAddThing, setFilterThing, onShowImportThing, f
       metadata: "",
       status: "all",
     };
-    return await getThingList(filterThings)
+    return await getThingListAll(filterThings)
       .then(async (response) => {
         const things = await Promise.all(
           response.things.map(async (thing: any) => {

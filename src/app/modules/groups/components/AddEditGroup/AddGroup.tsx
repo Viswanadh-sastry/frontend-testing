@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { KTIcon, MetadataInputFields } from "../../../../../_metronic/helpers";
-import { createGroup, getGroupList } from "../../api/GroupAPI";
+import { createGroup, getGroupListAll } from "../../api/GroupAPI";
 
 interface IAddGroupProps {
   onCloseAddGroup: () => void;
@@ -29,7 +29,7 @@ const AddGroup = ({ onCloseAddGroup, onGetGroupList }: IAddGroupProps) => {
 
   const groupListQuery = useQuery({
     queryKey: [`groupList`, filterGroup],
-    queryFn: async () => getGroupList(filterGroup).catch((error) => toast.error(error.message)),
+    queryFn: async () => getGroupListAll(filterGroup).catch((error) => toast.error(error.message)),
     enabled: true,
   });
 

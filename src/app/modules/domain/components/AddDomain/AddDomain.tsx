@@ -30,7 +30,7 @@ const AddDomain = ({ onCloseAddDomain, onGetDomainList }: IAddDomainProps) => {
     onSubmit: async (values, { setSubmitting }) => {
       const data = {
         ...values,
-        tags: values.tags.map((tag: any) => tag.label),
+        tags: values.tags.map((tag: any) => (tag.label ? tag.label : tag)),
         metadata: values.metadata,
       };
       createDomain(data)
@@ -99,7 +99,6 @@ const AddDomain = ({ onCloseAddDomain, onGetDomainList }: IAddDomainProps) => {
                     </label>
                     <Typeahead
                       id="tags"
-                      {...formik.getFieldProps("tags")}
                       allowNew
                       multiple
                       options={[]}

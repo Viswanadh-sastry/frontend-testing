@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { getThingList } from "../../../app/modules/things/api/ThingAPI";
-import { getChannelList } from "../../../app/modules/channels/api/ChannelsAPI";
-import { toast } from "react-toastify";
+import { useEffect, useState } from "react";
 import { Typeahead } from "react-bootstrap-typeahead";
+import { toast } from "react-toastify";
+import { getChannelListAll } from "../../../app/modules/channels/api/ChannelsAPI";
+import { getChannelThingList } from "../../../app/modules/channels/api/ChannelThingAPI";
+import { getThing, getThingListAll } from "../../../app/modules/things/api/ThingAPI";
 
 interface IWidgetParameters {
   deviceData: any;
@@ -11,7 +12,8 @@ interface IWidgetParameters {
 }
 
 const WidgetParameters = ({ deviceData, setDeviceData }: IWidgetParameters) => {
-  const [inputs, setInputs] = useState(convertObjectToArray(deviceData));
+  const [inputs, setInputs] = useState(convertArrayToObject(deviceData));
+  const [uniqueTags, setUniqueTags] = useState<any[]>([]);
   const filterChannel = {
     limit: 100,
     offset: 0,
@@ -19,7 +21,7 @@ const WidgetParameters = ({ deviceData, setDeviceData }: IWidgetParameters) => {
   };
   const channelListQuery = useQuery({
     queryKey: [`channelList`, filterChannel],
-    queryFn: async () => getChannelList(filterChannel).catch((error) => toast.error(error.message)),
+    queryFn: async () => getChannelListAll(filterChannel).catch((error) => toast.error(error.message)),
     enabled: true,
   });
   const channelList = channelListQuery.data?.groups.map((group: any) => ({ label: group.name, value: group.id })) || [];
@@ -30,27 +32,60 @@ const WidgetParameters = ({ deviceData, setDeviceData }: IWidgetParameters) => {
   };
   const deviceListQuery = useQuery({
     queryKey: [`deviceList`, filterDevice],
-    queryFn: async () => getThingList(filterDevice).catch((error) => toast.error(error.message)),
+    queryFn: async () => getThingListAll(filterDevice).catch((error) => toast.error(error.message)),
     enabled: true,
   });
   const deviceList = deviceListQuery.data?.things.map((thing: any) => ({ label: thing.name, value: thing.id })) || [];
-  // Extract and flatten the tags, then remove duplicates
-  const uniqueTags = Array.from(
-    new Set(
-      (deviceListQuery.data?.things.flatMap((thing: any) => thing.tags as string[]) || [])
-        .filter((tag: string | undefined) => tag) // Filter out undefined, null, or empty tags
-        .map((tag: string) => tag.trim()) // Normalize tags by trimming and converting to lowercase
-    )
-  ).map((tag) => ({ label: tag }));
 
-  const selectDevice = (selected: any, index: number) => {
+  useEffect(() => {
+    const fetchTags = async () => {
+      const tempUniqueTags: any[] = [];
+      for (const item of inputs) {
+        if (item.deviceLabel === "thing") {
+          const thingDetail = await getThing(item.deviceValue);
+          const tags = thingDetail?.tags.map((tag: string) => ({ label: tag }));
+          tempUniqueTags.push(tags);
+        } else {
+          const thingDetail = await getChannelThingList(item.deviceValue, { limit: 100, offset: 0, status: "enabled" });
+          const tags = Array.from(
+            new Set((thingDetail?.things.flatMap((thing: any) => thing.tags as string[]) || []).filter((tag: string | undefined) => tag).map((tag: string) => tag.trim()))
+          ).map((tag) => ({ label: tag }));
+          tempUniqueTags.push(tags);
+        }
+      }
+      setUniqueTags(tempUniqueTags);
+    };
+    if (uniqueTags.length === 0) {
+      fetchTags();
+    }
+  }, [uniqueTags.length === 0, inputs, deviceData]);
+
+  const selectDevice = async (selected: any, index: number) => {
     const onChangeValue: any = [...inputs];
     if (selected.length > 0) {
       onChangeValue[index]["deviceValue"] = selected[0].value;
       onChangeValue[index]["deviceName"] = selected[0].label;
+      onChangeValue[index]["sensorType"] = "";
+      if (onChangeValue[index]["deviceLabel"] === "thing") {
+        const thingDetail = await getThing(selected[0].value);
+        const tags = thingDetail?.tags.map((tag: string) => ({ label: tag }));
+        setUniqueTags([...uniqueTags.slice(0, index), tags, ...uniqueTags.slice(index + 1)]);
+      } else {
+        const thingDetail = await getChannelThingList(selected[0].value, { limit: 100, offset: 0, status: "enabled" });
+        const tags = Array.from(
+          new Set(
+            (thingDetail?.things.flatMap((thing: any) => thing.tags as string[]) || [])
+              .filter((tag: string | undefined) => tag) // Filter out undefined, null, or empty tags
+              .map((tag: string) => tag.trim()) // Normalize tags by trimming and converting to lowercase
+          )
+        ).map((tag) => ({ label: tag }));
+        setUniqueTags([...uniqueTags.slice(0, index), tags, ...uniqueTags.slice(index + 1)]);
+      }
     } else {
       onChangeValue[index]["deviceValue"] = "";
       onChangeValue[index]["deviceName"] = "";
+      onChangeValue[index]["sensorType"] = "";
+      setUniqueTags([...uniqueTags.slice(0, index), [], ...uniqueTags.slice(index + 1)]);
     }
     setInputs(onChangeValue);
     setDeviceData(convertArrayToObject(onChangeValue));
@@ -64,13 +99,14 @@ const WidgetParameters = ({ deviceData, setDeviceData }: IWidgetParameters) => {
   };
 
   const handleAddInput = () => {
-    if (inputs.length >= 5) {
-      toast.error("You can add up to 5 devices");
-      return;
-    }
+    // if (inputs.length >= 5) {
+    //   toast.error("You can add up to 5 devices");
+    //   return;
+    // }
     const addDevice = { deviceLabel: "thing", deviceValue: "", deviceName: "", sensorType: "" };
     setInputs([...inputs, addDevice]);
     setDeviceData(convertArrayToObject([...inputs, addDevice]));
+    setUniqueTags([...uniqueTags, []]);
   };
 
   const handleChange = (event: any, index: number) => {
@@ -86,6 +122,7 @@ const WidgetParameters = ({ deviceData, setDeviceData }: IWidgetParameters) => {
     newArray.splice(index, 1);
     setInputs(newArray);
     setDeviceData(convertArrayToObject(newArray));
+    setUniqueTags(uniqueTags.filter((tag, i) => i !== index));
   };
 
   return (
@@ -118,8 +155,8 @@ const WidgetParameters = ({ deviceData, setDeviceData }: IWidgetParameters) => {
             <Typeahead
               id="sensorTypes"
               labelKey="label"
-              options={uniqueTags}
-              selected={uniqueTags.filter((tag) => tag.label === item.sensorType)}
+              options={uniqueTags.length > 0 && uniqueTags[index]?.length > 0 ? uniqueTags[index] : []}
+              selected={uniqueTags.length > 0 && uniqueTags[index]?.length > 0 ? uniqueTags[index].filter((tag: any) => tag.label === item.sensorType) : []}
               onChange={(selected: any) => selectSensorType(selected, index)}
               placeholder="Select Sensor Type"
             />
@@ -142,19 +179,6 @@ const WidgetParameters = ({ deviceData, setDeviceData }: IWidgetParameters) => {
       </div>
     </div>
   );
-};
-
-const convertObjectToArray = (deviceData: any) => {
-  const deviceDataArray: any = [];
-  deviceData.forEach((row: any, index: number) => {
-    deviceDataArray.push({
-      deviceLabel: deviceData[index][row.deviceLabel],
-      deviceValue: deviceData[index][row.deviceValue],
-      deviceName: deviceData[index][row.deviceName],
-      sensorType: deviceData[index][row.sensorType],
-    });
-  });
-  return deviceDataArray;
 };
 
 const convertArrayToObject = (deviceData: any) => {
