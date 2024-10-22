@@ -128,7 +128,7 @@ const DeviceListPagination = ({ deviceHistoryListQuery, currentPage, itemsPerPag
           <option value="50">50</option>
         </select>
         <div id="kt_table_things_info" className="dataTables_info">
-          Total {deviceHistoryListQuery.data?.length || 0} devices
+          Total {deviceHistoryListQuery.data?.length || 0} entries
         </div>
       </div>
       <div className="col-sm-12 col-md-8 d-flex align-items-center justify-content-center justify-content-md-end">

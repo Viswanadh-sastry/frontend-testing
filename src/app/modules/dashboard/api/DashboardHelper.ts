@@ -164,7 +164,7 @@ const deleteWidgetById = (id: string, widgetId: string) => {
 }
 
 // Final code for getChartOptions function
-const getChartOptions = (sensorType: string, inputData: any, deviceData: any, messages: any): ApexOptions => {
+const getChartOptions = (sensorType: string, inputData: any, deviceList: any, messages: any): ApexOptions => {
     const categories: any = [];
     if (inputData.timeline === "0") {
         for (let i = moment.utc(inputData.fromDate).startOf("day").valueOf(); i <= moment.utc(inputData.toDate).startOf("day").valueOf(); i += 86400000) {
@@ -185,6 +185,8 @@ const getChartOptions = (sensorType: string, inputData: any, deviceData: any, me
     }
     console.log("categories", categories);
 
+    const deviceData: any = deviceList.filter((device: any) => device.sensorType === sensorType);
+
     const series: any = [];
     deviceData.map((device: any) => {
         const categoryData: any = [];
@@ -194,8 +196,13 @@ const getChartOptions = (sensorType: string, inputData: any, deviceData: any, me
                 (message: any) => message.publisher === device.thingId && message.time > category.timeInFromTimestamp && message.time < category.timeInToTimestamp
             );
 
+            // Average value for the day
+            const average = data.length > 0
+                ? data.reduce((a: number, b: any) => a + (typeof b.value === 'number' ? b.value : 0), 0) / data.length
+                : 0;
+
             // For histogram, we use the count of messages
-            categoryData.push(data.length || 0);
+            categoryData.push(Number(average.toFixed(2)));
         });
 
         series.push({
@@ -210,23 +217,26 @@ const getChartOptions = (sensorType: string, inputData: any, deviceData: any, me
     const { layout } = inputData;
     if (layout === "pie" || layout === "donut") {
         return {
-            series: series.map((series: any) => series.data.reduce((a: any, b: any) => a + b, 0)),
+            series: series.map((series: any) => Number((series.data.reduce((a: number, b: number) => a + b, 0) / series.data.length).toFixed(2))),
             chart: {
-                height: 300,
                 type: layout,
+                height: '80%',
             },
             dataLabels: {
                 enabled: false,
             },
             labels: deviceData.map((device: any) => device.thingName),
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
+            legend: {
+                showForSingleSeries: true
+            },
         };
     } else if (layout === "histogram") {
         return {
             series: series,
             chart: {
-                height: 300,
                 type: layout,
+                height: '80%',
             },
             plotOptions: {
                 bar: {
@@ -246,13 +256,16 @@ const getChartOptions = (sensorType: string, inputData: any, deviceData: any, me
                 },
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
+            legend: {
+                showForSingleSeries: true
+            },
         };
     } else if (layout === "radialBar") {
         return {
-            series: series.map((series: any) => series.data.reduce((a: any, b: any) => a + b, 0)),
+            series: series.map((series: any) => Number((series.data.reduce((a: number, b: number) => a + b, 0) / series.data.length).toFixed(2))),
             chart: {
-                height: 300,
                 type: layout,
+                height: '80%',
             },
             plotOptions: {
                 radialBar: {
@@ -266,13 +279,16 @@ const getChartOptions = (sensorType: string, inputData: any, deviceData: any, me
             },
             labels: deviceData.map((device: any) => device.thingName),
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
+            legend: {
+                showForSingleSeries: true
+            },
         };
     } else if (layout === "scatter") {
         return {
             series: series,
             chart: {
-                height: 300,
                 type: layout,
+                height: '80%',
             },
             xaxis: {
                 categories: categories.map((category: any) => category.timeInDisplay),
@@ -281,13 +297,16 @@ const getChartOptions = (sensorType: string, inputData: any, deviceData: any, me
                 enabled: false,
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
+            legend: {
+                showForSingleSeries: true
+            },
         };
     } else if (layout === "heatmap") {
         return {
             series: series,
             chart: {
-                height: 300,
                 type: layout,
+                height: '80%',
             },
             plotOptions: {
                 heatmap: {
@@ -308,31 +327,37 @@ const getChartOptions = (sensorType: string, inputData: any, deviceData: any, me
             dataLabels: {
                 enabled: false,
             },
+            legend: {
+                showForSingleSeries: true
+            },
         };
     } else if (layout === "radar") {
         return {
             series: series,
             chart: {
-                height: 300,
                 type: layout,
+                height: '80%',
             },
             labels: deviceData.map((device: any) => device.thingName),
             dataLabels: {
                 enabled: false,
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
+            legend: {
+                showForSingleSeries: true
+            },
         };
     } else if (layout === "polarArea") {
         const seriesData = series.map((series: any) => {
             // Ensure that we sum up valid numerical data for each device
-            return series.data.reduce((a: number, b: number) => a + (b || 0), 0);
+            return Number((series.data.reduce((a: number, b: number) => a + (b || 0), 0) / series.data.length).toFixed(2));
         });
 
         return {
             series: seriesData, // Pass the summed up data
             chart: {
-                height: 300,
                 type: layout,
+                height: '80%',
             },
             labels: deviceData.map((device: any) => device.thingName),
             dataLabels: {
@@ -344,6 +369,9 @@ const getChartOptions = (sensorType: string, inputData: any, deviceData: any, me
             },
             stroke: {
                 width: 1,
+            },
+            legend: {
+                showForSingleSeries: true
             },
         };
     } else if (layout === "treemap") {
@@ -357,13 +385,16 @@ const getChartOptions = (sensorType: string, inputData: any, deviceData: any, me
                 },
             ],
             chart: {
-                height: 300,
                 type: layout,
+                height: '80%',
             },
             dataLabels: {
                 enabled: false,
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
+            legend: {
+                showForSingleSeries: true
+            },
         };
     } else if (layout === "rangeBar") {
         return {
@@ -378,8 +409,8 @@ const getChartOptions = (sensorType: string, inputData: any, deviceData: any, me
                 }),
             })),
             chart: {
-                height: 300,
                 type: layout,
+                height: '80%',
             },
             plotOptions: {
                 bar: {
@@ -390,6 +421,9 @@ const getChartOptions = (sensorType: string, inputData: any, deviceData: any, me
                 categories: categories.map((category: any) => category.timeInDisplay),
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
+            legend: {
+                showForSingleSeries: true
+            },
         };
     } else if (layout === "candlestick") {
         return {
@@ -404,13 +438,16 @@ const getChartOptions = (sensorType: string, inputData: any, deviceData: any, me
                 }),
             })),
             chart: {
-                height: 300,
                 type: layout,
+                height: '80%',
             },
             xaxis: {
                 categories: categories.map((category: any) => category.timeInDisplay),
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
+            legend: {
+                showForSingleSeries: true
+            },
         };
     } else if (layout === "boxPlot") {
         return {
@@ -425,13 +462,16 @@ const getChartOptions = (sensorType: string, inputData: any, deviceData: any, me
                 }),
             })),
             chart: {
-                height: 300,
                 type: layout,
+                height: '80%',
             },
             xaxis: {
                 categories: categories.map((category: any) => category.timeInDisplay),
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
+            legend: {
+                showForSingleSeries: true
+            },
         };
     } else if (layout === "bubble") {
         return {
@@ -447,24 +487,27 @@ const getChartOptions = (sensorType: string, inputData: any, deviceData: any, me
                 }),
             })),
             chart: {
-                height: 300,
                 type: layout,
+                height: '80%',
             },
             xaxis: {
                 categories: categories.map((category: any) => category.timeInDisplay),
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
+            legend: {
+                showForSingleSeries: true
+            },
         };
     } else {
         // Default chart type (for other types like line, area, etc.)
         return {
             series: series,
             chart: {
-                height: 300,
                 type: layout,
                 zoom: {
                     enabled: false,
                 },
+                height: '80%',
             },
             dataLabels: {
                 enabled: false,
@@ -482,6 +525,9 @@ const getChartOptions = (sensorType: string, inputData: any, deviceData: any, me
                 categories: categories.map((category: any) => category.timeInDisplay),
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
+            legend: {
+                showForSingleSeries: true
+            },
         };
     }
 }

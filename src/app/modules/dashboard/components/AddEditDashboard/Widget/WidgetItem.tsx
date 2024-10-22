@@ -103,6 +103,7 @@ const WidgetItem = ({ widgetData, editWidget, removeWidget }: IWidgetItemProps) 
             channelId: group.id,
             thingName: device.deviceName,
             thingId: device.deviceValue,
+            sensorType: device.sensorType,
           }));
           if (groupsWithThingId.length > 0) {
             deviceList.push(groupsWithThingId[0]);
@@ -115,6 +116,7 @@ const WidgetItem = ({ widgetData, editWidget, removeWidget }: IWidgetItemProps) 
             channelId: device.deviceValue,
             thingName: thing.name,
             thingId: thing.id,
+            sensorType: device.sensorType,
           }));
           deviceList.push(...groupsWithChannelId);
         }
