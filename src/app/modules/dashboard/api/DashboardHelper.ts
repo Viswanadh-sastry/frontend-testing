@@ -163,22 +163,43 @@ const deleteWidgetById = (id: string, widgetId: string) => {
     }
 }
 
+// Sorting function for history data
+const sortHistoryData = (a: any, b: any) => {
+    let aTime: any = a.time;
+    let bTime: any = b.time;
+    if (aTime.toString().length === 10) {
+        aTime = aTime * 1000;
+    } else if (aTime.toString().length === 16) {
+        aTime = aTime / 1000;
+    } else if (aTime.toString().length === 19) {
+        aTime = aTime / 1000000;
+    }
+    if (bTime.toString().length === 10) {
+        bTime = bTime * 1000;
+    } else if (bTime.toString().length === 16) {
+        bTime = bTime / 1000;
+    } else if (bTime.toString().length === 19) {
+        bTime = bTime / 1000000;
+    }
+    return bTime - aTime;
+}
+
 // Final code for getChartOptions function
 const getChartOptions = (sensorType: string, inputData: any, deviceList: any, messages: any): ApexOptions => {
     const categories: any = [];
     if (inputData.timeline === "0") {
         for (let i = moment.utc(inputData.fromDate).startOf("day").valueOf(); i <= moment.utc(inputData.toDate).startOf("day").valueOf(); i += 86400000) {
             categories.push({
-                timeInFromTimestamp: i * 1000,
-                timeInToTimestamp: ((i + 86400000) * 1000) + 999,
+                timeInFromTimestamp: i * 1000000,
+                timeInToTimestamp: ((i + 86400000) * 1000000) + 999999,
                 timeInDisplay: moment.utc(i).format("DD/MM"),
             });
         }
     } else {
         for (let i = inputData.timeline - 1; i >= 0; i--) {
             categories.push({
-                timeInFromTimestamp: moment.utc(moment().subtract(i, "days").format("YYYY-MM-DD")).startOf("day").valueOf() * 1000,
-                timeInToTimestamp: (moment.utc(moment().subtract(i, "days").format("YYYY-MM-DD")).endOf("day").valueOf() * 1000) + 999,
+                timeInFromTimestamp: moment.utc(moment().subtract(i, "days").format("YYYY-MM-DD")).startOf("day").valueOf() * 1000000,
+                timeInToTimestamp: (moment.utc(moment().subtract(i, "days").format("YYYY-MM-DD")).endOf("day").valueOf() * 1000000) + 999999,
                 timeInDisplay: moment().subtract(i, "days").format("DD/MM"),
             });
         }
@@ -535,4 +556,4 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
 }
 
 
-export { getDashboard, setDashboard, clearDashboard, addDashboard, editDashboard, removeDashboard, getDashboardById, updateWidgetById, deleteWidgetById, getChartOptions, DASH_LOCAL_STORAGE_KEY }
+export { getDashboard, setDashboard, clearDashboard, addDashboard, editDashboard, removeDashboard, getDashboardById, updateWidgetById, deleteWidgetById, sortHistoryData, getChartOptions, DASH_LOCAL_STORAGE_KEY }

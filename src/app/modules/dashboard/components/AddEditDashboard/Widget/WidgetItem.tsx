@@ -8,7 +8,7 @@ import { getChannelThingList } from "../../../../channels/api/ChannelThingAPI";
 import { getHistoryListAll } from "../../../../histories/api/HistoryAPI";
 import { getThing } from "../../../../things/api/ThingAPI";
 import { getThingChannelList } from "../../../../things/api/ThingChannelAPI";
-import { editDashboard, getChartOptions, getDashboardById } from "../../../api/DashboardHelper";
+import { editDashboard, getChartOptions, getDashboardById, sortHistoryData } from "../../../api/DashboardHelper";
 
 interface IWidgetItemProps {
   widgetData: any;
@@ -134,11 +134,11 @@ const WidgetItem = ({ widgetData, editWidget, removeWidget }: IWidgetItemProps) 
     let fromTime: number = 0;
     let toTime: number = 0;
     if (data.timeline === "0") {
-      fromTime = moment.utc(data.fromDate).startOf("day").valueOf() * 1000;
-      toTime = moment.utc(data.toDate).endOf("day").valueOf() * 1000 + 999;
+      fromTime = moment.utc(data.fromDate).startOf("day").valueOf() * 1000000;
+      toTime = moment.utc(data.toDate).endOf("day").valueOf() * 1000000 + 999999;
     } else {
-      fromTime = moment.utc(moment().subtract(data.timeline, "days").format("YYYY-MM-DD")).startOf("day").valueOf() * 1000;
-      toTime = moment.utc(moment().format("YYYY-MM-DD")).endOf("day").valueOf() * 1000 + 999;
+      fromTime = moment.utc(moment().subtract(data.timeline, "days").format("YYYY-MM-DD")).startOf("day").valueOf() * 1000000;
+      toTime = moment.utc(moment().format("YYYY-MM-DD")).endOf("day").valueOf() * 1000000 + 999999;
     }
 
     const allHistoryData = [];
@@ -178,7 +178,7 @@ const WidgetItem = ({ widgetData, editWidget, removeWidget }: IWidgetItemProps) 
     }
 
     // order by unix time descending
-    allHistoryData.sort((a: any, b: any) => b.time - a.time);
+    allHistoryData.sort((a: any, b: any) => sortHistoryData(a, b));
 
     // Call getChartOptions function
     const chart = new ApexCharts(chartRef.current, getChartOptions(tempSensorTypeList[0], data, deviceList, allHistoryData));
@@ -197,11 +197,11 @@ const WidgetItem = ({ widgetData, editWidget, removeWidget }: IWidgetItemProps) 
     let fromTime: number = 0;
     let toTime: number = 0;
     if (inputData.timeline === "0") {
-      fromTime = moment.utc(inputData.fromDate).startOf("day").valueOf() * 1000;
-      toTime = moment.utc(inputData.toDate).endOf("day").valueOf() * 1000 + 999;
+      fromTime = moment.utc(inputData.fromDate).startOf("day").valueOf() * 1000000;
+      toTime = moment.utc(inputData.toDate).endOf("day").valueOf() * 1000000 + 999999;
     } else {
-      fromTime = moment.utc(moment().subtract(inputData.timeline, "days").format("YYYY-MM-DD")).startOf("day").valueOf() * 1000;
-      toTime = moment.utc(moment().format("YYYY-MM-DD")).endOf("day").valueOf() * 1000 + 999;
+      fromTime = moment.utc(moment().subtract(inputData.timeline, "days").format("YYYY-MM-DD")).startOf("day").valueOf() * 1000000;
+      toTime = moment.utc(moment().format("YYYY-MM-DD")).endOf("day").valueOf() * 1000000 + 999999;
     }
 
     const allHistoryData = [];
@@ -241,7 +241,7 @@ const WidgetItem = ({ widgetData, editWidget, removeWidget }: IWidgetItemProps) 
     }
 
     // order by unix time descending
-    allHistoryData.sort((a: any, b: any) => b.time - a.time);
+    allHistoryData.sort((a: any, b: any) => sortHistoryData(a, b));
 
     // Call getChartOptions function
     const chart = new ApexCharts(chartRef.current, getChartOptions(sensorType, inputData, deviceData, allHistoryData));

@@ -4,6 +4,7 @@ import { useLocation, useParams } from "react-router-dom";
 import { ColumnInstance, Row, useTable } from "react-table";
 import { toast } from "react-toastify";
 import { KTCardBody } from "../../../../_metronic/helpers";
+import { sortHistoryData } from "../../dashboard/api/DashboardHelper";
 import { getHistoryListAll } from "../api/HistoryAPI";
 import { History } from "../api/_models";
 import { AssetListHeader } from "./AssetListHeader";
@@ -97,7 +98,7 @@ const AssetTable = () => {
           }
 
           // order by unix time descending
-          channelList.sort((a: any, b: any) => b.time - a.time);
+          channelList.sort((a: any, b: any) => sortHistoryData(a, b));
 
           return channelList;
         }

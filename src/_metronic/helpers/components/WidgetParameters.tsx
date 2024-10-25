@@ -43,7 +43,7 @@ const WidgetParameters = ({ deviceData, setDeviceData }: IWidgetParameters) => {
       for (const item of inputs) {
         if (item.deviceLabel === "thing") {
           const thingDetail = await getThing(item.deviceValue);
-          const tags = thingDetail?.tags.map((tag: string) => ({ label: tag }));
+          const tags = thingDetail?.tags?.map((tag: string) => ({ label: tag }));
           tempUniqueTags.push(tags);
         } else {
           const thingDetail = await getChannelThingList(item.deviceValue, { limit: 100, offset: 0, status: "enabled" });
@@ -68,7 +68,7 @@ const WidgetParameters = ({ deviceData, setDeviceData }: IWidgetParameters) => {
       onChangeValue[index]["sensorType"] = "";
       if (onChangeValue[index]["deviceLabel"] === "thing") {
         const thingDetail = await getThing(selected[0].value);
-        const tags = thingDetail?.tags.map((tag: string) => ({ label: tag }));
+        const tags = thingDetail?.tags?.map((tag: string) => ({ label: tag }));
         setUniqueTags([...uniqueTags.slice(0, index), tags, ...uniqueTags.slice(index + 1)]);
       } else {
         const thingDetail = await getChannelThingList(selected[0].value, { limit: 100, offset: 0, status: "enabled" });

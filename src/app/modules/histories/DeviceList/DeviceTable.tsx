@@ -4,6 +4,7 @@ import { useLocation, useParams } from "react-router-dom";
 import { ColumnInstance, Row, useTable } from "react-table";
 import { toast } from "react-toastify";
 import { KTCardBody } from "../../../../_metronic/helpers";
+import { sortHistoryData } from "../../dashboard/api/DashboardHelper";
 import { getThingChannelList } from "../../things/api/ThingChannelAPI";
 import { getHistoryListAll } from "../api/HistoryAPI";
 import { History } from "../api/_models";
@@ -118,7 +119,7 @@ const DeviceTable = () => {
       }
 
       // order by unix time descending
-      allHistoryData.sort((a: any, b: any) => b.time - a.time);
+      allHistoryData.sort((a: any, b: any) => sortHistoryData(a, b));
 
       return allHistoryData;
     },

@@ -17,16 +17,21 @@ export const convertUnixTimestampToLocalDateTime = (unixTimestamp: any) => {
     }
     // Check if the unixTimestamp length is 10 digits
     if (unixTimestamp.toString().length === 10) {
-        unixTimestamp = unixTimestamp * 1000000;
+        unixTimestamp = unixTimestamp * 1000;
+    }
+
+    // Check if the unixTimestamp length is 16 digits
+    if (unixTimestamp.toString().length === 16) {
+        unixTimestamp = unixTimestamp / 1000;
     }
 
     // Check if the unixTimestamp length is 19 digits
     if (unixTimestamp.toString().length === 19) {
-        unixTimestamp = unixTimestamp / 1000;
+        unixTimestamp = unixTimestamp / 1000000;
     }
 
     // Convert from microseconds to milliseconds by dividing by 1,000
-    const date = new Date(unixTimestamp / 1000);
+    const date = new Date(unixTimestamp);
 
     // Get the date and time in the local time zone
     const year = date.getFullYear();
