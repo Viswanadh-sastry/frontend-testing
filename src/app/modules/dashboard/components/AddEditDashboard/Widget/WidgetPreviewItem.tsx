@@ -53,6 +53,7 @@ const WidgetPreviewItem = ({ widgetData }: IWidgetPreviewItemProps) => {
         layout: layout.widgetType,
         name: metadata.title,
         interval: metadata.updateInterval,
+        aggregationType: metadata.aggregationType,
         timeline: metadata.timeline,
         fromDate: metadata.fromDate,
         toDate: metadata.toDate,
@@ -135,8 +136,8 @@ const WidgetPreviewItem = ({ widgetData }: IWidgetPreviewItemProps) => {
       thingId: [],
       status: "enabled",
       name: tempSensorTypeList[0],
-      from: fromTime,
-      to: toTime,
+      from: Math.floor(fromTime / 1e9),
+      to: Math.floor(toTime / 1e9),
       publisher: "",
     };
     for (const device of deviceList) {
@@ -198,8 +199,8 @@ const WidgetPreviewItem = ({ widgetData }: IWidgetPreviewItemProps) => {
       thingId: [],
       status: "enabled",
       name: sensorType,
-      from: fromTime,
-      to: toTime,
+      from: Math.floor(fromTime / 1e9),
+      to: Math.floor(toTime / 1e9),
       publisher: "",
     };
     for (const device of deviceData) {

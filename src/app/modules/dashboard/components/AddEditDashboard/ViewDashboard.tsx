@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { KTCardBody, KTIcon } from "../../../../../_metronic/helpers";
 import { getDashboardById } from "../../api/DashboardHelper";
 import { WidgetPreviewItem } from "./Widget/WidgetPreviewItem";
+import { SensorPreviewItem } from "./Widget/SensorPreviewItem";
 
 const ViewDashboard = () => {
   const navigate = useNavigate();
@@ -35,15 +36,26 @@ const ViewDashboard = () => {
           </button>
         </div>
       </div>
-      <FullScreen handle={handle}>
-        <div className="card" style={{ width: "1920px", height: "1080px" }}>
-          <KTCardBody className="py-4">
-            {dashboard?.data?.widgets?.map((widget: any, index: number) => (
-              <WidgetPreviewItem key={index} widgetData={widget} />
-            ))}
-          </KTCardBody>
-        </div>
-      </FullScreen>
+      <div className="card" style={{ width: "100%", overflowX: "auto" }}>
+        <FullScreen handle={handle}>
+          <div className="card" style={{ width: "1920px", height: "1080px" }}>
+            <KTCardBody className="py-4">
+              {dashboard?.data?.widgets?.map((widget: any, index: number) =>
+                widget.layouts.widgetType === "SquareCard" ||
+                widget.layouts.widgetType === "RectangleCard" ||
+                widget.layouts.widgetType === "VerticalCard" ||
+                widget.layouts.widgetType === "HorizontalCard" ||
+                widget.layouts.widgetType === "TableCard" ||
+                widget.layouts.widgetType === "HorizontalLineCard" ? (
+                  <SensorPreviewItem key={index} widgetData={widget} />
+                ) : (
+                  <WidgetPreviewItem key={index} widgetData={widget} />
+                )
+              )}
+            </KTCardBody>
+          </div>
+        </FullScreen>
+      </div>
     </>
   );
 };

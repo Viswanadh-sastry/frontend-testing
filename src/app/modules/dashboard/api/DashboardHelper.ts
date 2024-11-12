@@ -216,7 +216,7 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
         categories.map((category: any) => {
             // Filter messages per device and category (day)
             const data = messages.filter(
-                (message: any) => message.publisher === device.thingId && message.time > category.timeInFromTimestamp && message.time < category.timeInToTimestamp
+                (message: any) => message.publisher === device.thingId && Number(String(message.time).slice(0, 10)) > Math.floor(category.timeInFromTimestamp / 1e9) && Number(String(message.time).slice(0, 10)) < Math.floor(category.timeInToTimestamp / 1e9)
             );
 
             // Average value for the day

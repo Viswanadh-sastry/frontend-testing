@@ -10,6 +10,7 @@ import { deleteWidgetById, editDashboard, getDashboard, getDashboardById, update
 import { EditView } from "./Widget/EditView";
 import { WidgetDrawer } from "./Widget/WidgetDrawer";
 import { WidgetItem } from "./Widget/WidgetItem";
+import { ViewSensor } from "./Widget/ViewSensor";
 
 const LayoutBuilder = () => {
   const { currentUser } = useAuth();
@@ -22,6 +23,22 @@ const LayoutBuilder = () => {
     open: false,
     data: null,
   });
+
+  const refreshSensor = async (data: any) => {
+    // Save the dashboard
+    const selectedLayout = {
+      height: 400,
+      width: 500,
+      left: 0,
+      top: 0,
+      order: 0,
+      title: data.name,
+      name: data.layout,
+      imageUrl: "",
+    };
+    console.log("data", data, selectedLayout);
+    saveDashboard(data, selectedLayout, data.uniqueDeviceList);
+  };
 
   const refreshChart = async (data: any) => {
     // Save the dashboard
@@ -92,6 +109,7 @@ const LayoutBuilder = () => {
       fromDate: metadata.fromDate,
       toDate: metadata.toDate,
       interval: metadata.updateInterval,
+      aggregationType: metadata.aggregationType,
       layout: layout.widgetType,
       uniqueDeviceList: [],
       tempSensorTypeList: [],
@@ -163,18 +181,19 @@ const LayoutBuilder = () => {
           </button>
         </div>
       </div>
-      <FullScreen handle={handle}>
-        <div
-          className="card"
-          style={{
-            width: "1920px",
-            height: "1080px",
-            background: `
+      <div className="card" style={{ width: "100%", overflowX: "auto" }}>
+        <FullScreen handle={handle}>
+          <div
+            className="card"
+            style={{
+              width: "1920px",
+              height: "1080px",
+              background: `
             linear-gradient(-90deg, rgba(0, 0, 0, .04) 1px, transparent 1px),
             linear-gradient(rgba(0, 0, 0, .04) 1px, transparent 1px),
             #f2f2f2
           `,
-            backgroundSize: `
+              backgroundSize: `
             12px 12px,
             12px 12px,
             80px 80px,
@@ -184,18 +203,28 @@ const LayoutBuilder = () => {
             80px 80px,
             80px 80px
           `,
-            backgroundColor: "#f2f2f2",
-          }}
-        >
-          <KTCardBody className="py-4">
-            {dashboard?.data?.widgets?.map((widget: any, index: number) => (
-              <WidgetItem key={index} widgetData={widget} editWidget={(data) => onOpenWidget(data)} removeWidget={(id) => onRemoveWidget(id)} />
-            ))}
-          </KTCardBody>
-        </div>
-        {editWidget.open && <EditView inputData={editWidget.data} onEditView={(data) => onSaveWidget(data)} onClose={onCloseWidget} />}
-      </FullScreen>
-      <WidgetDrawer onGetPreviewWidget={(data) => refreshChart(data)} />
+              backgroundColor: "#f2f2f2",
+            }}
+          >
+            <KTCardBody className="py-4">
+              {dashboard?.data?.widgets?.map((widget: any, index: number) =>
+                widget.layouts.widgetType === "SquareCard" ||
+                widget.layouts.widgetType === "RectangleCard" ||
+                widget.layouts.widgetType === "VerticalCard" ||
+                widget.layouts.widgetType === "HorizontalCard" ||
+                widget.layouts.widgetType === "TableCard" ||
+                widget.layouts.widgetType === "HorizontalLineCard" ? (
+                  <ViewSensor key={index} widgetData={widget} editWidget={(data) => onOpenWidget(data)} removeWidget={(id) => onRemoveWidget(id)} />
+                ) : (
+                  <WidgetItem key={index} widgetData={widget} editWidget={(data) => onOpenWidget(data)} removeWidget={(id) => onRemoveWidget(id)} />
+                )
+              )}
+            </KTCardBody>
+          </div>
+          {editWidget.open && <EditView inputData={editWidget.data} onEditView={(data) => onSaveWidget(data)} onClose={onCloseWidget} />}
+        </FullScreen>
+      </div>
+      <WidgetDrawer onGetChartWidget={(data) => refreshChart(data)} onGetSensorWidget={(data) => refreshSensor(data)} />
     </>
   );
 };
@@ -247,10 +276,10 @@ const convertToJson = (inputData: any, selectedLayout: any, deviceList: any[]) =
           }
         }),
         updateInterval: inputData.interval,
+        aggregationType: inputData.aggregationType,
         timeline: inputData.timeline,
         fromDate: inputData.fromDate,
         toDate: inputData.toDate,
-        aggregationType: "",
         title: inputData.name,
       },
     },
@@ -285,10 +314,10 @@ const updateToMetadata = (inputData: any, deviceList: any[]) => ({
       }
     }),
     updateInterval: inputData.interval,
+    aggregationType: inputData.aggregationType,
     timeline: inputData.timeline,
     fromDate: inputData.fromDate,
     toDate: inputData.toDate,
-    aggregationType: "",
     title: inputData.name,
   },
 });

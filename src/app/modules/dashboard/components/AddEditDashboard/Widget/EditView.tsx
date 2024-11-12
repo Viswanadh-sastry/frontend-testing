@@ -22,6 +22,7 @@ const EditView = ({ inputData, onClose, onEditView }: IEditViewProps) => {
     fromDate: Yup.date(),
     toDate: Yup.date(),
     interval: Yup.string(),
+    aggregationType: Yup.string(),
     layout: Yup.string(),
   });
 
@@ -34,6 +35,7 @@ const EditView = ({ inputData, onClose, onEditView }: IEditViewProps) => {
       fromDate: inputData.fromDate,
       toDate: inputData.toDate,
       interval: inputData.interval,
+      aggregationType: inputData.aggregationType,
       layout: inputData.layout,
       uniqueDeviceList: [],
       tempSensorTypeList: [],
@@ -265,6 +267,17 @@ const EditView = ({ inputData, onClose, onEditView }: IEditViewProps) => {
                           <option value="10s">10s</option>
                           <option value="30s">30s</option>
                           <option value="1m">1m</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="fv-row mb-6">
+                        <label className="fw-bold fs-6 mb-2">Aggregation Type</label>
+                        <select {...formik.getFieldProps("aggregationType")} className="form-select form-select form-select-lg fw-bold" name="aggregationType">
+                          <option value="avg">Average</option>
+                          <option value="min">Minimum</option>
+                          <option value="max">Maximum</option>
+                          <option value="sum">Sum</option>
                         </select>
                       </div>
                     </div>

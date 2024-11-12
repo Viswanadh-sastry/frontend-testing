@@ -1,80 +1,129 @@
-import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import { useFormik } from "formik";
-import { Typeahead } from "react-bootstrap-typeahead";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
-import { ThemeModeComponent } from "../../../../../../_metronic/assets/ts/layout";
-import { KTIcon, toAbsoluteUrl } from "../../../../../../_metronic/helpers";
-import { getThingListAll } from "../../../../things/api/ThingAPI";
+import { KTIcon, toAbsoluteUrl, WidgetParameters } from "../../../../../../_metronic/helpers";
+import { getChannelThingList } from "../../../../channels/api/ChannelThingAPI";
+import { getThingChannelList } from "../../../../things/api/ThingChannelAPI";
 
-interface IAddWidgetProps {
+interface IAddSensorProps {
   selectedLayout: any;
   onCloseAddSensor: () => void;
-  isActivated: any;
-  onGetPreviewWidgetList: (data: any) => void;
+  onGetSensorWidgetList: (data: any) => void;
 }
 
-const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetPreviewWidgetList, isActivated }: IAddWidgetProps) => {
-  let ktThemeModeValue = localStorage.getItem("kt_theme_mode_value");
-  if (ktThemeModeValue === "system") {
-    ktThemeModeValue = ThemeModeComponent.getSystemMode() as "light" | "dark";
-  }
-  const filterDevice = {
-    limit: 100,
-    offset: 0,
-    status: "enabled",
-  };
-  const deviceListQuery = useQuery({
-    queryKey: [`deviceList`, filterDevice],
-    queryFn: async () => getThingListAll(filterDevice).catch((error) => toast.error(error.message)),
-    enabled: true,
-  });
-  const deviceList = deviceListQuery.data?.things.map((thing: any) => ({ label: thing.name, value: thing.id })) || [];
-  // Extract and flatten the tags, then remove duplicates
-  const uniqueTags = Array.from(
-    new Set(
-      (deviceListQuery.data?.things.flatMap((thing: any) => thing.tags as string[]) || [])
-        .filter((tag: string | undefined) => tag) // Filter out undefined, null, or empty tags
-        .map((tag: string) => tag.trim()) // Normalize tags by trimming and converting to lowercase
-    )
-  ).map((tag) => ({ label: tag }));
-
-  const widgetSchema = Yup.object().shape({
+const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetSensorWidgetList }: IAddSensorProps) => {
+  const chartSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
-    description: Yup.string(),
-    sensorType: Yup.array().min(1, "Sensor Type is required"),
     devices: Yup.array().min(1, "Device is required"),
+    timeline: Yup.number(),
+    fromDate: Yup.date(),
+    toDate: Yup.date(),
+    interval: Yup.string(),
+    aggregationType: Yup.string(),
     layout: Yup.string(),
   });
 
   const formik = useFormik({
     initialValues: {
       name: "",
-      description: "",
-      sensorType: [],
       devices: [],
+      timeline: 30,
+      fromDate: undefined,
+      toDate: undefined,
+      interval: "",
+      aggregationType: "avg",
       layout: selectedLayout?.name,
+      uniqueDeviceList: [],
+      tempSensorTypeList: [],
     },
-    validationSchema: widgetSchema,
+    validationSchema: chartSchema,
     onSubmit: async (values) => {
-      const data = {
-        sensorType: values.sensorType.length > 0 ? values.sensorType.map((sensor: any) => sensor.label)[0] : "",
-        devices: values.devices.map((device: any) => ({
-          id: device.value,
-          name: device.label,
-        })),
-        layout: values.layout,
-        isActivated: isActivated,
-      };
-      onGetPreviewWidgetList(data);
+      const isValid = await isValidateDevices(values);
+      if (!isValid) {
+        return;
+      }
+      onGetSensorWidgetList(values);
       onCloseAddSensor();
     },
   });
 
+  const isValidateDevices = async (values: any) => {
+    const devices: any[] = values.devices;
+    const isValid = devices.every((device: any) => device.deviceValue && device.sensorType);
+    if (!isValid) {
+      toast.info("Device and Sensor Type is required");
+      return false;
+    }
+    const filterGroupChannel = {
+      offset: 0,
+      limit: 100,
+      name: "",
+      status: "enabled",
+    };
+    const deviceList: any[] = [];
+    const tempSensorTypeList: string[] = [];
+    for (const device of devices) {
+      if (device.deviceLabel === "thing") {
+        const channelListByThingId = await getThingChannelList(device.deviceValue, filterGroupChannel);
+        if (channelListByThingId.groups) {
+          const groupsWithThingId = channelListByThingId.groups.map((group: any) => ({
+            channelId: group.id,
+            thingName: device.deviceName,
+            thingId: device.deviceValue,
+            sensorType: device.sensorType,
+          }));
+          if (groupsWithThingId.length > 0) {
+            deviceList.push(groupsWithThingId[0]);
+          }
+        }
+      } else {
+        const channelListByGroupId = await getChannelThingList(device.deviceValue, filterGroupChannel);
+        if (channelListByGroupId.things) {
+          const groupsWithChannelId = channelListByGroupId.things.map((thing: any) => ({
+            channelId: device.deviceValue,
+            thingName: thing.name,
+            thingId: thing.id,
+            sensorType: device.sensorType,
+          }));
+          deviceList.push(...groupsWithChannelId);
+        }
+      }
+      if (!tempSensorTypeList.includes(device.sensorType)) {
+        tempSensorTypeList.push(device.sensorType);
+      }
+    }
+    const uniqueDeviceList = deviceList.filter((thing, index, self) => index === self.findIndex((t) => t.thingId === thing.thingId && t.sensorType === thing.sensorType));
+    if (deviceList.length !== uniqueDeviceList.length) {
+      toast.info("Duplicate device is not allowed");
+      return false;
+    }
+    values.uniqueDeviceList = uniqueDeviceList;
+    values.tempSensorTypeList = tempSensorTypeList;
+
+    // if (uniqueDeviceList.length > 5) {
+    //   Swal.fire({
+    //     heightAuto: false,
+    //     icon: "warning",
+    //     title: "Create Widget",
+    //     text: "Are you sure you want to continue with more than 5 devices?",
+    //     showCancelButton: true,
+    //     confirmButtonText: "Yes",
+    //     confirmButtonColor: "#d33",
+    //     cancelButtonText: "No",
+    //   }).then((result) => {
+    //     console.log("result", result);
+    //     if (result.isConfirmed) {
+    //       return true;
+    //     }
+    //   });
+    // }
+    return true;
+  };
+
   return (
     <>
-      <div className="modal fade show d-block" id="kt_modal_add_widget" role="dialog" tabIndex={-1} aria-modal="true">
+      <div className="modal fade show d-block" id="kt_modal_create_view" role="dialog" tabIndex={-1} aria-modal="true">
         {/* begin::Modal dialog */}
         <div className="modal-dialog modal-dialog-centered mw-900px">
           {/* begin::Modal content */}
@@ -85,14 +134,14 @@ const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetPreviewWidgetList, i
               {/* end::Modal title */}
 
               {/* begin::Close */}
-              <div className="btn btn-icon btn-sm btn-active-icon-primary" data-kt-widget-modal-action="close" onClick={onCloseAddSensor} style={{ cursor: "pointer" }}>
+              <div className="btn btn-icon btn-sm btn-active-icon-primary" data-kt-chart-modal-action="close" onClick={onCloseAddSensor} style={{ cursor: "pointer" }}>
                 <KTIcon iconName="cross" className="fs-1" />
               </div>
               {/* end::Close */}
             </div>
             {/* begin::Modal body */}
             <div className="modal-body mx-5 mx-xl-15 my-7">
-              <form id="kt_modal_add_widget_form" className="form" onSubmit={formik.handleSubmit} noValidate>
+              <form id="kt_modal_create_view_form" className="form" onSubmit={formik.handleSubmit} noValidate>
                 {/* begin::Scroll */}
                 <div className="d-flex flex-column me-n7 pe-7">
                   <div className="row">
@@ -124,58 +173,8 @@ const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetPreviewWidgetList, i
                   <div className="row">
                     <div className="col-md-12">
                       <div className="fv-row mb-6">
-                        <label className="fw-bold fs-6 mb-2">Description</label>
-                        <input
-                          {...formik.getFieldProps("description")}
-                          type="text"
-                          name="description"
-                          placeholder="Widget Description"
-                          className={clsx(
-                            "form-control mb-3 mb-lg-0",
-                            { "is-invalid": formik.touched.description && formik.errors.description },
-                            { "is-valid": formik.touched.description && !formik.errors.description }
-                          )}
-                          autoComplete="off"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-12">
-                      <div className="fv-row mb-6">
-                        <label className="required fw-bold fs-6 mb-2">Sensor Type</label>
-                        <Typeahead
-                          id="sensorType"
-                          {...formik.getFieldProps("sensorType")}
-                          labelKey="label"
-                          options={uniqueTags}
-                          selected={formik.values.sensorType}
-                          onChange={(selected) => formik.setFieldValue("sensorType", selected)}
-                          placeholder="Select Sensor Type"
-                        />
-                        {formik.touched.sensorType && formik.errors.sensorType && (
-                          <div className="fv-plugins-message-container">
-                            <div className="fv-help-block">
-                              <span role="alert">{formik.errors.sensorType}</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-12">
-                      <div className="fv-row mb-6">
-                        <label className="required fw-bold fs-6 mb-2">Device</label>
-                        <Typeahead
-                          id="devices"
-                          {...formik.getFieldProps("devices")}
-                          labelKey="label"
-                          options={deviceList}
-                          selected={formik.values.devices}
-                          onChange={(selected: any) => formik.setFieldValue("devices", selected)}
-                          placeholder="Select Device"
-                        />
+                        <label className="required fw-bold fs-6 mb-2">Parameters</label>
+                        <WidgetParameters deviceData={formik.values.devices} setDeviceData={(device: any) => formik.setFieldValue("devices", device)} />
                         {formik.touched.devices && formik.errors.devices && (
                           <div className="fv-plugins-message-container">
                             <div className="fv-help-block">
@@ -186,7 +185,72 @@ const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetPreviewWidgetList, i
                       </div>
                     </div>
                   </div>
-
+                  <div className="row">
+                    <div className="col-md-12">
+                      <div className="fv-row mb-6">
+                        <label className="fw-bold fs-6 mb-2">Timeline</label>
+                        {/* <select {...formik.getFieldProps("timeline")} className="form-select form-select form-select-lg fw-bold" name="timeline">
+                          <option value="">Select Timeline</option>
+                          <option value="7">7 days</option>
+                          <option value="15">15 days</option>
+                          <option value="30">30 days</option>
+                          <option value="90">3 months</option>
+                          <option value="180">6 months</option>
+                          <option value="360">1 year</option>
+                        </select> */}
+                        <div className="flex-row mb-6">
+                          <label className="m-2 cursor-pointer">
+                            <input {...formik.getFieldProps("timeline")} type="radio" name="timeline" value={30} className="form-check-input" defaultChecked={true} />
+                            <span className="fw-bold fs-6 mx-2">1 Month</span>
+                          </label>
+                          <label className="m-2 cursor-pointer">
+                            <input {...formik.getFieldProps("timeline")} type="radio" name="timeline" value={90} className="form-check-input" />
+                            <span className="fw-bold fs-6 mx-2">3 Months</span>
+                          </label>
+                          <label className="m-2 cursor-pointer">
+                            <input {...formik.getFieldProps("timeline")} type="radio" name="timeline" value={180} className="form-check-input" />
+                            <span className="fw-bold fs-6 mx-2">6 Months</span>
+                          </label>
+                          <label className="m-2 cursor-pointer">
+                            <input {...formik.getFieldProps("timeline")} type="radio" name="timeline" value={0} className="form-check-input" />
+                            <span className="fw-bold fs-6 mx-2">Custom</span>
+                          </label>
+                          {String(formik.values.timeline) === "0" && (
+                            <label>
+                              <div className="d-flex">
+                                <input {...formik.getFieldProps("fromDate")} type="date" className="form-control w-150px mx-2" name="fromDate" placeholder="From Date" />
+                                <input {...formik.getFieldProps("toDate")} type="date" className="form-control w-150px" name="toDate" placeholder="To Date" />
+                              </div>
+                            </label>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-md-3">
+                      <div className="fv-row mb-6">
+                        <label className="fw-bold fs-6 mb-2">Interval</label>
+                        <select {...formik.getFieldProps("interval")} className="form-select form-select form-select-lg fw-bold" name="interval">
+                          <option value="">Select Interval</option>
+                          <option value="10s">10s</option>
+                          <option value="30s">30s</option>
+                          <option value="1m">1m</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="fv-row mb-6">
+                        <label className="fw-bold fs-6 mb-2">Aggregation Type</label>
+                        <select {...formik.getFieldProps("aggregationType")} className="form-select form-select form-select-lg fw-bold" name="aggregationType">
+                          <option value="avg">Average</option>
+                          <option value="min">Min</option>
+                          <option value="max">Max</option>
+                          <option value="sum">Sum</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
                   <div className="row">
                     <div className="col-md-12">
                       <div className="fv-row mb-6">
@@ -203,7 +267,7 @@ const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetPreviewWidgetList, i
 
                 {/* begin::Actions */}
                 <div className="text-center pt-15">
-                  <button type="reset" onClick={onCloseAddSensor} className="btn btn-light me-3" data-kt-widget-modal-action="cancel" disabled={formik.isSubmitting}>
+                  <button type="reset" onClick={onCloseAddSensor} className="btn btn-light me-3" data-kt-chart-modal-action="cancel" disabled={formik.isSubmitting}>
                     Cancel
                   </button>
                   <button type="submit" className="btn btn-primary">

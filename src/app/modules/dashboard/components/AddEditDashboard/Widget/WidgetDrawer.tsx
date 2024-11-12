@@ -6,10 +6,11 @@ import { AddSensor } from "./AddSensor";
 import { CreateView } from "./CreateView";
 
 interface IWidgetDrawerProps {
-  onGetPreviewWidget: (data: any) => void;
+  onGetChartWidget: (data: any) => void;
+  onGetSensorWidget: (data: any) => void;
 }
 
-const WidgetDrawer = ({ onGetPreviewWidget }: IWidgetDrawerProps) => {
+const WidgetDrawer = ({ onGetChartWidget, onGetSensorWidget }: IWidgetDrawerProps) => {
   const [isActivated, setIsActivated] = useState({
     chart: true,
     sensor: false,
@@ -27,8 +28,12 @@ const WidgetDrawer = ({ onGetPreviewWidget }: IWidgetDrawerProps) => {
     setSelectedLayout(data);
   };
 
-  const onGetPreviewWidgetList = (data: any) => {
-    onGetPreviewWidget(data);
+  const onGetChartWidgetList = (data: any) => {
+    onGetChartWidget(data);
+  };
+
+  const onGetSensorWidgetList = (data: any) => {
+    onGetSensorWidget(data);
   };
 
   const onCloseAddChart = () => {
@@ -768,11 +773,8 @@ const WidgetDrawer = ({ onGetPreviewWidget }: IWidgetDrawerProps) => {
         </div>
         {/* end::Card */}
       </div>
-      {isSelectChart && <CreateView selectedLayout={selectedLayout} onCloseAddChart={onCloseAddChart} onGetPreviewWidgetList={(data) => onGetPreviewWidgetList(data)} />}
-
-      {isSelectSensor && (
-        <AddSensor selectedLayout={selectedLayout} isActivated={isActivated} onCloseAddSensor={onCloseAddSensor} onGetPreviewWidgetList={(data) => onGetPreviewWidgetList(data)} />
-      )}
+      {isSelectChart && <CreateView selectedLayout={selectedLayout} onCloseAddChart={onCloseAddChart} onGetChartWidgetList={(data) => onGetChartWidgetList(data)} />}
+      {isSelectSensor && <AddSensor selectedLayout={selectedLayout} onCloseAddSensor={onCloseAddSensor} onGetSensorWidgetList={(data) => onGetSensorWidgetList(data)} />}
     </>
   );
 };

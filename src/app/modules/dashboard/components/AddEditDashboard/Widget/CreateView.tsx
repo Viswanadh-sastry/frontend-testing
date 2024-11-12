@@ -9,10 +9,10 @@ import { getThingChannelList } from "../../../../things/api/ThingChannelAPI";
 interface ICreateViewProps {
   selectedLayout: any;
   onCloseAddChart: () => void;
-  onGetPreviewWidgetList: (data: any) => void;
+  onGetChartWidgetList: (data: any) => void;
 }
 
-const CreateView = ({ selectedLayout, onCloseAddChart, onGetPreviewWidgetList }: ICreateViewProps) => {
+const CreateView = ({ selectedLayout, onCloseAddChart, onGetChartWidgetList }: ICreateViewProps) => {
   const chartSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
     devices: Yup.array().min(1, "Device is required"),
@@ -20,6 +20,7 @@ const CreateView = ({ selectedLayout, onCloseAddChart, onGetPreviewWidgetList }:
     fromDate: Yup.date(),
     toDate: Yup.date(),
     interval: Yup.string(),
+    aggregationType: Yup.string(),
     layout: Yup.string(),
   });
 
@@ -31,6 +32,7 @@ const CreateView = ({ selectedLayout, onCloseAddChart, onGetPreviewWidgetList }:
       fromDate: undefined,
       toDate: undefined,
       interval: "",
+      aggregationType: "avg",
       layout: selectedLayout?.name,
       uniqueDeviceList: [],
       tempSensorTypeList: [],
@@ -41,7 +43,7 @@ const CreateView = ({ selectedLayout, onCloseAddChart, onGetPreviewWidgetList }:
       if (!isValid) {
         return;
       }
-      onGetPreviewWidgetList(values);
+      onGetChartWidgetList(values);
       onCloseAddChart();
     },
   });
@@ -234,6 +236,17 @@ const CreateView = ({ selectedLayout, onCloseAddChart, onGetPreviewWidgetList }:
                           <option value="10s">10s</option>
                           <option value="30s">30s</option>
                           <option value="1m">1m</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="fv-row mb-6">
+                        <label className="fw-bold fs-6 mb-2">Aggregation Type</label>
+                        <select {...formik.getFieldProps("aggregationType")} className="form-select form-select form-select-lg fw-bold" name="aggregationType">
+                          <option value="avg">Average</option>
+                          <option value="min">Minimum</option>
+                          <option value="max">Maximum</option>
+                          <option value="sum">Sum</option>
                         </select>
                       </div>
                     </div>
