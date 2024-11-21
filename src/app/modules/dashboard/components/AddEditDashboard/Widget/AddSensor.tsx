@@ -212,6 +212,10 @@ const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetSensorWidgetList }: 
                             <span className="fw-bold fs-6 mx-2">6 Months</span>
                           </label>
                           <label className="m-2 cursor-pointer">
+                            <input {...formik.getFieldProps("timeline")} type="radio" name="timeline" value={1} className="form-check-input" />
+                            <span className="fw-bold fs-6 mx-2">Current Day</span>
+                          </label>
+                          <label className="m-2 cursor-pointer">
                             <input {...formik.getFieldProps("timeline")} type="radio" name="timeline" value={0} className="form-check-input" />
                             <span className="fw-bold fs-6 mx-2">Custom</span>
                           </label>

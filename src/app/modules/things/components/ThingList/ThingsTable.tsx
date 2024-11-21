@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ColumnInstance, Row, useTable } from "react-table";
 import { toast } from "react-toastify";
 import { KTCard, KTCardBody } from "../../../../../_metronic/helpers";
-import { getThingList } from "../../api/ThingAPI";
+import { getThingListAll } from "../../api/ThingAPI";
 import { getThingChannelList } from "../../api/ThingChannelAPI";
 import { Thing } from "../../api/_models";
 import { AddThing } from "../AddEditThing/AddThing";
@@ -14,11 +14,15 @@ import { thingsColumns } from "./columns/_columns";
 import { ThingsListLoading } from "./pagination/ThingsListLoading";
 import { ThingsListPagination } from "./pagination/ThingsListPagination";
 import { ImportThings } from "../AddEditThing/ImportThings/ImportThings";
-import { getHistoryListAll } from "../../../histories/api/HistoryAPI";
+import { getHistoryList } from "../../../histories/api/HistoryAPI";
 
 const ThingsTable = () => {
   const [showAddThing, setShowAddThing] = useState(false);
   const [importModal, setImportModal] = useState(false);
+  const [data, setData] = useState<any>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState<any>(10);
+  const [thingList, setThingList] = useState<any>([]);
   const filterChannel = {
     limit: 10,
     offset: 0,
@@ -27,7 +31,7 @@ const ThingsTable = () => {
     status: "enabled",
   };
   const [filterThing, setFilterThing] = useState({
-    limit: 10,
+    limit: 100,
     offset: 0,
     name: "",
     metadata: "",
@@ -41,7 +45,7 @@ const ThingsTable = () => {
   const thingListQuery = useQuery({
     queryKey: [`thingList`, filterThing],
     queryFn: async () =>
-      getThingList(filterThing)
+      getThingListAll(filterThing)
         .then(async (response) => {
           const things = await Promise.all(
             response.things.map(async (thing: any) => {
@@ -51,13 +55,13 @@ const ThingsTable = () => {
                   channel.groups.map(async (group: any) => {
                     try {
                       const filterHistory = {
-                        limit: 100,
                         offset: 0,
+                        limit: 10,
                         name: "",
                         publisher: thing.id,
                         status: "enabled",
                       };
-                      const history = await getHistoryListAll(group.id, filterHistory);
+                      const history = await getHistoryList(group.id, filterHistory);
                       return history;
                     } catch (error) {
                       return [];
@@ -68,7 +72,7 @@ const ThingsTable = () => {
                 const flatHistory: any = historyData.flat().sort((a: any, b: any) => a.time - b.time);
 
                 // Convert current time to Unix timestamp
-                const now = Number(new Date().getTime().toString() + "000");
+                const now = Number(String(new Date().getTime()).slice(0, 10));
 
                 // Calculate activity status
                 let activity = "inactive";
@@ -77,8 +81,8 @@ const ThingsTable = () => {
                   const updateFrequency = parseInt(thing.metadata.Update_Frequency);
 
                   if (flatHistory.length > 0 && flatHistory[0].messages?.length > 0) {
-                    const firstRecordTime = flatHistory[0].messages[0].time;
-                    const timeDifference = Math.abs((now - firstRecordTime) / 1000000);
+                    const firstRecordTime = Number(String(flatHistory[0].messages[0].time).slice(0, 10));
+                    const timeDifference = now - firstRecordTime;
                     if (timeDifference >= 0 && timeDifference <= updateFrequency) {
                       activity = "active";
                     }
@@ -107,7 +111,22 @@ const ThingsTable = () => {
   });
 
   const isLoading = thingListQuery.isLoading;
-  const data = useMemo(() => thingListQuery.data?.things || [], [thingListQuery.data]);
+
+  useEffect(() => {
+    if (thingListQuery.data?.things) {
+      setThingList(thingListQuery.data.things || []);
+    }
+  }, [thingListQuery.data?.things]);
+  useEffect(() => {
+    if (thingList.length > 0) {
+      setData(
+        thingList.filter((_: any, index: number) => {
+          return index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage;
+        })
+      );
+    }
+  }, [thingList, currentPage, itemsPerPage]);
+
   const columns = useMemo(() => thingsColumns, []);
   const { getTableProps, getTableBodyProps, headers, rows, prepareRow } = useTable({
     columns,
@@ -128,7 +147,14 @@ const ThingsTable = () => {
 
   return (
     <KTCard>
-      <ThingsListHeader onShowAddThing={onShowAddThing} onShowImportThing={onShowImportThing} setFilterThing={setFilterThing} filterThing={filterThing} />
+      <ThingsListHeader
+        onShowAddThing={onShowAddThing}
+        onShowImportThing={onShowImportThing}
+        setFilterThing={setFilterThing}
+        setThingList={setThingList}
+        thingList={thingList}
+        thingListQuery={thingListQuery}
+      />
       <KTCardBody className="py-4">
         <div className="table-responsive">
           <table id="kt_table_things" className="table align-middle table-row-dashed fs-6 dataTable no-footer" {...getTableProps()}>
@@ -155,7 +181,15 @@ const ThingsTable = () => {
             </tbody>
           </table>
         </div>
-        <ThingsListPagination filterThing={filterThing} setFilterThing={setFilterThing} />
+        <ThingsListPagination
+          thingList={thingList}
+          currentPage={currentPage}
+          itemsPerPage={itemsPerPage}
+          data={data}
+          setCurrentPage={setCurrentPage}
+          setItemsPerPage={setItemsPerPage}
+          setData={setData}
+        />
         {showAddThing && <AddThing onCloseAddThing={onCloseAddThing} onGetThingList={onGetThingList} />}
         {importModal && <ImportThings onShowImportThing={importModal} onCloseImportThing={onCloseImportThing} onGetThingList={onGetThingList} />}
         {isLoading && <ThingsListLoading />}

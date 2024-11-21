@@ -5,11 +5,13 @@ const API_URL = import.meta.env.VITE_APP_API_URL;
 export async function getDomainList(data: any) {
     const query = searchDomain(data);
     const response = await axios.get(`${API_URL}/domains?limit=${data.limit}&offset=${data.offset}${query}`);
+    // sort domains by name
+    response.data.domains?.sort((a: any, b: any) => a.name.localeCompare(b.name));
     return response.data;
 }
 
 export async function getDomainListAll(data: any) {
-    const query = searchDomain(data);
+    const query = searchDomain({ ...data, limit: 100 });
     const response = await axios.get(`${API_URL}/domains?limit=${data.limit}&offset=${data.offset}${query}`);
     const totalRecords = response.data.total;
     for (let i = 100; i < totalRecords; i += 100) {
@@ -17,6 +19,8 @@ export async function getDomainListAll(data: any) {
         const result = await axios.get(`${API_URL}/domains?limit=${data.limit}&offset=${data.offset}${query}`);
         response.data.domains.push(...result.data.domains);
     }
+    // sort domains by name
+    response.data.domains?.sort((a: any, b: any) => a.name.localeCompare(b.name));
     return response.data;
 }
 

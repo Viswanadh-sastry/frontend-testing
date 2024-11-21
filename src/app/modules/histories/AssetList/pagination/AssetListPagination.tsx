@@ -39,7 +39,7 @@ const AssetListPagination = ({ assetHistoryListQuery, currentPage, itemsPerPage,
   }, [data]);
 
   const getLinks = () => {
-    const noOfLinks = assetHistoryListQuery.data.length;
+    const noOfLinks = assetHistoryListQuery.data?.length;
     const noOfPages = Math.ceil(noOfLinks / itemsPerPage);
     const links = [];
     links.push({ label: "&laquo; Previous", active: false, url: null, page: pagination.page === 1 ? null : pagination.page - 1 });
@@ -56,6 +56,7 @@ const AssetListPagination = ({ assetHistoryListQuery, currentPage, itemsPerPage,
   const onChangePageSize = (e: any) => {
     setItemsPerPage(e.target.value);
     setCurrentPage(1);
+    setPagination({ ...pagination, page: 1, items_per_page: e.target.value });
   };
 
   const updateState = (state: any) => {

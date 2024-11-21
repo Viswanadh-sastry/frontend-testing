@@ -149,8 +149,8 @@ const WidgetItem = ({ widgetData, editWidget, removeWidget }: IWidgetItemProps) 
       thingId: [],
       status: "enabled",
       name: tempSensorTypeList[0],
-      from: Math.floor(fromTime / 1e9),
-      to: Math.floor(toTime / 1e9),
+      from: Number(String(fromTime).slice(0, 10)),
+      to: Number(String(toTime).slice(0, 10)),
       publisher: "",
     };
     for (const device of deviceList) {
@@ -212,8 +212,8 @@ const WidgetItem = ({ widgetData, editWidget, removeWidget }: IWidgetItemProps) 
       thingId: [],
       status: "enabled",
       name: sensorType,
-      from: Math.floor(fromTime / 1e9),
-      to: Math.floor(toTime / 1e9),
+      from: Number(String(fromTime).slice(0, 10)),
+      to: Number(String(toTime).slice(0, 10)),
       publisher: "",
     };
     for (const device of deviceData) {
@@ -338,11 +338,11 @@ const WidgetItem = ({ widgetData, editWidget, removeWidget }: IWidgetItemProps) 
             <h4>{selectedLayout.title}</h4>
           </div>
           <div className="d-flex">
-            <button type="button" className="btn btn-sm btn-icon btn-color-primary btn-active-light-primary" onClick={() => editWidget(widgetData)}>
-              <i className="bi bi-pencil fs-6"></i>
+            <button type="button" className="btn btn-sm btn-icon btn-light-primary btn-active-primary" onClick={() => editWidget(widgetData)}>
+              <i className="bi bi-pencil px-5"></i>
             </button>
-            <button type="button" className="btn btn-sm btn-icon btn-color-danger btn-active-light-danger mx-2" onClick={() => removeWidget(widgetData.widgetId)}>
-              <i className="bi bi-trash fs-6"></i>
+            <button type="button" className="btn btn-sm btn-icon btn-light-danger btn-active-danger mx-2" onClick={() => removeWidget(widgetData.widgetId)}>
+              <i className="bi bi-trash px-5"></i>
             </button>
             {sensorTypeList.length > 0 && (
               <select className="form-select form-select-sm" aria-label=".form-select-sm example" onChange={onSelectSensorType}>

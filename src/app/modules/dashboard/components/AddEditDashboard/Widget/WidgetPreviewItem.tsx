@@ -136,8 +136,8 @@ const WidgetPreviewItem = ({ widgetData }: IWidgetPreviewItemProps) => {
       thingId: [],
       status: "enabled",
       name: tempSensorTypeList[0],
-      from: Math.floor(fromTime / 1e9),
-      to: Math.floor(toTime / 1e9),
+      from: Number(String(fromTime).slice(0, 10)),
+      to: Number(String(toTime).slice(0, 10)),
       publisher: "",
     };
     for (const device of deviceList) {
@@ -199,8 +199,8 @@ const WidgetPreviewItem = ({ widgetData }: IWidgetPreviewItemProps) => {
       thingId: [],
       status: "enabled",
       name: sensorType,
-      from: Math.floor(fromTime / 1e9),
-      to: Math.floor(toTime / 1e9),
+      from: Number(String(fromTime).slice(0, 10)),
+      to: Number(String(toTime).slice(0, 10)),
       publisher: "",
     };
     for (const device of deviceData) {

@@ -585,7 +585,7 @@ const WidgetDrawer = ({ onGetChartWidget, onGetSensorWidget }: IWidgetDrawerProp
                     </div>
                   </div>
 
-                  <div className="overflow-auto pb-5">
+                  {/* <div className="overflow-auto pb-5">
                     <div className="d-flex flex-row">
                       <label
                         className={clsx("form-check-image form-check-success p-2", {
@@ -628,7 +628,7 @@ const WidgetDrawer = ({ onGetChartWidget, onGetSensorWidget }: IWidgetDrawerProp
                         </div>
                       </label>
                     </div>
-                  </div>
+                  </div> */}
 
                   <div className="overflow-auto pb-5">
                     <div className="d-flex flex-row">
@@ -677,7 +677,7 @@ const WidgetDrawer = ({ onGetChartWidget, onGetSensorWidget }: IWidgetDrawerProp
                   <div className="overflow-auto pb-5">
                     <div className="d-flex flex-row">
                       <label
-                        className={clsx("form-check-image form-check-success p-2", {
+                        className={clsx("form-check-image form-check-success p-2 w-50", {
                           active: selectedLayout?.name === "TableCard",
                         })}
                       >
@@ -696,7 +696,7 @@ const WidgetDrawer = ({ onGetChartWidget, onGetSensorWidget }: IWidgetDrawerProp
                           <div className="form-check-label text-gray-800">Table Card</div>
                         </div>
                       </label>
-                      <label
+                      {/* <label
                         className={clsx("form-check-image form-check-success p-2", {
                           active: selectedLayout?.name === "HorizontalLineCard",
                         })}
@@ -715,7 +715,7 @@ const WidgetDrawer = ({ onGetChartWidget, onGetSensorWidget }: IWidgetDrawerProp
                           />
                           <div className="form-check-label text-gray-800">Horizontal Line Card</div>
                         </div>
-                      </label>
+                      </label> */}
                     </div>
                   </div>
                 </div>

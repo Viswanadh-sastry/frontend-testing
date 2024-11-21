@@ -23,18 +23,24 @@ export async function getHistoryListAll(channelId: string, data: any) {
 export async function getChannelList(data: any) {
     const query = searchAsset(data);
     const response = await axios.get(`${API_URL}/channels${query}`);
+    // sort channels by name
+    response.data.groups?.sort((a: any, b: any) => a.name.localeCompare(b.name));
     return response.data;
 }
 
 export async function getThingList(data: any) {
     const query = searchAsset(data);
     const response = await axios.get(`${API_URL}/things${query}`);
+    // sort things by name
+    response.data.things?.sort((a: any, b: any) => a.name.localeCompare(b.name));
     return response.data;
 }
 
 export async function getGroupList(data: any) {
     const query = searchAsset(data);
     const response = await axios.get(`${API_URL}/groups${query}`);
+    // sort groups by name
+    response.data.groups?.sort((a: any, b: any) => a.name.localeCompare(b.name));
     return response.data;
 }
 

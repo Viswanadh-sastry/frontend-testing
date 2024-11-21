@@ -1,11 +1,10 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { KTIcon } from "../../../../../_metronic/helpers";
 import * as roleHelper from "../../../auth/core/RoleHelpers";
-import { getDomainListAll } from "../../api/DomainAPI";
 
 interface IDomainListHeaderProps {
   onShowAddDomain: () => void;
@@ -19,33 +18,20 @@ interface IDomainListHeaderProps {
       status: string;
     }>
   >;
-  filterDomain: {
-    offset: number;
-    limit: number;
-    name: string;
-    permission: string;
-    status: string;
-  };
+  setDomainList: Dispatch<SetStateAction<any[]>>;
+  domainList: any[];
+  domainListQuery: any;
 }
 
-const DomainListHeader = ({ onShowAddDomain, setFilterDomain, onShowImportDomain, filterDomain }: IDomainListHeaderProps) => {
+const DomainListHeader = ({ onShowAddDomain, setFilterDomain, onShowImportDomain, setDomainList, domainList, domainListQuery }: IDomainListHeaderProps) => {
+  const [searchText, setSearchText] = useState<string>("");
   const role = roleHelper.getRole();
   const onChangeStatus = (e: any) => {
+    setSearchText("");
     setFilterDomain((prevState: any) => ({
       ...prevState,
       status: e.target.value,
     }));
-  };
-
-  const getDomainData = async () => {
-    const filterDomains = {
-      offset: 0,
-      limit: 100,
-      name: filterDomain.name,
-      permission: "",
-      status: filterDomain.status,
-    };
-    return await getDomainListAll(filterDomains).catch((error) => toast.error(error.message));
   };
 
   const convertToCSV = (data: any[], headerOrder: string[]) => {
@@ -103,8 +89,6 @@ const DomainListHeader = ({ onShowAddDomain, setFilterDomain, onShowImportDomain
 
   // Convert data to CSV and download
   const downloadCSV = async () => {
-    const { domains: domainList } = await getDomainData();
-
     if (domainList.length === 0) {
       toast.error("No data found to download!");
       return;
@@ -125,8 +109,6 @@ const DomainListHeader = ({ onShowAddDomain, setFilterDomain, onShowImportDomain
   };
 
   const downloadXlsx = async () => {
-    const { domains: domainList } = await getDomainData();
-
     // Define the order of columns for the XLSX
     const headerOrder = ["id", "name", "alias", "permission", "tags", "metadata", "created_at", "status"];
 
@@ -223,8 +205,6 @@ const DomainListHeader = ({ onShowAddDomain, setFilterDomain, onShowImportDomain
 
   // download pdf
   const downloadPDF = async () => {
-    const { domains: domainList } = await getDomainData();
-
     if (domainList.length === 0) {
       toast.error("No data found to download!");
       return;
@@ -307,12 +287,15 @@ const DomainListHeader = ({ onShowAddDomain, setFilterDomain, onShowImportDomain
               type="text"
               className="form-control form-control form-control-lg mx-2"
               placeholder="Search"
-              onChange={(e) =>
-                setFilterDomain((prevState: any) => ({
-                  ...prevState,
-                  name: e.target.value,
-                }))
-              }
+              value={searchText}
+              onChange={(e) => {
+                setSearchText(e.target.value);
+                setDomainList(
+                  domainListQuery.data?.domains.filter((domain: any) => {
+                    return domain.name.toLowerCase().includes(e.target.value.toLowerCase());
+                  })
+                );
+              }}
             />
             <select className="form-select form-select-solid w-200px ps-8" onChange={onChangeStatus} defaultValue="enabled">
               <option value="all">Status: all</option>

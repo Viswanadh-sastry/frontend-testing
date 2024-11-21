@@ -195,6 +195,14 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
                 timeInDisplay: moment.utc(i).format("DD/MM"),
             });
         }
+    } else if (inputData.timeline === "1") {
+        for (let i = 0; i < 24; i++) {
+            categories.push({
+                timeInFromTimestamp: moment().startOf("day").add(i, "hours").valueOf(),
+                timeInToTimestamp: moment().startOf("day").add(i, "hours").add(59, "minutes").add(59, "seconds").valueOf(),
+                timeInDisplay: moment().startOf("day").add(i, "hours").format("HH:mm"),
+            });
+        }
     } else {
         for (let i = inputData.timeline - 1; i >= 0; i--) {
             categories.push({
@@ -205,8 +213,10 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
         }
     }
     console.log("categories", categories);
+    console.log("messages", messages);
 
     const deviceData: any = deviceList.filter((device: any) => device.sensorType === sensorType);
+    console.log("deviceData", deviceData);
 
     const series: any = [];
     const seriesCount: any = [];
@@ -216,16 +226,35 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
         categories.map((category: any) => {
             // Filter messages per device and category (day)
             const data = messages.filter(
-                (message: any) => message.publisher === device.thingId && Number(String(message.time).slice(0, 10)) > Math.floor(category.timeInFromTimestamp / 1e9) && Number(String(message.time).slice(0, 10)) < Math.floor(category.timeInToTimestamp / 1e9)
+                (message: any) => message.publisher === device.thingId && Number(String(message.time).slice(0, 10)) > Number(String(category.timeInFromTimestamp).slice(0, 10)) && Number(String(message.time).slice(0, 10)) < Number(String(category.timeInToTimestamp).slice(0, 10))
             );
-
-            // Average value for the day
-            const average = data.length > 0
-                ? data.reduce((a: number, b: any) => a + (typeof b.value === 'number' ? b.value : 0), 0) / data.length
-                : 0;
-
             // For histogram, we use the count of messages
-            categoryData.push(Number(average.toFixed(2)));
+            if (inputData.aggregationType === "avg") {
+                // Average value for the day
+                const average = data.length > 0
+                    ? data.reduce((a: number, b: any) => a + (typeof b.value === 'number' ? b.value : 0), 0) / data.length
+                    : 0;
+                categoryData.push(Number(average.toFixed(2)));
+            } else if (inputData.aggregationType === "min") {
+                // Min value for the day
+                const min = data.length > 0
+                    ? Math.min(...data.map((message: any) => message.value))
+                    : 0;
+                categoryData.push(min);
+            } else if (inputData.aggregationType === "max") {
+                // Max value for the day
+                const max = data.length > 0
+                    ? Math.max(...data.map((message: any) => message.value))
+                    : 0;
+                categoryData.push(max);
+            } else if (inputData.aggregationType === "sum") {
+                // Sum value for the day
+                const sum = data.length > 0
+                    ? data.reduce((a: number, b: any) => a + (typeof b.value === 'number' ? b.value : 0), 0)
+                    : 0;
+                categoryData.push(sum);
+            }
+
             categoryCount.push(data.length);
         });
 
@@ -240,6 +269,7 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
     });
     console.log("deviceData", deviceData);
     console.log("series", series);
+    console.log("seriesCount", seriesCount);
 
     // Chart Options for different layouts
     const { layout } = inputData;

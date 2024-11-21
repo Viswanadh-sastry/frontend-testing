@@ -27,8 +27,30 @@ const LayoutBuilder = () => {
   const refreshSensor = async (data: any) => {
     // Save the dashboard
     const selectedLayout = {
-      height: 400,
-      width: 500,
+      height:
+        data.layout === "SquareCard"
+          ? 300
+          : data.layout === "RectangleCard"
+          ? 200
+          : data.layout === "VerticalCard"
+          ? 450
+          : data.layout === "HorizontalCard"
+          ? 200
+          : data.layout === "TableCard"
+          ? 330
+          : 400,
+      width:
+        data.layout === "SquareCard"
+          ? 300
+          : data.layout === "RectangleCard"
+          ? 500
+          : data.layout === "VerticalCard"
+          ? 200
+          : data.layout === "HorizontalCard"
+          ? 450
+          : data.layout === "TableCard"
+          ? 300
+          : 500,
       left: 0,
       top: 0,
       order: 0,
@@ -36,7 +58,6 @@ const LayoutBuilder = () => {
       name: data.layout,
       imageUrl: "",
     };
-    console.log("data", data, selectedLayout);
     saveDashboard(data, selectedLayout, data.uniqueDeviceList);
   };
 

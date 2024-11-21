@@ -1,4 +1,5 @@
 import Swal from "sweetalert2/dist/sweetalert2.js";
+import moment from "moment";
 
 export const showSwal = (error: string) => {
     Swal.fire({
@@ -15,34 +16,28 @@ export const convertUnixTimestampToLocalDateTime = (unixTimestamp: any) => {
     if (!unixTimestamp) {
         return '';
     }
-    // Check if the unixTimestamp length is 10 digits
-    if (unixTimestamp.toString().length === 10) {
-        unixTimestamp = unixTimestamp * 1000;
+
+    // Convert unix timestamp to local date time
+    const length = String(unixTimestamp).length;
+    let timestampInMilliseconds;
+
+    if (length <= 10) {
+        // Seconds to milliseconds
+        timestampInMilliseconds = unixTimestamp * 1000;
+    } else if (length === 13) {
+        // Already in milliseconds
+        timestampInMilliseconds = unixTimestamp;
+    } else if (length === 16) {
+        // Microseconds to milliseconds
+        timestampInMilliseconds = Math.floor(unixTimestamp / 1000);
+    } else if (length === 19) {
+        // Nanoseconds to milliseconds
+        timestampInMilliseconds = Math.floor(unixTimestamp / 1e6);
+    } else {
+        return '';
     }
 
-    // Check if the unixTimestamp length is 16 digits
-    if (unixTimestamp.toString().length === 16) {
-        unixTimestamp = unixTimestamp / 1000;
-    }
-
-    // Check if the unixTimestamp length is 19 digits
-    if (unixTimestamp.toString().length === 19) {
-        unixTimestamp = unixTimestamp / 1000000;
-    }
-
-    // Convert from microseconds to milliseconds by dividing by 1,000
-    const date = new Date(unixTimestamp);
-
-    // Get the date and time in the local time zone
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-
-    // Format the date and time in the desired format
-    return `${year}-${month}-${day} T ${hours}:${minutes}:${seconds}`;
+    return moment(timestampInMilliseconds).format('YYYY-MM-DD T HH:mm:ss');
 };
 
 // Convert GMT time to local date time with YYYY-MM-DD T HH:mm:ss format
@@ -66,4 +61,3 @@ export const convertGMTToLocalDateTime = (gmtTime: any) => {
     // Format the date and time in the desired format
     return `${year}-${month}-${day} T ${hours}:${minutes}:${seconds}`;
 };
-

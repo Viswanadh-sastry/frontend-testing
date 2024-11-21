@@ -240,6 +240,17 @@ const EditView = ({ inputData, onClose, onEditView }: IEditViewProps) => {
                               {...formik.getFieldProps("timeline")}
                               type="radio"
                               name="timeline"
+                              value={1}
+                              className="form-check-input"
+                              defaultChecked={String(formik.values.timeline) === "1"}
+                            />
+                            <span className="fw-bold fs-6 mx-2">Current Day</span>
+                          </label>
+                          <label className="m-2 cursor-pointer">
+                            <input
+                              {...formik.getFieldProps("timeline")}
+                              type="radio"
+                              name="timeline"
                               value={0}
                               className="form-check-input"
                               defaultChecked={String(formik.values.timeline) === "0"}

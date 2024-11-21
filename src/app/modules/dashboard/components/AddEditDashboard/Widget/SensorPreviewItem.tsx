@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { toAbsoluteUrl } from "../../../../../../_metronic/helpers";
 import { getHistoryListAll } from "../../../../histories/api/HistoryAPI";
 import { getThingChannelList } from "../../../../things/api/ThingChannelAPI";
+import { convertUnixTimestampToLocalDateTime } from "../../../../../constants/Common";
 import "./ViewSensor.css";
 
 interface ISensorPreviewItemProps {
@@ -80,8 +81,8 @@ const SensorPreviewItem = ({ widgetData }: ISensorPreviewItemProps) => {
     thingId: [],
     status: "enabled",
     name: devices[0].sensorType,
-    from: Math.floor(fromTime / 1e9),
-    to: Math.floor(toTime / 1e9),
+    from: Number(String(fromTime).slice(0, 10)),
+    to: Number(String(toTime).slice(0, 10)),
     publisher: "",
   };
   const deviceHistoryListQuery = useQuery({
@@ -112,10 +113,24 @@ const SensorPreviewItem = ({ widgetData }: ISensorPreviewItemProps) => {
 
   const data = deviceHistoryListQuery.data ?? [];
 
-  const lastData = data?.length > 0 ? data[data?.length - 1] : null;
-  console.log("lastData", lastData);
+  let lastData = null;
+  if (metadata.aggregationType === "avg") {
+    const sum = data.reduce((a: any, b: any) => a + b.value, 0);
+    const avg = sum / data.length;
+    lastData = { name: metadata.title, value: Number(avg.toFixed(2)), time: data.length > 0 ? data[data.length - 1].time : 0 };
+  } else if (metadata.aggregationType === "min") {
+    const min = Math.min(...data.map((item: any) => item.value));
+    lastData = { name: metadata.title, value: min, time: data.length > 0 ? data[data.length - 1].time : 0 };
+  } else if (metadata.aggregationType === "max") {
+    const max = Math.max(...data.map((item: any) => item.value));
+    lastData = { name: metadata.title, value: max, time: data.length > 0 ? data[data.length - 1].time : 0 };
+  } else if (metadata.aggregationType === "sum") {
+    const sum = data.reduce((a: any, b: any) => a + b.value, 0);
+    lastData = { name: metadata.title, value: sum, time: data.length > 0 ? data[data.length - 1].time : 0 };
+  }
 
   const lastFiveData = data?.slice(Math.max(data?.length - 5, 0));
+  console.log("lastFiveData", lastFiveData);
 
   function calculateDaysDifference(unixTime: any) {
     if (!unixTime) return 0;
@@ -134,9 +149,7 @@ const SensorPreviewItem = ({ widgetData }: ISensorPreviewItemProps) => {
 
   // Calculate the percentage for the progress bar
   const temperatureValue = lastData?.value || 0;
-  const maxTemperature = 100;
-  const minTemperature = 0;
-  const progressPercentage = ((temperatureValue - minTemperature) / (maxTemperature - minTemperature)) * 100;
+  const progressPercentage = Number(temperatureValue / 100).toFixed(2);
 
   return (
     <>
@@ -150,15 +163,15 @@ const SensorPreviewItem = ({ widgetData }: ISensorPreviewItemProps) => {
           height: `${layout.widgetSize.height}px`,
         }}
       >
-        <div className="d-flex align-items-center justify-content-center me-2">
+        {/* <div className="d-flex align-items-center justify-content-center me-2">
           <div>
             <h4>{metadata.title}</h4>
           </div>
-        </div>
+        </div> */}
 
         {layout.widgetType === "SquareCard" && lastData && (
-          <div className="card hoverable mb-xl-4">
-            <div className="card-body text-center">
+          <div className="hoverable">
+            <div className="text-center">
               <span className="fs-2hx fw-bold text-gray-900 me-2 lh-1 ls-n2">{lastData?.name}</span>
               <div className="d-flex flex-row align-items-center justify-content-center py-7 me-2">
                 {devices[0].sensorType === "Temp" && (
@@ -177,8 +190,8 @@ const SensorPreviewItem = ({ widgetData }: ISensorPreviewItemProps) => {
         )}
 
         {layout.widgetType === "RectangleCard" && (
-          <div className="card card-flush h-md-50 mb-5 mb-xl-10">
-            <div className="card-header pt-5">
+          <div className="card-flush">
+            <div className="card-header">
               <div className="card-title d-flex flex-column">
                 <div className="d-flex align-items-center">
                   {devices[0].sensorType === "Temp" && (
@@ -187,55 +200,30 @@ const SensorPreviewItem = ({ widgetData }: ISensorPreviewItemProps) => {
                   {(devices[0].sensorType === "vibration" || devices[0].sensorType === "Water_Level") && (
                     <img src={toAbsoluteUrl("media/widget/vibration.png")} style={{ width: "160px", height: "100px" }} className="mw-100" alt="" />
                   )}
-                  <span className="fs-2hx fw-bold text-gray-900 me-2 lh-1 ls-n2">{lastData?.name}</span>
-                  <span className="fs-2hx fw-bold text-gray-900 me-2 lh-1 ls-n2 mx-5">
-                    {lastData?.value}
-                    {devices[0].sensorType === "Temp" && "°C"}
-                  </span>
+                  <span className="fs-2hx fw-bold text-gray-900 mx-3 lh-1 ls-n2">{lastData?.name}</span>
+                  <span className="fs-2hx fw-bold text-gray-900 lh-1 ls-n2">{lastData?.value}°C</span>
                 </div>
               </div>
             </div>
-            <div className="text-center">{devices[0].sensorType === "Temp" && <h3>Last update {lastData?.time && calculateDaysDifference(lastData?.time)} ago</h3>}</div>
+            <div className="text-center">
+              <h3>Last update {lastData?.time && calculateDaysDifference(lastData?.time)} days ago</h3>
+            </div>
           </div>
         )}
 
-        {/* {layout.widgetType === "RectangleCard" && lastData && (
-              <div className="card hoverable mb-xl-4">
-                <div className="card-body d-flex align-items-center justify-content-center">
-                  <div className="me-3">
-                    {devices[0].sensorType === "Temp" && (
-                      <img src={toAbsoluteUrl("media/widget/Temperature1.png")} style={{ width: "160px", height: "100px" }} className="mw-100" alt="" />
-                    )}
-                    {devices[0].sensorType === "vibration" && (
-                      <img src={toAbsoluteUrl("media/widget/vibration.png")} style={{ width: "160px", height: "100px" }} className="mw-100" alt="" />
-                    )}
-                  </div>
-                  <div className="ms-4 text-start">
-                    <div className="d-flex align-items-center">
-                      <span className="fs-2hx fw-bold text-gray-900 me-2 lh-1 ls-n2">{lastData?.name}</span>
-                      <span className="fw-bolder fs-2">{lastData?.value}°C</span>
-                    </div>
-                    <h3 className="mt-2">{lastData?.time && calculateDaysDifference(lastData?.time)} days ago</h3>
-                  </div>
-                </div>
-              </div>
-            )} */}
-
         {layout.widgetType === "VerticalCard" && lastData && (
-          <div className="card hoverable mb-xl-4">
-            <div className="card-body text-center">
+          <div className="hoverable h-100">
+            <div className="text-center h-100">
               <h2>{lastData?.name}</h2>
-              <div className="d-flex flex-column align-items-center flex-grow-1 py-7">
-                <div className="temperature-display-vertical">
-                  <h2>{temperatureValue}°C</h2>
-                  {devices[0].sensorType === "Temp" && <span>100°C</span>}
-                  {(devices[0].sensorType === "vibration" || devices[0].sensorType === "Water_Level") && <span>100</span>}
-                  <div className="progress-bar-container vertical">
+              <div className="d-flex flex-column align-items-center flex-grow-1 py-7 h-100">
+                <div className="temperature-display-vertical h-100">
+                  <h2>{progressPercentage}%</h2>
+                  <span>100</span>
+                  <div className="progress-bar-container vertical h-100">
                     <div className="progress-bar" style={{ height: `${progressPercentage}%`, width: "100%" }}></div>
                   </div>
                   <div className="progress-labels-vertical d-flex flex-column align-items-center">
-                    {devices[0].sensorType === "Temp" && <span>0°C</span>}
-                    {(devices[0].sensorType === "vibration" || devices[0].sensorType === "Water_Level") && <span>0</span>}
+                    <span>0</span>
                   </div>
                 </div>
               </div>
@@ -244,20 +232,18 @@ const SensorPreviewItem = ({ widgetData }: ISensorPreviewItemProps) => {
         )}
 
         {layout.widgetType === "HorizontalCard" && lastData && (
-          <div className="card hoverable mb-xl-4">
-            <div className="card-body text-center">
+          <div className="hoverable w-100">
+            <div className="text-center">
               <h2>{lastData?.name}</h2>
-              <div className="d-flex flex-column flex-grow-1 py-7 me-2">
+              <div className="d-flex flex-column flex-grow-1">
                 <div className="temperature-display">
-                  <h2>{temperatureValue}°C</h2>
+                  <h2>{progressPercentage}%</h2>
                   <div className="progress-bar-container">
                     <div className="progress-bar" style={{ width: `${progressPercentage}%` }}></div>
                   </div>
                   <div className="progress-labels">
-                    {devices[0].sensorType === "Temp" && <span>0°C</span>}
-                    {(devices[0].sensorType === "vibration" || devices[0].sensorType === "Water_Level") && <span>0</span>}
-                    {devices[0].sensorType === "Temp" && <span>100°C</span>}
-                    {(devices[0].sensorType === "vibration" || devices[0].sensorType === "Water_Level") && <span>100</span>}
+                    <span>0</span>
+                    <span>100</span>
                   </div>
                 </div>
               </div>
@@ -266,9 +252,10 @@ const SensorPreviewItem = ({ widgetData }: ISensorPreviewItemProps) => {
         )}
 
         {layout.widgetType === "TableCard" && lastFiveData && (
-          <div className="card hoverable mb-xl-4">
-            <div className="card-body text-center">
-              <table className="table table-striped table-bordered mt-4">
+          <div className="hoverable w-100">
+            <div className="text-center">
+              <h2 className="mt-4">{lastData?.name}</h2>
+              <table className="table table-striped table-bordered">
                 <thead>
                   <tr>
                     <th>Time</th>
@@ -279,7 +266,7 @@ const SensorPreviewItem = ({ widgetData }: ISensorPreviewItemProps) => {
                   {lastFiveData && lastFiveData.length > 0 ? (
                     lastFiveData.map((item: any, index: number) => (
                       <tr key={index}>
-                        <td>{new Date(item.time / 1000).toLocaleString()}</td>
+                        <td>{convertUnixTimestampToLocalDateTime(item.time)}</td>
                         <td>{item.value}</td>
                       </tr>
                     ))
@@ -290,31 +277,6 @@ const SensorPreviewItem = ({ widgetData }: ISensorPreviewItemProps) => {
                   )}
                 </tbody>
               </table>
-            </div>
-          </div>
-        )}
-
-        {layout.widgetType === "HorizontalLineCard" && lastData && (
-          <div className="card hoverable mb-xl-4">
-            <div className="card-body text-center">
-              <h2>{lastData?.name}</h2>
-              <div className="horizontal-line-card-container">
-                <div className="horizontal-line-card">
-                  <div className="temperature-value">
-                    <strong>{temperatureValue}°C</strong>
-                  </div>
-                  <div className="temperature-line">
-                    <div className="temperature-progress" style={{ width: `${progressPercentage}%` }}></div>
-                  </div>
-
-                  <div className="line-labels">
-                    {devices[0].sensorType === "Temp" && <span>0°C</span>}
-                    {(devices[0].sensorType === "vibration" || devices[0].sensorType === "Water_Level") && <span>0</span>}
-                    {devices[0].sensorType === "Temp" && <span>100°C</span>}
-                    {(devices[0].sensorType === "vibration" || devices[0].sensorType === "Water_Level") && <span>100</span>}
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         )}

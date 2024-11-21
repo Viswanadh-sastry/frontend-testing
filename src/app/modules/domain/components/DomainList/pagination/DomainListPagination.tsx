@@ -1,9 +1,6 @@
 import clsx from "clsx";
-import { toast } from "react-toastify";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 import { PaginationState } from "../../../../../../_metronic/helpers";
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
-import { getDomainList } from "../../../api/DomainAPI";
 
 const mappedLabel = (label: string): string => {
   if (label === "&laquo; Previous") {
@@ -18,54 +15,47 @@ const mappedLabel = (label: string): string => {
 };
 
 interface IDomainListPaginationProps {
-  filterDomain: any;
-  setFilterDomain: Dispatch<
-    SetStateAction<{
-      offset: number;
-      limit: number;
-      name: string;
-      permission: string;
-      status: string;
-    }>
-  >;
+  domainList: any[];
+  currentPage: number;
+  itemsPerPage: any;
+  data: any;
+  setCurrentPage: (page: number) => void;
+  setItemsPerPage: (itemsPerPage: any) => void;
+  setData: (data: any) => void;
 }
 
-const DomainListPagination = ({ filterDomain, setFilterDomain }: IDomainListPaginationProps) => {
+const DomainListPagination = ({ domainList, currentPage, itemsPerPage, data, setCurrentPage, setItemsPerPage, setData }: IDomainListPaginationProps) => {
   const [pagination, setPagination] = useState<PaginationState>({
-    page: 1,
-    items_per_page: filterDomain.limit,
+    page: currentPage,
+    items_per_page: itemsPerPage,
     links: [],
   });
-  const domainListQuery = useQuery({
-    queryKey: [`domainListQuery`, filterDomain],
-    queryFn: async () => getDomainList(filterDomain).catch((error) => toast.error(error.message)),
-    enabled: false,
-  });
-  const isLoading = domainListQuery.isLoading;
 
   useEffect(() => {
-    if (domainListQuery.data) {
-      const noOfLinks = domainListQuery.data.total;
-      const noOfPages = Math.ceil(noOfLinks / domainListQuery.data.limit);
-      const links = [];
-      links.push({ label: "&laquo; Previous", active: false, url: null, page: pagination.page === 1 ? null : pagination.page - 1 });
-      for (let i = 1; i <= noOfPages; i++) {
-        links.push({ label: i.toString(), active: false, url: null, page: i });
-      }
-      links.push({ label: "Next &raquo;", active: false, url: null, page: pagination.page === noOfPages ? null : pagination.page + 1 });
-      setPagination({
-        ...pagination,
-        links,
-      });
+    if (data.length > 0) {
+      getLinks();
     }
-  }, [domainListQuery.data]);
+  }, [data]);
+
+  const getLinks = () => {
+    const noOfLinks = domainList.length;
+    const noOfPages = Math.ceil(noOfLinks / itemsPerPage);
+    const links = [];
+    links.push({ label: "&laquo; Previous", active: false, url: null, page: pagination.page === 1 ? null : pagination.page - 1 });
+    for (let i = 1; i <= noOfPages; i++) {
+      links.push({ label: i.toString(), active: false, url: null, page: i });
+    }
+    links.push({ label: "Next &raquo;", active: false, url: null, page: pagination.page === noOfPages ? null : pagination.page + 1 });
+    setPagination({
+      ...pagination,
+      links,
+    });
+  };
 
   const onChangePageSize = (e: any) => {
-    setFilterDomain((prevState: any) => ({
-      ...prevState,
-      limit: parseInt(e.target.value),
-      offset: 0,
-    }));
+    setItemsPerPage(e.target.value);
+    setCurrentPage(1);
+    setPagination({ ...pagination, page: 1, items_per_page: e.target.value });
   };
 
   const updateState = (state: any) => {
@@ -74,21 +64,21 @@ const DomainListPagination = ({ filterDomain, setFilterDomain }: IDomainListPagi
       page: state.page,
       items_per_page: state.items_per_page,
     });
-    setFilterDomain((prevState: any) => ({
-      ...prevState,
-      offset: state.items_per_page * (state.page - 1),
-      limit: state.items_per_page,
-    }));
+    const historyData = domainList.filter((_: any, index: number) => {
+      return index >= (state.page - 1) * state.items_per_page && index < state.page * state.items_per_page;
+    });
+    setItemsPerPage(state.items_per_page);
+    setData(historyData);
   };
 
   const updatePage = (page: number | undefined | null) => {
-    if (!page || isLoading || pagination.page === page) {
+    if (!page || pagination.page === page) {
       return;
     }
-    updateState({ page, items_per_page: filterDomain.limit });
+    updateState({ page, items_per_page: itemsPerPage });
   };
 
-  const PAGINATION_PAGES_COUNT = filterDomain.limit;
+  const PAGINATION_PAGES_COUNT = 10;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];
@@ -133,7 +123,7 @@ const DomainListPagination = ({ filterDomain, setFilterDomain }: IDomainListPagi
 
   return (
     <div className="row">
-      <div className="col-sm-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start">
+      <div className="col-sm-12 col-md-4 d-flex align-items-center justify-content-center justify-content-md-start">
         <select className="form-select form-select-solid w-90px ps-8 me-2" onChange={onChangePageSize}>
           <option value="10">10</option>
           <option value="20">20</option>
@@ -141,16 +131,16 @@ const DomainListPagination = ({ filterDomain, setFilterDomain }: IDomainListPagi
           <option value="40">40</option>
           <option value="50">50</option>
         </select>
-        <div id="kt_table_users_info" className="dataTables_info">
-          {isLoading ? "Loading..." : `Total ${domainListQuery.data?.total || 0} organizations`}
+        <div id="kt_table_domains_info" className="dataTables_info">
+          Total {domainList.length || 0} organizations
         </div>
       </div>
-      <div className="col-sm-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end">
-        <div id="kt_table_users_paginate">
+      <div className="col-sm-12 col-md-8 d-flex align-items-center justify-content-center justify-content-md-end">
+        <div id="kt_table_domains_paginate">
           <ul className="pagination">
             <li
               className={clsx("page-item", {
-                disabled: isLoading || pagination.page === 1,
+                disabled: pagination.page === 1,
               })}
             >
               <a onClick={() => updatePage(1)} style={{ cursor: "pointer" }} className="page-link">
@@ -166,7 +156,6 @@ const DomainListPagination = ({ filterDomain, setFilterDomain }: IDomainListPagi
                   key={link.label}
                   className={clsx("page-item", {
                     active: pagination.page === link.page,
-                    disabled: isLoading,
                     previous: link.label === "Previous",
                     next: link.label === "Next",
                   })}
@@ -185,7 +174,7 @@ const DomainListPagination = ({ filterDomain, setFilterDomain }: IDomainListPagi
               ))}
             <li
               className={clsx("page-item", {
-                disabled: isLoading || pagination.page === (pagination.links?.length || 3) - 2,
+                disabled: pagination.page === (pagination.links?.length || 3) - 2,
               })}
             >
               <a onClick={() => updatePage((pagination.links?.length || 3) - 2)} style={{ cursor: "pointer" }} className="page-link">
