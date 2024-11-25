@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ColumnInstance, Row, useTable } from "react-table";
 import { toast } from "react-toastify";
-import { KTCard, KTCardBody } from "../../../../../_metronic/helpers";
-import { getChannelList } from "../../api/ChannelsAPI";
+import { KTCard, KTCardBody, PaginationState } from "../../../../../_metronic/helpers";
+import { getChannelListAll } from "../../api/ChannelsAPI";
 import { getChannelThingList } from "../../api/ChannelThingAPI";
 import { getChannelGroupList } from "../../api/ChannelGroupAPI";
 import { Channels } from "../../api/_models";
@@ -19,8 +19,17 @@ import { ImportChannel } from "../AddEditChannels/ImportChannel/ImportChannel";
 const ChannelsTable = () => {
   const [showAddChannel, setShowAddChannel] = useState(false);
   const [importModal, setImportModal] = useState(false);
+  const [data, setData] = useState<any>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState<any>(10);
+  const [pagination, setPagination] = useState<PaginationState>({
+    page: 1,
+    items_per_page: 10,
+    links: [],
+  });
+  const [channelList, setChannelList] = useState<any>([]);
   const [filterChannel, setFilterChannel] = useState({
-    limit: 10,
+    limit: 100,
     offset: 0,
     name: "",
     metadata: "",
@@ -45,7 +54,7 @@ const ChannelsTable = () => {
   const channelListQuery = useQuery({
     queryKey: [`channelList`, filterChannel],
     queryFn: async () =>
-      getChannelList(filterChannel)
+      getChannelListAll(filterChannel)
         .then(async (response) => {
           const groups = await Promise.all(
             response.groups.map(async (group: any) => {
@@ -73,12 +82,24 @@ const ChannelsTable = () => {
   });
 
   const isLoading = channelListQuery.isLoading;
-  const data = useMemo(() => channelListQuery.data?.groups || [], [channelListQuery.data]);
   const columns = useMemo(() => channelsColumns, []);
   const { getTableProps, getTableBodyProps, headers, rows, prepareRow } = useTable({
     columns,
     data,
   });
+
+  useEffect(() => {
+    if (channelListQuery.data?.groups) {
+      setChannelList(channelListQuery.data.groups || []);
+    }
+  }, [channelListQuery.data?.groups]);
+  useEffect(() => {
+    setData(
+      channelList.filter((_: any, index: number) => {
+        return index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage;
+      })
+    );
+  }, [channelList, currentPage, itemsPerPage]);
 
   const onShowAddChannel = () => {
     setShowAddChannel(true);
@@ -96,7 +117,17 @@ const ChannelsTable = () => {
 
   return (
     <KTCard>
-      <ChannelsListHeader onShowAddChannel={onShowAddChannel} onShowImportChannel={onShowImportChannel} setFilterChannel={setFilterChannel} filterChannel={filterChannel} />
+      <ChannelsListHeader
+        onShowAddChannel={onShowAddChannel}
+        onShowImportChannel={onShowImportChannel}
+        setCurrentPage={setCurrentPage}
+        setPagination={setPagination}
+        setFilterChannel={setFilterChannel}
+        setChannelList={setChannelList}
+        channelList={channelList}
+        channelListQuery={channelListQuery}
+        pagination={pagination}
+      />
       <KTCardBody className="py-4">
         <div className="table-responsive">
           <table id="kt_table_channels" className="table align-middle table-row-dashed fs-6 dataTable no-footer" {...getTableProps()}>
@@ -123,7 +154,16 @@ const ChannelsTable = () => {
             </tbody>
           </table>
         </div>
-        <ChannelsListPagination filterChannel={filterChannel} setFilterChannel={setFilterChannel} />
+        <ChannelsListPagination
+          channelList={channelList}
+          itemsPerPage={itemsPerPage}
+          pagination={pagination}
+          data={data}
+          setCurrentPage={setCurrentPage}
+          setItemsPerPage={setItemsPerPage}
+          setPagination={setPagination}
+          setData={setData}
+        />
         {showAddChannel && <AddChannels onCloseAddChannel={onCloseAddChannel} onGetChannelList={onGetChannelList} />}
         {importModal && <ImportChannel onShowImportChannel={importModal} onCloseImportChannel={onCloseImportChannel} onGetChannelList={onGetChannelList} />}
         {isLoading && <ChannelsListLoading />}

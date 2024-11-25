@@ -11,7 +11,7 @@ export async function getUserList(data?: any) {
 }
 
 export async function getUserListAll(data?: any) {
-    const query = searchUser(data);
+    const query = searchUser({ ...data, limit: 100 });
     const response = await axios.get(`${API_URL}/users${query}`);
     const totalRecords = response.data.total;
     for (let i = 100; i < totalRecords; i += 100) {

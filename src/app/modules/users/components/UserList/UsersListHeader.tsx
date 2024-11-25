@@ -5,11 +5,12 @@ import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { KTIcon } from "../../../../../_metronic/helpers";
 import { getRolePermission, MODULENAME } from "../../../auth/core/RoleHelpers";
-import { getUserListAll } from "../../api/UserAPI";
 
 interface IUsersListHeaderProps {
   onShowAddUser: () => void;
   onShowImportUser: () => void;
+  setCurrentPage: Dispatch<SetStateAction<number>>;
+  setPagination: Dispatch<SetStateAction<any>>;
   setFilterUser: Dispatch<
     SetStateAction<{
       limit: number;
@@ -21,19 +22,25 @@ interface IUsersListHeaderProps {
       status: string;
     }>
   >;
-  filterUser: {
-    limit: number;
-    offset: number;
-    name: string;
-    identity: string;
-    metadata: string;
-    tags: string;
-    status: string;
-  };
+  setUserList: Dispatch<SetStateAction<any[]>>;
+  userList: any[];
+  userListQuery: any;
+  pagination: any;
 }
 
-const UsersListHeader = ({ onShowAddUser, setFilterUser, onShowImportUser, filterUser }: IUsersListHeaderProps) => {
+const UsersListHeader = ({
+  onShowAddUser,
+  onShowImportUser,
+  setCurrentPage,
+  setPagination,
+  setFilterUser,
+  setUserList,
+  userList,
+  userListQuery,
+  pagination,
+}: IUsersListHeaderProps) => {
   const [rolePermission, setRolePermission] = useState<any>(null);
+  const [searchText, setSearchText] = useState<string>("");
 
   useEffect(() => {
     const fetchRolePermission = async () => {
@@ -44,23 +51,13 @@ const UsersListHeader = ({ onShowAddUser, setFilterUser, onShowImportUser, filte
   }, []);
 
   const onChangeStatus = (e: any) => {
+    setCurrentPage(1);
+    setPagination({ ...pagination, page: 1 });
+    setSearchText("");
     setFilterUser((prevState: any) => ({
       ...prevState,
       status: e.target.value,
     }));
-  };
-
-  const getUserData = async () => {
-    const filterUsers = {
-      limit: 100,
-      offset: 0,
-      name: filterUser.name,
-      identity: "",
-      metadata: "",
-      tags: "",
-      status: filterUser.status,
-    };
-    return await getUserListAll(filterUsers).catch((error) => toast.error(error.message));
   };
 
   const convertToCSV = (data: any[], headerOrder: string[]) => {
@@ -110,8 +107,6 @@ const UsersListHeader = ({ onShowAddUser, setFilterUser, onShowImportUser, filte
 
   // Convert data to CSV and download
   const downloadCSV = async () => {
-    const { users: userList } = await getUserData();
-
     if (userList.length === 0) {
       toast.error("No data found to download!");
       return;
@@ -132,8 +127,6 @@ const UsersListHeader = ({ onShowAddUser, setFilterUser, onShowImportUser, filte
   };
 
   const downloadXlsx = async () => {
-    const { users: userList } = await getUserData();
-
     // Define the order of columns for the XLSX
     const headerOrder = ["id", "name", "identity", "tags", "metadata", "created_at", "status"];
     const headerLabels = headerOrder.map((header) => header.toUpperCase());
@@ -218,8 +211,6 @@ const UsersListHeader = ({ onShowAddUser, setFilterUser, onShowImportUser, filte
 
   // download pdf
   const downloadPDF = async () => {
-    const { users: userList } = await getUserData();
-
     if (userList.length === 0) {
       toast.error("No data found to download!");
       return;
@@ -296,12 +287,17 @@ const UsersListHeader = ({ onShowAddUser, setFilterUser, onShowImportUser, filte
               type="text"
               className="form-control form-control form-control-lg mx-2"
               placeholder="Search"
-              onChange={(e) =>
-                setFilterUser((prevState: any) => ({
-                  ...prevState,
-                  name: e.target.value,
-                }))
-              }
+              value={searchText}
+              onChange={(e) => {
+                setCurrentPage(1);
+                setPagination({ ...pagination, page: 1 });
+                setSearchText(e.target.value);
+                setUserList(
+                  userListQuery.data?.users.filter((user: any) => {
+                    return user.name.toLowerCase().includes(e.target.value.toLowerCase());
+                  })
+                );
+              }}
             />
             <select className="form-select form-select-solid w-200px ps-8" onChange={onChangeStatus} defaultValue="enabled">
               <option value="all">Status: all</option>

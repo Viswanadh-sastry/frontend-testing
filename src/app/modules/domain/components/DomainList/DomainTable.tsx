@@ -6,7 +6,7 @@ import { CustomHeaderColumn } from "./columns/CustomHeaderColumn";
 import { CustomRow } from "./columns/CustomRow";
 import { usersColumns } from "./columns/_columns";
 import { Domain } from "../../api/_models";
-import { KTCard, KTCardBody } from "../../../../../_metronic/helpers";
+import { KTCard, KTCardBody, PaginationState } from "../../../../../_metronic/helpers";
 import { DomainListPagination } from "./pagination/DomainListPagination";
 import { DomainListLoading } from "./pagination/DomainListLoading";
 import { DomainListHeader } from "./DomainListHeader";
@@ -20,6 +20,11 @@ const DomainTable = () => {
   const [data, setData] = useState<any>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState<any>(10);
+  const [pagination, setPagination] = useState<PaginationState>({
+    page: 1,
+    items_per_page: 10,
+    links: [],
+  });
   const [domainList, setDomainList] = useState<any>([]);
   const [filterDomain, setFilterDomain] = useState({
     offset: 0,
@@ -46,13 +51,11 @@ const DomainTable = () => {
     }
   }, [domainListQuery.data?.domains]);
   useEffect(() => {
-    if (domainList.length > 0) {
-      setData(
-        domainList.filter((_: any, index: number) => {
-          return index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage;
-        })
-      );
-    }
+    setData(
+      domainList.filter((_: any, index: number) => {
+        return index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage;
+      })
+    );
   }, [domainList, currentPage, itemsPerPage]);
 
   const onShowAddDomain = () => {
@@ -75,10 +78,13 @@ const DomainTable = () => {
       <DomainListHeader
         onShowAddDomain={onShowAddDomain}
         onShowImportDomain={onShowImportDomain}
+        setCurrentPage={setCurrentPage}
+        setPagination={setPagination}
         setFilterDomain={setFilterDomain}
         setDomainList={setDomainList}
         domainList={domainList}
         domainListQuery={domainListQuery}
+        pagination={pagination}
       />
       <KTCardBody className="py-4">
         <div className="table-responsive">
@@ -108,11 +114,12 @@ const DomainTable = () => {
         </div>
         <DomainListPagination
           domainList={domainList}
-          currentPage={currentPage}
           itemsPerPage={itemsPerPage}
+          pagination={pagination}
           data={data}
           setCurrentPage={setCurrentPage}
           setItemsPerPage={setItemsPerPage}
+          setPagination={setPagination}
           setData={setData}
         />
         {showAddDomain && <AddDomain onCloseAddDomain={onCloseAddDomain} onGetDomainList={onGetDomainList} />}

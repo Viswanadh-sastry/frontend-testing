@@ -5,11 +5,12 @@ import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { KTIcon } from "../../../../../_metronic/helpers";
 import { getRolePermission, MODULENAME } from "../../../auth/core/RoleHelpers";
-import { getGroupListAll } from "../../api/GroupAPI";
 
 interface IGroupsListHeaderProps {
   onShowAddGroup: () => void;
   onShowImportGroup: () => void;
+  setCurrentPage: Dispatch<SetStateAction<number>>;
+  setPagination: Dispatch<SetStateAction<any>>;
   setFilterGroup: Dispatch<
     SetStateAction<{
       limit: number;
@@ -21,19 +22,25 @@ interface IGroupsListHeaderProps {
       tree: boolean;
     }>
   >;
-  filterGroup: {
-    limit: number;
-    offset: number;
-    name: string;
-    metadata: string;
-    parentID: string;
-    status: string;
-    tree: boolean;
-  };
+  setGroupList: Dispatch<SetStateAction<any[]>>;
+  groupList: any[];
+  groupListQuery: any;
+  pagination: any;
 }
 
-const GroupListHeader = ({ onShowAddGroup, setFilterGroup, onShowImportGroup, filterGroup }: IGroupsListHeaderProps) => {
+const GroupListHeader = ({
+  onShowAddGroup,
+  onShowImportGroup,
+  setCurrentPage,
+  setPagination,
+  setFilterGroup,
+  setGroupList,
+  groupList,
+  groupListQuery,
+  pagination,
+}: IGroupsListHeaderProps) => {
   const [rolePermission, setRolePermission] = useState<any>(null);
+  const [searchText, setSearchText] = useState<string>("");
 
   useEffect(() => {
     const fetchRolePermission = async () => {
@@ -44,23 +51,13 @@ const GroupListHeader = ({ onShowAddGroup, setFilterGroup, onShowImportGroup, fi
   }, []);
 
   const onChangeStatus = (e: any) => {
+    setCurrentPage(1);
+    setPagination({ ...pagination, page: 1 });
+    setSearchText("");
     setFilterGroup((prevState: any) => ({
       ...prevState,
       status: e.target.value,
     }));
-  };
-
-  const getGroupData = async () => {
-    const filterGroups = {
-      limit: 100,
-      offset: 0,
-      name: filterGroup.name,
-      metadata: "",
-      parentID: "",
-      status: filterGroup.status,
-      tree: true,
-    };
-    return await getGroupListAll(filterGroups).catch((error) => toast.error(error.message));
   };
 
   const convertToCSV = (data: any[], headerOrder: string[]): string => {
@@ -108,8 +105,6 @@ const GroupListHeader = ({ onShowAddGroup, setFilterGroup, onShowImportGroup, fi
 
   // Convert data to CSV and download
   const downloadCSV = async () => {
-    const { groups: groupList } = await getGroupData();
-
     if (groupList.length === 0) {
       toast.error("No data found to download!");
       return;
@@ -131,8 +126,6 @@ const GroupListHeader = ({ onShowAddGroup, setFilterGroup, onShowImportGroup, fi
   };
 
   const downloadXlsx = async () => {
-    const { groups: groupList } = await getGroupData();
-
     if (groupList.length === 0) {
       toast.error("No data found to download!");
       return;
@@ -216,8 +209,6 @@ const GroupListHeader = ({ onShowAddGroup, setFilterGroup, onShowImportGroup, fi
   };
 
   const downloadPDF = async () => {
-    const { groups: groupList } = await getGroupData();
-
     if (groupList.length === 0) {
       toast.error("No data found to download!");
       return;
@@ -304,6 +295,27 @@ const GroupListHeader = ({ onShowAddGroup, setFilterGroup, onShowImportGroup, fi
     doc.save("Asset-Group-List.pdf");
   };
 
+  const searchByName = (groups: any[], searchTerm: string): any[] => {
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+
+    const filterGroup = (group: any): boolean => {
+      // Check if the group name matches the search term
+      if (group.name.toLowerCase().includes(lowerCaseSearchTerm)) {
+        return true;
+      }
+
+      // Check if any of the children match the search term
+      if (group.children && group.children.length > 0) {
+        return group.children.some(filterGroup); // Recursively check children
+      }
+
+      return false;
+    };
+
+    return groups.filter(filterGroup);
+  };
+  console.log("groupList", groupList);
+
   return (
     <>
       <div className="card-header border-0 pt-6">
@@ -314,12 +326,13 @@ const GroupListHeader = ({ onShowAddGroup, setFilterGroup, onShowImportGroup, fi
               type="text"
               className="form-control form-control form-control-lg mx-2"
               placeholder="Search"
-              onChange={(e) =>
-                setFilterGroup((prevState: any) => ({
-                  ...prevState,
-                  name: e.target.value,
-                }))
-              }
+              value={searchText}
+              onChange={(e) => {
+                setCurrentPage(1);
+                setPagination({ ...pagination, page: 1 });
+                setSearchText(e.target.value);
+                setGroupList(searchByName(groupListQuery.data?.groups || [], e.target.value));
+              }}
             />
             <select className="form-select form-select-solid w-200px ps-8" onChange={onChangeStatus} defaultValue={"enabled"}>
               <option value="all">Status: all</option>

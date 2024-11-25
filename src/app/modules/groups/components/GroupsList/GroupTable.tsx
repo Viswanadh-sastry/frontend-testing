@@ -1,8 +1,8 @@
-import { FC, useState, useMemo } from "react";
+import { FC, useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTable, ColumnInstance, Row } from "react-table";
 import { toast } from "react-toastify";
-import { KTCard, KTCardBody } from "../../../../../_metronic/helpers";
+import { KTCard, KTCardBody, PaginationState } from "../../../../../_metronic/helpers";
 import { getGroupListAll } from "../../api/GroupAPI";
 import { Group } from "../../api/_models";
 import { AddGroup } from "../AddEditGroup/AddGroup";
@@ -18,6 +18,15 @@ const GroupTable: FC = () => {
   const [showAddGroup, setShowAddGroup] = useState(false);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const [importModal, setImportModal] = useState(false);
+  const [data, setData] = useState<any>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState<any>(10);
+  const [pagination, setPagination] = useState<PaginationState>({
+    page: 1,
+    items_per_page: 10,
+    links: [],
+  });
+  const [groupList, setGroupList] = useState<any>([]);
   const [filterGroup, setFilterGroup] = useState({
     limit: 100,
     offset: 0,
@@ -35,12 +44,24 @@ const GroupTable: FC = () => {
   });
 
   const isLoading = groupListQuery.isLoading;
-  const data = useMemo(() => groupListQuery.data?.groups || [], [groupListQuery.data]);
   const columns = useMemo(() => groupColumns, []);
   const { getTableProps, getTableBodyProps, headers, rows, prepareRow } = useTable({
     columns,
     data,
   });
+
+  useEffect(() => {
+    if (groupListQuery.data?.groups) {
+      setGroupList(groupListQuery.data.groups || []);
+    }
+  }, [groupListQuery.data?.groups]);
+  useEffect(() => {
+    setData(
+      groupList.filter((_: any, index: number) => {
+        return index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage;
+      })
+    );
+  }, [groupList, currentPage, itemsPerPage]);
 
   const onShowAddGroup = () => setShowAddGroup(true);
   const onCloseAddGroup = () => setShowAddGroup(false);
@@ -57,7 +78,17 @@ const GroupTable: FC = () => {
 
   return (
     <KTCard>
-      <GroupListHeader onShowAddGroup={onShowAddGroup} onShowImportGroup={onShowImportGroup} setFilterGroup={setFilterGroup} filterGroup={filterGroup} />
+      <GroupListHeader
+        onShowAddGroup={onShowAddGroup}
+        onShowImportGroup={onShowImportGroup}
+        setCurrentPage={setCurrentPage}
+        setPagination={setPagination}
+        setFilterGroup={setFilterGroup}
+        setGroupList={setGroupList}
+        groupList={groupList}
+        groupListQuery={groupListQuery}
+        pagination={pagination}
+      />
       <KTCardBody className="py-4">
         <div className="table-responsive">
           <table id="kt_table_groups" className="table align-middle table-row-dashed fs-6 dataTable no-footer" {...getTableProps()}>
@@ -84,7 +115,16 @@ const GroupTable: FC = () => {
             </tbody>
           </table>
         </div>
-        <GroupsListPagination filterGroup={filterGroup} setFilterGroup={setFilterGroup} />
+        <GroupsListPagination
+          groupList={groupList}
+          itemsPerPage={itemsPerPage}
+          pagination={pagination}
+          data={data}
+          setCurrentPage={setCurrentPage}
+          setItemsPerPage={setItemsPerPage}
+          setPagination={setPagination}
+          setData={setData}
+        />
         {showAddGroup && <AddGroup onCloseAddGroup={onCloseAddGroup} onGetGroupList={onGetGroupList} />}
         {importModal && <ImportGroup onShowImportGroup={importModal} onCloseImportGroup={onCloseImportGroup} onGetGroupList={onGetGroupList} />}
         {isLoading && <GroupsListLoading />}

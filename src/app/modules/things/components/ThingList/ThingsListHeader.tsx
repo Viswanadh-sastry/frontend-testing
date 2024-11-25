@@ -9,6 +9,8 @@ import { getRolePermission, MODULENAME } from "../../../auth/core/RoleHelpers";
 interface IThingsListHeaderProps {
   onShowAddThing: () => void;
   onShowImportThing: () => void;
+  setCurrentPage: Dispatch<SetStateAction<number>>;
+  setPagination: Dispatch<SetStateAction<any>>;
   setFilterThing: Dispatch<
     SetStateAction<{
       limit: number;
@@ -22,9 +24,20 @@ interface IThingsListHeaderProps {
   setThingList: Dispatch<SetStateAction<any[]>>;
   thingList: any[];
   thingListQuery: any;
+  pagination: any;
 }
 
-const ThingsListHeader = ({ onShowAddThing, onShowImportThing, setFilterThing, setThingList, thingList, thingListQuery }: IThingsListHeaderProps) => {
+const ThingsListHeader = ({
+  onShowAddThing,
+  onShowImportThing,
+  setCurrentPage,
+  setPagination,
+  setFilterThing,
+  setThingList,
+  thingList,
+  thingListQuery,
+  pagination,
+}: IThingsListHeaderProps) => {
   const [rolePermission, setRolePermission] = useState<any>(null);
   const [searchText, setSearchText] = useState<string>("");
 
@@ -37,6 +50,8 @@ const ThingsListHeader = ({ onShowAddThing, onShowImportThing, setFilterThing, s
   }, []);
 
   const onChangeStatus = (e: any) => {
+    setCurrentPage(1);
+    setPagination({ ...pagination, page: 1 });
     setSearchText("");
     setFilterThing((prevState: any) => ({
       ...prevState,
@@ -274,6 +289,8 @@ const ThingsListHeader = ({ onShowAddThing, onShowImportThing, setFilterThing, s
               placeholder="Search"
               value={searchText}
               onChange={(e) => {
+                setCurrentPage(1);
+                setPagination({ ...pagination, page: 1 });
                 setSearchText(e.target.value);
                 setThingList(
                   thingListQuery.data?.things.filter((thing: any) => {

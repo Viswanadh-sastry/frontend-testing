@@ -11,7 +11,7 @@ export async function getChannelList(data: any) {
 }
 
 export async function getChannelListAll(data: any) {
-    const query = searchChannel(data);
+    const query = searchChannel({ ...data, limit: 100 });
     const response = await axios.get(`${API_URL}/channels${query}`);
     const totalRecords = response.data.total;
     for (let i = 100; i < totalRecords; i += 100) {

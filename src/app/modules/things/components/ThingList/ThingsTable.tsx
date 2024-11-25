@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { ColumnInstance, Row, useTable } from "react-table";
 import { toast } from "react-toastify";
-import { KTCard, KTCardBody } from "../../../../../_metronic/helpers";
+import { KTCard, KTCardBody, PaginationState } from "../../../../../_metronic/helpers";
 import { getThingListAll } from "../../api/ThingAPI";
 import { getThingChannelList } from "../../api/ThingChannelAPI";
 import { Thing } from "../../api/_models";
@@ -22,6 +22,11 @@ const ThingsTable = () => {
   const [data, setData] = useState<any>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState<any>(10);
+  const [pagination, setPagination] = useState<PaginationState>({
+    page: 1,
+    items_per_page: 10,
+    links: [],
+  });
   const [thingList, setThingList] = useState<any>([]);
   const filterChannel = {
     limit: 10,
@@ -118,13 +123,11 @@ const ThingsTable = () => {
     }
   }, [thingListQuery.data?.things]);
   useEffect(() => {
-    if (thingList.length > 0) {
-      setData(
-        thingList.filter((_: any, index: number) => {
-          return index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage;
-        })
-      );
-    }
+    setData(
+      thingList.filter((_: any, index: number) => {
+        return index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage;
+      })
+    );
   }, [thingList, currentPage, itemsPerPage]);
 
   const columns = useMemo(() => thingsColumns, []);
@@ -150,10 +153,13 @@ const ThingsTable = () => {
       <ThingsListHeader
         onShowAddThing={onShowAddThing}
         onShowImportThing={onShowImportThing}
+        setCurrentPage={setCurrentPage}
+        setPagination={setPagination}
         setFilterThing={setFilterThing}
         setThingList={setThingList}
         thingList={thingList}
         thingListQuery={thingListQuery}
+        pagination={pagination}
       />
       <KTCardBody className="py-4">
         <div className="table-responsive">
@@ -183,11 +189,12 @@ const ThingsTable = () => {
         </div>
         <ThingsListPagination
           thingList={thingList}
-          currentPage={currentPage}
           itemsPerPage={itemsPerPage}
+          pagination={pagination}
           data={data}
           setCurrentPage={setCurrentPage}
           setItemsPerPage={setItemsPerPage}
+          setPagination={setPagination}
           setData={setData}
         />
         {showAddThing && <AddThing onCloseAddThing={onCloseAddThing} onGetThingList={onGetThingList} />}

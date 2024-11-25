@@ -1,9 +1,6 @@
 import clsx from "clsx";
-import { toast } from "react-toastify";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo } from "react";
 import { PaginationState } from "../../../../../../_metronic/helpers";
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
-import { getGroupList } from "../../../api/GroupAPI";
 
 const mappedLabel = (label: string): string => {
   if (label === "&laquo; Previous") {
@@ -18,58 +15,43 @@ const mappedLabel = (label: string): string => {
 };
 
 interface IGroupsListPaginationProps {
-  filterGroup: any;
-  setFilterGroup: Dispatch<
-    SetStateAction<{
-      limit: number;
-      offset: number;
-      name: string;
-      metadata: string;
-      parentID: string;
-      status: string;
-      tree: boolean;
-    }>
-  >;
+  groupList: any[];
+  itemsPerPage: any;
+  pagination: PaginationState;
+  data: any;
+  setCurrentPage: (page: number) => void;
+  setItemsPerPage: (itemsPerPage: any) => void;
+  setPagination: (pagination: PaginationState) => void;
+  setData: (data: any) => void;
 }
 
-const GroupsListPagination = ({ filterGroup, setFilterGroup }: IGroupsListPaginationProps) => {
-  const [pagination, setPagination] = useState<PaginationState>({
-    page: 1,
-    items_per_page: filterGroup.limit,
-    links: [],
-  });
-  const groupListQuery = useQuery({
-    queryKey: [`groupList`, filterGroup],
-    queryFn: async () => getGroupList(filterGroup).catch((error) => toast.error(error.message)),
-    enabled: false,
-  });
-  const isLoading = groupListQuery.isLoading;
-
+const GroupsListPagination = ({ groupList, itemsPerPage, pagination, data, setCurrentPage, setItemsPerPage, setPagination, setData }: IGroupsListPaginationProps) => {
   useEffect(() => {
-    if (groupListQuery.data) {
-      const noOfLinks = groupListQuery.data.total;
-      // const noOfPages = Math.ceil(noOfLinks / groupListQuery.data.limit);
-      const noOfPages = Math.ceil(noOfLinks / filterGroup.limit);
-      const links = [];
-      links.push({ label: "&laquo; Previous", active: false, url: null, page: pagination.page === 1 ? null : pagination.page - 1 });
-      for (let i = 1; i <= noOfPages; i++) {
-        links.push({ label: i.toString(), active: false, url: null, page: i });
-      }
-      links.push({ label: "Next &raquo;", active: false, url: null, page: pagination.page === noOfPages ? null : pagination.page + 1 });
-      setPagination({
-        ...pagination,
-        links,
-      });
+    if (data.length > 0) {
+      getLinks();
     }
-  }, [groupListQuery.data]);
+  }, [data]);
 
-  // const onChangePageSize = (e: any) => {
-  //   setFilterGroup((prevState: any) => ({
-  //     ...prevState,
-  //     limit: parseInt(e.target.value),
-  //     offset: 0,
-  //   }));
-  // };
+  const getLinks = () => {
+    const noOfLinks = groupList.length;
+    const noOfPages = Math.ceil(noOfLinks / itemsPerPage);
+    const links = [];
+    links.push({ label: "&laquo; Previous", active: false, url: null, page: pagination.page === 1 ? null : pagination.page - 1 });
+    for (let i = 1; i <= noOfPages; i++) {
+      links.push({ label: i.toString(), active: false, url: null, page: i });
+    }
+    links.push({ label: "Next &raquo;", active: false, url: null, page: pagination.page === noOfPages ? null : pagination.page + 1 });
+    setPagination({
+      ...pagination,
+      links,
+    });
+  };
+
+  const onChangePageSize = (e: any) => {
+    setItemsPerPage(e.target.value);
+    setCurrentPage(1);
+    setPagination({ ...pagination, page: 1, items_per_page: e.target.value });
+  };
 
   const updateState = (state: any) => {
     setPagination({
@@ -77,21 +59,21 @@ const GroupsListPagination = ({ filterGroup, setFilterGroup }: IGroupsListPagina
       page: state.page,
       items_per_page: state.items_per_page,
     });
-    setFilterGroup((prevState: any) => ({
-      ...prevState,
-      offset: state.items_per_page * (state.page - 1),
-      limit: state.items_per_page,
-    }));
+    const historyData = groupList.filter((_: any, index: number) => {
+      return index >= (state.page - 1) * state.items_per_page && index < state.page * state.items_per_page;
+    });
+    setItemsPerPage(state.items_per_page);
+    setData(historyData);
   };
 
   const updatePage = (page: number | undefined | null) => {
-    if (!page || isLoading || pagination.page === page) {
+    if (!page || pagination.page === page) {
       return;
     }
-    updateState({ page, items_per_page: filterGroup.limit });
+    updateState({ page, items_per_page: itemsPerPage });
   };
 
-  const PAGINATION_PAGES_COUNT = filterGroup.limit;
+  const PAGINATION_PAGES_COUNT = 10;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];
@@ -136,24 +118,24 @@ const GroupsListPagination = ({ filterGroup, setFilterGroup }: IGroupsListPagina
 
   return (
     <div className="row">
-      <div className="col-sm-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start">
-        {/* <select className="form-select form-select-solid w-90px ps-8 me-2" onChange={onChangePageSize}>
+      <div className="col-sm-12 col-md-4 d-flex align-items-center justify-content-center justify-content-md-start">
+        <select className="form-select form-select-solid w-90px ps-8 me-2" onChange={onChangePageSize}>
           <option value="10">10</option>
           <option value="20">20</option>
           <option value="30">30</option>
           <option value="40">40</option>
           <option value="50">50</option>
-        </select> */}
+        </select>
         <div id="kt_table_groups_info" className="dataTables_info">
-          {isLoading ? "Loading..." : `Total ${groupListQuery.data?.total || 0} groups`}
+          Total {groupList.length || 0} asset groups
         </div>
       </div>
-      <div className="col-sm-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end">
+      <div className="col-sm-12 col-md-8 d-flex align-items-center justify-content-center justify-content-md-end">
         <div id="kt_table_groups_paginate">
           <ul className="pagination">
             <li
               className={clsx("page-item", {
-                disabled: isLoading || pagination.page === 1,
+                disabled: pagination.page === 1,
               })}
             >
               <a onClick={() => updatePage(1)} style={{ cursor: "pointer" }} className="page-link">
@@ -169,7 +151,6 @@ const GroupsListPagination = ({ filterGroup, setFilterGroup }: IGroupsListPagina
                   key={link.label}
                   className={clsx("page-item", {
                     active: pagination.page === link.page,
-                    disabled: isLoading,
                     previous: link.label === "Previous",
                     next: link.label === "Next",
                   })}
@@ -188,7 +169,7 @@ const GroupsListPagination = ({ filterGroup, setFilterGroup }: IGroupsListPagina
               ))}
             <li
               className={clsx("page-item", {
-                disabled: isLoading || pagination.page === (pagination.links?.length || 3) - 2,
+                disabled: pagination.page === (pagination.links?.length || 3) - 2,
               })}
             >
               <a onClick={() => updatePage((pagination.links?.length || 3) - 2)} style={{ cursor: "pointer" }} className="page-link">

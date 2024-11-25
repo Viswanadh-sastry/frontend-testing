@@ -12,7 +12,7 @@ export async function getGroupList(data: any) {
 }
 
 export async function getGroupListAll(data: any) {
-    const query = searchGroup(data);
+    const query = searchGroup({ ...data, limit: 100 });
     const response = await axios.get(`${API_URL}/groups${query}`);
     const totalRecords = response.data.total;
     for (let i = 100; i < totalRecords; i += 100) {

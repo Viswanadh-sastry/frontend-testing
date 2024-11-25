@@ -9,6 +9,8 @@ import * as roleHelper from "../../../auth/core/RoleHelpers";
 interface IDomainListHeaderProps {
   onShowAddDomain: () => void;
   onShowImportDomain: () => void;
+  setCurrentPage: Dispatch<SetStateAction<number>>;
+  setPagination: Dispatch<SetStateAction<any>>;
   setFilterDomain: Dispatch<
     SetStateAction<{
       offset: number;
@@ -21,12 +23,25 @@ interface IDomainListHeaderProps {
   setDomainList: Dispatch<SetStateAction<any[]>>;
   domainList: any[];
   domainListQuery: any;
+  pagination: any;
 }
 
-const DomainListHeader = ({ onShowAddDomain, setFilterDomain, onShowImportDomain, setDomainList, domainList, domainListQuery }: IDomainListHeaderProps) => {
+const DomainListHeader = ({
+  onShowAddDomain,
+  onShowImportDomain,
+  setCurrentPage,
+  setPagination,
+  setFilterDomain,
+  setDomainList,
+  domainList,
+  domainListQuery,
+  pagination,
+}: IDomainListHeaderProps) => {
   const [searchText, setSearchText] = useState<string>("");
   const role = roleHelper.getRole();
   const onChangeStatus = (e: any) => {
+    setCurrentPage(1);
+    setPagination({ ...pagination, page: 1 });
     setSearchText("");
     setFilterDomain((prevState: any) => ({
       ...prevState,
@@ -289,6 +304,8 @@ const DomainListHeader = ({ onShowAddDomain, setFilterDomain, onShowImportDomain
               placeholder="Search"
               value={searchText}
               onChange={(e) => {
+                setCurrentPage(1);
+                setPagination({ ...pagination, page: 1 });
                 setSearchText(e.target.value);
                 setDomainList(
                   domainListQuery.data?.domains.filter((domain: any) => {

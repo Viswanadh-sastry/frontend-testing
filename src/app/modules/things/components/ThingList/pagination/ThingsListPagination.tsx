@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { PaginationState } from "../../../../../../_metronic/helpers";
 
 const mappedLabel = (label: string): string => {
@@ -16,21 +16,16 @@ const mappedLabel = (label: string): string => {
 
 interface IThingsListPaginationProps {
   thingList: any[];
-  currentPage: number;
   itemsPerPage: any;
+  pagination: PaginationState;
   data: any;
   setCurrentPage: (page: number) => void;
   setItemsPerPage: (itemsPerPage: any) => void;
+  setPagination: (pagination: PaginationState) => void;
   setData: (data: any) => void;
 }
 
-const ThingsListPagination = ({ thingList, currentPage, itemsPerPage, data, setCurrentPage, setItemsPerPage, setData }: IThingsListPaginationProps) => {
-  const [pagination, setPagination] = useState<PaginationState>({
-    page: currentPage,
-    items_per_page: itemsPerPage,
-    links: [],
-  });
-
+const ThingsListPagination = ({ thingList, itemsPerPage, pagination, data, setCurrentPage, setItemsPerPage, setPagination, setData }: IThingsListPaginationProps) => {
   useEffect(() => {
     if (data.length > 0) {
       getLinks();

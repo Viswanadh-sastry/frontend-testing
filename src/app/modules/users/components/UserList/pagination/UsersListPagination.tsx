@@ -1,9 +1,6 @@
 import clsx from "clsx";
-import { toast } from "react-toastify";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo } from "react";
 import { PaginationState } from "../../../../../../_metronic/helpers";
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
-import { getUserList } from "../../../api/UserAPI";
 
 const mappedLabel = (label: string): string => {
   if (label === "&laquo; Previous") {
@@ -18,56 +15,42 @@ const mappedLabel = (label: string): string => {
 };
 
 interface IUsersListPaginationProps {
-  filterUser: any;
-  setFilterUser: Dispatch<
-    SetStateAction<{
-      limit: number;
-      offset: number;
-      name: string;
-      identity: string;
-      metadata: string;
-      tags: string;
-      status: string;
-    }>
-  >;
+  userList: any[];
+  itemsPerPage: any;
+  pagination: PaginationState;
+  data: any;
+  setCurrentPage: (page: number) => void;
+  setItemsPerPage: (itemsPerPage: any) => void;
+  setPagination: (pagination: PaginationState) => void;
+  setData: (data: any) => void;
 }
 
-const UsersListPagination = ({ filterUser, setFilterUser }: IUsersListPaginationProps) => {
-  const [pagination, setPagination] = useState<PaginationState>({
-    page: 1,
-    items_per_page: filterUser.limit,
-    links: [],
-  });
-  const userListQuery = useQuery({
-    queryKey: [`userList`, filterUser],
-    queryFn: async () => getUserList(filterUser).catch((error) => toast.error(error.message)),
-    enabled: false,
-  });
-  const isLoading = userListQuery.isLoading;
-
+const UsersListPagination = ({ userList, itemsPerPage, pagination, data, setCurrentPage, setItemsPerPage, setPagination, setData }: IUsersListPaginationProps) => {
   useEffect(() => {
-    if (userListQuery.data) {
-      const noOfLinks = userListQuery.data.total;
-      const noOfPages = Math.ceil(noOfLinks / userListQuery.data.limit);
-      const links = [];
-      links.push({ label: "&laquo; Previous", active: false, url: null, page: pagination.page === 1 ? null : pagination.page - 1 });
-      for (let i = 1; i <= noOfPages; i++) {
-        links.push({ label: i.toString(), active: false, url: null, page: i });
-      }
-      links.push({ label: "Next &raquo;", active: false, url: null, page: pagination.page === noOfPages ? null : pagination.page + 1 });
-      setPagination({
-        ...pagination,
-        links,
-      });
+    if (data.length > 0) {
+      getLinks();
     }
-  }, [userListQuery.data]);
+  }, [data]);
+
+  const getLinks = () => {
+    const noOfLinks = userList.length;
+    const noOfPages = Math.ceil(noOfLinks / itemsPerPage);
+    const links = [];
+    links.push({ label: "&laquo; Previous", active: false, url: null, page: pagination.page === 1 ? null : pagination.page - 1 });
+    for (let i = 1; i <= noOfPages; i++) {
+      links.push({ label: i.toString(), active: false, url: null, page: i });
+    }
+    links.push({ label: "Next &raquo;", active: false, url: null, page: pagination.page === noOfPages ? null : pagination.page + 1 });
+    setPagination({
+      ...pagination,
+      links,
+    });
+  };
 
   const onChangePageSize = (e: any) => {
-    setFilterUser((prevState: any) => ({
-      ...prevState,
-      limit: parseInt(e.target.value),
-      offset: 0,
-    }));
+    setItemsPerPage(e.target.value);
+    setCurrentPage(1);
+    setPagination({ ...pagination, page: 1, items_per_page: e.target.value });
   };
 
   const updateState = (state: any) => {
@@ -76,21 +59,21 @@ const UsersListPagination = ({ filterUser, setFilterUser }: IUsersListPagination
       page: state.page,
       items_per_page: state.items_per_page,
     });
-    setFilterUser((prevState: any) => ({
-      ...prevState,
-      offset: state.items_per_page * (state.page - 1),
-      limit: state.items_per_page,
-    }));
+    const historyData = userList.filter((_: any, index: number) => {
+      return index >= (state.page - 1) * state.items_per_page && index < state.page * state.items_per_page;
+    });
+    setItemsPerPage(state.items_per_page);
+    setData(historyData);
   };
 
   const updatePage = (page: number | undefined | null) => {
-    if (!page || isLoading || pagination.page === page) {
+    if (!page || pagination.page === page) {
       return;
     }
-    updateState({ page, items_per_page: filterUser.limit });
+    updateState({ page, items_per_page: itemsPerPage });
   };
 
-  const PAGINATION_PAGES_COUNT = filterUser.limit;
+  const PAGINATION_PAGES_COUNT = 10;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];
@@ -135,7 +118,7 @@ const UsersListPagination = ({ filterUser, setFilterUser }: IUsersListPagination
 
   return (
     <div className="row">
-      <div className="col-sm-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start">
+      <div className="col-sm-12 col-md-4 d-flex align-items-center justify-content-center justify-content-md-start">
         <select className="form-select form-select-solid w-90px ps-8 me-2" onChange={onChangePageSize}>
           <option value="10">10</option>
           <option value="20">20</option>
@@ -144,15 +127,15 @@ const UsersListPagination = ({ filterUser, setFilterUser }: IUsersListPagination
           <option value="50">50</option>
         </select>
         <div id="kt_table_users_info" className="dataTables_info">
-          {isLoading ? "Loading..." : `Total ${userListQuery.data?.total || 0} users`}
+          Total {userList.length || 0} users
         </div>
       </div>
-      <div className="col-sm-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end">
+      <div className="col-sm-12 col-md-8 d-flex align-items-center justify-content-center justify-content-md-end">
         <div id="kt_table_users_paginate">
           <ul className="pagination">
             <li
               className={clsx("page-item", {
-                disabled: isLoading || pagination.page === 1,
+                disabled: pagination.page === 1,
               })}
             >
               <a onClick={() => updatePage(1)} style={{ cursor: "pointer" }} className="page-link">
@@ -168,7 +151,6 @@ const UsersListPagination = ({ filterUser, setFilterUser }: IUsersListPagination
                   key={link.label}
                   className={clsx("page-item", {
                     active: pagination.page === link.page,
-                    disabled: isLoading,
                     previous: link.label === "Previous",
                     next: link.label === "Next",
                   })}
@@ -187,7 +169,7 @@ const UsersListPagination = ({ filterUser, setFilterUser }: IUsersListPagination
               ))}
             <li
               className={clsx("page-item", {
-                disabled: isLoading || pagination.page === (pagination.links?.length || 3) - 2,
+                disabled: pagination.page === (pagination.links?.length || 3) - 2,
               })}
             >
               <a onClick={() => updatePage((pagination.links?.length || 3) - 2)} style={{ cursor: "pointer" }} className="page-link">
