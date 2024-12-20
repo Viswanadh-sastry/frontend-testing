@@ -12,7 +12,7 @@ interface IEditViewProps {
   onEditView: (data: any) => void;
 }
 
-const EditView = ({ inputData, onClose, onEditView }: IEditViewProps) => {
+const EditSensor = ({ inputData, onClose, onEditView }: IEditViewProps) => {
   const chartSchema = Yup.object().shape({
     id: Yup.string(),
     name: Yup.string().required("Name is required"),
@@ -102,6 +102,10 @@ const EditView = ({ inputData, onClose, onEditView }: IEditViewProps) => {
     const uniqueDeviceList = deviceList.filter((thing, index, self) => index === self.findIndex((t) => t.thingId === thing.thingId && t.sensorType === thing.sensorType));
     if (uniqueDeviceList.length === 0) {
       toast.info("Data not found");
+      return false;
+    }
+    if (uniqueDeviceList.length !== 1) {
+      toast.info("Only one device is allowed");
       return false;
     }
     if (deviceList.length !== uniqueDeviceList.length) {
@@ -194,7 +198,7 @@ const EditView = ({ inputData, onClose, onEditView }: IEditViewProps) => {
                     <div className="col-md-12">
                       <div className="fv-row mb-6">
                         <label className="required fw-bold fs-6 mb-2">Parameters</label>
-                        <WidgetParameters deviceData={formik.values.devices} setDeviceData={(device: any) => formik.setFieldValue("devices", device)} />
+                        <WidgetParameters deviceData={formik.values.devices} setDeviceData={(device: any) => formik.setFieldValue("devices", device)} maxDevices={1} />
                         {formik.touched.devices && formik.errors.devices && (
                           <div className="fv-plugins-message-container">
                             <div className="fv-help-block">
@@ -315,18 +319,25 @@ const EditView = ({ inputData, onClose, onEditView }: IEditViewProps) => {
                     </div>
                   </div>
                   <div className="row">
-                    <div className="col-md-3">
-                      <div className="fv-row mb-6">
-                        <label className="fw-bold text-muted fs-6 mb-2">Minimum</label>
-                        <input {...formik.getFieldProps("minValue")} type="number" name="minValue" placeholder="0" className="form-control mb-3 mb-lg-0" autoComplete="off" />
-                      </div>
-                    </div>
-                    <div className="col-md-3">
-                      <div className="fv-row mb-6">
-                        <label className="fw-bold text-muted fs-6 mb-2">Maximum</label>
-                        <input {...formik.getFieldProps("maxValue")} type="number" name="maxValue" placeholder="100" className="form-control mb-3 mb-lg-0" autoComplete="off" />
-                      </div>
-                    </div>
+                    {(inputData.layout === "VerticalCard" ||
+                      inputData.layout === "HorizontalCard" ||
+                      inputData.layout === "DigitalGauge" ||
+                      inputData.layout === "AnalogGauge") && (
+                      <>
+                        <div className="col-md-3">
+                          <div className="fv-row mb-6">
+                            <label className="fw-bold text-muted fs-6 mb-2">Minimum</label>
+                            <input {...formik.getFieldProps("minValue")} type="number" name="minValue" placeholder="0" className="form-control mb-3 mb-lg-0" autoComplete="off" />
+                          </div>
+                        </div>
+                        <div className="col-md-3">
+                          <div className="fv-row mb-6">
+                            <label className="fw-bold text-muted fs-6 mb-2">Maximum</label>
+                            <input {...formik.getFieldProps("maxValue")} type="number" name="maxValue" placeholder="100" className="form-control mb-3 mb-lg-0" autoComplete="off" />
+                          </div>
+                        </div>
+                      </>
+                    )}
                     <div className="col-md-3">
                       <div className="fv-row mb-6">
                         <label className="fw-bold text-muted fs-6 mb-2">Aggregation Type</label>
@@ -379,4 +390,4 @@ const EditView = ({ inputData, onClose, onEditView }: IEditViewProps) => {
   );
 };
 
-export { EditView };
+export { EditSensor };

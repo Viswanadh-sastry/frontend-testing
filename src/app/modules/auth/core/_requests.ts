@@ -70,3 +70,23 @@ export async function getUserDetails() {
   const response = await axios.get<UserModel>(GET_USER_DETAILS);
   return response.data;
 }
+
+// EdgeX 3.1.1 authentication API
+
+export const AUTH_URL = `${API_URL}`;
+
+export async function authenticate(username: string, password: string) {
+  const response = await axios.post<any>(`${AUTH_URL}/v1/auth/userpass/login/${username}`, {
+    password
+  });
+  return response.data;
+}
+
+export async function validateToken(username: string, token: string) {
+  const response = await axios.get<any>(`${AUTH_URL}/v1/identity/oidc/token/${username}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  return response.data;
+}

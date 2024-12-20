@@ -39,7 +39,7 @@ const channelsColumns: ReadonlyArray<Column<Channels>> = [
     Cell: ({ value }) => convertGMTToLocalDateTime(value),
   },
   {
-    Header: (props) => <ChannelsCustomHeader tableProps={props} title="Device Connection" className="min-w-50px" />,
+    Header: (props) => <ChannelsCustomHeader tableProps={props} title="Device Connection" className="text-center min-w-50px" />,
     accessor: "isConnected",
     Cell: ({ value }) => {
       let ktThemeModeValue = localStorage.getItem("kt_theme_mode_value");
@@ -62,7 +62,7 @@ const channelsColumns: ReadonlyArray<Column<Channels>> = [
     },
   },
   {
-    Header: (props) => <ChannelsCustomHeader tableProps={props} title="AssetGroup Connection" className="min-w-50px" />,
+    Header: (props) => <ChannelsCustomHeader tableProps={props} title="AssetGroup Connection" className="text-center min-w-50px" />,
     accessor: "isLocated",
     Cell: ({ value }) =>
       value ? (

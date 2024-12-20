@@ -19,6 +19,7 @@ interface IDeviceListHeaderProps {
       publisher: string;
     }>
   >;
+  setHistoryList: Dispatch<SetStateAction<any>>;
 }
 
 interface TypeaheadMethods {
@@ -31,7 +32,7 @@ const filterDevice = {
   status: "enabled",
 };
 
-const DeviceListFilter = ({ setFilterDevice }: IDeviceListHeaderProps) => {
+const DeviceListFilter = ({ setFilterDevice, setHistoryList }: IDeviceListHeaderProps) => {
   const [filter, setFilter] = useState({ name: "", from: 0, to: 0 });
   const typeaheadRef = useRef<TypeaheadMethods | null>(null);
 
@@ -58,11 +59,11 @@ const DeviceListFilter = ({ setFilterDevice }: IDeviceListHeaderProps) => {
     if (value) {
       if (name === "from") {
         // Set time to 12:00:00 AM for "from" date
-        const fromDate = moment.utc(value).startOf("day");
+        const fromDate = moment(value).startOf("day");
         newValue = fromDate.valueOf();
       } else if (name === "to") {
         // Set time to 11:59:59 PM for "to" date
-        const toDate = moment.utc(value).endOf("day");
+        const toDate = moment(value).endOf("day");
         newValue = toDate.valueOf();
       }
     }
@@ -80,7 +81,8 @@ const DeviceListFilter = ({ setFilterDevice }: IDeviceListHeaderProps) => {
         return;
       }
     }
-    setFilterDevice((prev) => ({ ...prev, ...filter, from: filter.from * 1000, to: filter.to * 1000 }));
+    setHistoryList([]);
+    setFilterDevice((prev) => ({ ...prev, ...filter, from: filter.from * 1000, to: filter.to * 1000, offset: 0 }));
   };
 
   const handleTypeaheadContainerClick = (e: React.MouseEvent) => {
@@ -88,8 +90,9 @@ const DeviceListFilter = ({ setFilterDevice }: IDeviceListHeaderProps) => {
   };
 
   const resetFilter = () => {
+    setHistoryList([]);
     setFilter({ name: "", from: 0, to: 0 });
-    setFilterDevice((prev) => ({ ...prev, name: "", from: 0, to: 0 }));
+    setFilterDevice((prev) => ({ ...prev, name: "", from: 0, to: 0, offset: 0 }));
 
     // Clear the Typeahead input
     if (typeaheadRef.current) {

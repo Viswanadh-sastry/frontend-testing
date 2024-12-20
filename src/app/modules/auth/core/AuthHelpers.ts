@@ -102,9 +102,13 @@ export function setupAxios(axios: any) {
       const auth = getAuth();
       const dAuth = getDAuth();
       if (dAuth && dAuth.access_token) {
-        config.headers.Authorization = `Bearer ${dAuth.access_token}`
+        if (!config.headers.Authorization) {
+          config.headers.Authorization = `Bearer ${dAuth.access_token}`
+        }
       } else if (auth && auth.access_token) {
-        config.headers.Authorization = `Bearer ${auth.access_token}`
+        if (!config.headers.Authorization) {
+          config.headers.Authorization = `Bearer ${auth.access_token}`
+        }
       }
 
       return config
@@ -125,7 +129,9 @@ export function setupAxios(axios: any) {
           const { refresh_token = '' } = getAuth() || {};
           const newAuth = await refresh(refresh_token, id);
           setAuth(newAuth); // Save the new auth data, including access_token and refresh_token
-          originalRequest.headers.Authorization = `Bearer ${newAuth.access_token}`;
+          if (!originalRequest.headers.Authorization) {
+            originalRequest.headers.Authorization = `Bearer ${newAuth.access_token}`;
+          }
           return axios(originalRequest); // Retry the original request
         } catch (refreshError) {
           // Handle refresh token failure, e.g., log out the user

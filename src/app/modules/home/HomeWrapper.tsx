@@ -12,4 +12,4 @@ const HomeWrapper = () => {
   );
 };
 
-export { HomeWrapper };
+export default HomeWrapper;

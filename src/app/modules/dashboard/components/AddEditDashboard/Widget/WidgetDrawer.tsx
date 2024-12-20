@@ -585,15 +585,15 @@ const WidgetDrawer = ({ onGetChartWidget, onGetSensorWidget }: IWidgetDrawerProp
                     </div>
                   </div>
 
-                  {/* <div className="overflow-auto pb-5">
+                  <div className="overflow-auto pb-5">
                     <div className="d-flex flex-row">
                       <label
                         className={clsx("form-check-image form-check-success p-2", {
-                          active: selectedLayout?.name === "LineCard",
+                          active: selectedLayout?.name === "DigitalGauge",
                         })}
                       >
                         <div className="form-check-wrapper">
-                          <img src={toAbsoluteUrl("media/widget/LineCard.png")} className="mw-100" alt="" />
+                          <img src={toAbsoluteUrl("media/widget/DigitalGauge.png")} className="mw-100" alt="" />
                         </div>
                         <div className="form-check form-check-custom form-check-success form-check-sm form-check-solid">
                           <input
@@ -601,19 +601,19 @@ const WidgetDrawer = ({ onGetChartWidget, onGetSensorWidget }: IWidgetDrawerProp
                             type="radio"
                             value="saas"
                             name="model.app.toolbar.layout"
-                            checked={selectedLayout?.name === "LineCard"}
-                            onChange={() => onSelectSensor({ ...selectedLayout, name: "LineCard", imageUrl: "media/widget/LineCard.png" })}
+                            checked={selectedLayout?.name === "DigitalGauge"}
+                            onChange={() => onSelectSensor({ ...selectedLayout, name: "DigitalGauge", imageUrl: "media/widget/DigitalGauge.png" })}
                           />
-                          <div className="form-check-label text-gray-800">Line Card</div>
+                          <div className="form-check-label text-gray-800">Digital Gauge</div>
                         </div>
                       </label>
                       <label
                         className={clsx("form-check-image form-check-success p-2", {
-                          active: selectedLayout?.name === "AnalogCard",
+                          active: selectedLayout?.name === "AnalogGauge",
                         })}
                       >
                         <div className="form-check-wrapper">
-                          <img src={toAbsoluteUrl("media/widget/AnalogCard.png")} className="mw-100" alt="" />
+                          <img src={toAbsoluteUrl("media/widget/AnalogGauge.png")} className="mw-100" alt="" />
                         </div>
                         <div className="form-check form-check-custom form-check-success form-check-sm form-check-solid">
                           <input
@@ -621,14 +621,14 @@ const WidgetDrawer = ({ onGetChartWidget, onGetSensorWidget }: IWidgetDrawerProp
                             type="radio"
                             value="saas"
                             name="model.app.toolbar.layout"
-                            checked={selectedLayout?.name === "AnalogCard"}
-                            onChange={() => onSelectSensor({ ...selectedLayout, name: "AnalogCard", imageUrl: "media/widget/AnalogCard.png" })}
+                            checked={selectedLayout?.name === "AnalogGauge"}
+                            onChange={() => onSelectSensor({ ...selectedLayout, name: "AnalogGauge", imageUrl: "media/widget/AnalogGauge.png" })}
                           />
-                          <div className="form-check-label text-gray-800">Analog Card</div>
+                          <div className="form-check-label text-gray-800">Analog Gauge</div>
                         </div>
                       </label>
                     </div>
-                  </div> */}
+                  </div>
 
                   <div className="overflow-auto pb-5">
                     <div className="d-flex flex-row">
@@ -696,26 +696,6 @@ const WidgetDrawer = ({ onGetChartWidget, onGetSensorWidget }: IWidgetDrawerProp
                           <div className="form-check-label text-gray-800">Table Card</div>
                         </div>
                       </label>
-                      {/* <label
-                        className={clsx("form-check-image form-check-success p-2", {
-                          active: selectedLayout?.name === "HorizontalLineCard",
-                        })}
-                      >
-                        <div className="form-check-wrapper">
-                          <img src={toAbsoluteUrl("media/widget/ProgressLine.png")} className="mw-100" alt="" />
-                        </div>
-                        <div className="form-check form-check-custom form-check-success form-check-sm form-check-solid">
-                          <input
-                            className="form-check-input"
-                            type="radio"
-                            value="saas"
-                            name="model.app.toolbar.layout"
-                            checked={selectedLayout?.name === "HorizontalLineCard"}
-                            onChange={() => onSelectSensor({ ...selectedLayout, name: "HorizontalLineCard", imageUrl: "media/widget/ProgressLine.png" })}
-                          />
-                          <div className="form-check-label text-gray-800">Horizontal Line Card</div>
-                        </div>
-                      </label> */}
                     </div>
                   </div>
                 </div>

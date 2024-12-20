@@ -106,3 +106,93 @@ const searchThing = (data: any) => {
     }
     return query;
 }
+
+// EdgeX 3.1.1 Device Management Workflow API
+
+const EDGEX_API_URL = import.meta.env.VITE_APP_EDGEX_API_URL;
+
+//#region Device Profile
+export async function createDeviceProfile(data: any) {
+    const response = await axios.post(`${EDGEX_API_URL}/deviceprofile/uploadfile`, data);
+    return response.data;
+}
+
+export async function updateDeviceProfile(data: any) {
+    const response = await axios.put(`${EDGEX_API_URL}/deviceprofile/uploadfile`, data);
+    return response.data;
+}
+
+export async function getDeviceProfileByName(name: string) {
+    const response = await axios.get(`${EDGEX_API_URL}/deviceprofile/name/${name}`);
+    return response.data;
+}
+
+export async function getDeviceProfileList() {
+    const response = await axios.get(`${EDGEX_API_URL}/deviceprofile/all`, {
+        // add headers with authorization token
+        headers: {
+            'Authorization': `Bearer eyJhbGciOiJFUzM4NCIsImtpZCI6IjEzZjQ2YjExLTMzYmQtYjMzZi05YjliLWJhZWUwNGJlMzJjYyJ9.eyJhdWQiOiJlZGdleCIsImV4cCI6MTczNDA4NDg3NywiaWF0IjoxNzM0MDc3NzM3LCJpc3MiOiIvdjEvaWRlbnRpdHkvb2lkYyIsIm5hbWUiOiJleDEiLCJuYW1lc3BhY2UiOiJyb290Iiwic3ViIjoiYTg3MTA5MjAtNjEwZS02MTllLWEzNTQtYWU5M2Y3ZGY0NDEwIn0.WBf-ti55NL2qvuE1DZmYG3xIYFWe0dkVMdH2DNkSvdWFBhoXICsdjfnG0XF0gtLI0gy14CsLNBnzHmtwSNRknAS0zjaIiawKcx2r5SKLVajkYSg0R5tiQLwbPMYWKDgk`,
+        }
+    });
+    return response.data;
+}
+
+export async function deleteDeviceProfileByName(name: string) {
+    const response = await axios.delete(`${EDGEX_API_URL}/deviceprofile/name/${name}`);
+    return response.data;
+}
+//#endregion Device Profile
+
+//#region Device Service
+export async function getDeviceServiceList() {
+    const response = await axios.get(`${EDGEX_API_URL}/deviceservice/all`, {
+        // add headers with authorization token
+        headers: {
+            'Authorization': `Bearer eyJhbGciOiJFUzM4NCIsImtpZCI6IjEzZjQ2YjExLTMzYmQtYjMzZi05YjliLWJhZWUwNGJlMzJjYyJ9.eyJhdWQiOiJlZGdleCIsImV4cCI6MTczNDA4NDg3NywiaWF0IjoxNzM0MDc3NzM3LCJpc3MiOiIvdjEvaWRlbnRpdHkvb2lkYyIsIm5hbWUiOiJleDEiLCJuYW1lc3BhY2UiOiJyb290Iiwic3ViIjoiYTg3MTA5MjAtNjEwZS02MTllLWEzNTQtYWU5M2Y3ZGY0NDEwIn0.WBf-ti55NL2qvuE1DZmYG3xIYFWe0dkVMdH2DNkSvdWFBhoXICsdjfnG0XF0gtLI0gy14CsLNBnzHmtwSNRknAS0zjaIiawKcx2r5SKLVajkYSg0R5tiQLwbPMYWKDgk`,
+        }
+    });
+    return response.data;
+}
+
+export async function getDeviceServiceByName(name: string) {
+    const response = await axios.get(`${EDGEX_API_URL}/deviceservice/name/${name}`);
+    return response.data;
+}
+//#endregion Device Service
+
+//#region Device
+export async function createDevice(data: any) {
+    const response = await axios.post(`${EDGEX_API_URL}/device`, data);
+    return response.data;
+}
+
+export async function updateDevice(data: any) {
+    const response = await axios.patch(`${EDGEX_API_URL}/device`, data);
+    return response.data;
+}
+
+export async function getDeviceByProfileName(name: string) {
+    const response = await axios.get(`${EDGEX_API_URL}/device/profile/name/${name}`);
+    return response.data;
+}
+
+export async function getDeviceByServiceName(name: string) {
+    const response = await axios.get(`${EDGEX_API_URL}/device/service/name/${name}`);
+    return response.data;
+}
+
+export async function getDeviceByName(name: string) {
+    const response = await axios.get(`${EDGEX_API_URL}/device/name/${name}`);
+    return response.data;
+}
+
+export async function getDeviceList() {
+    const response = await axios.get(`${EDGEX_API_URL}/device/all`);
+    return response.data;
+}
+
+export async function deleteDeviceByName(name: string) {
+    const response = await axios.delete(`${EDGEX_API_URL}/device/name/${name}`);
+    return response.data;
+}
+//#endregion Device

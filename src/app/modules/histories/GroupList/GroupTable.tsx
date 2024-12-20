@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import { ColumnInstance, Row, useTable } from "react-table";
 import { toast } from "react-toastify";
 import { KTCard, KTCardBody } from "../../../../_metronic/helpers";
-import { sortHistoryData } from "../../dashboard/api/DashboardHelper";
+// import { sortHistoryData } from "../../dashboard/api/DashboardHelper";
 import { getGroupChannelList } from "../../groups/api/GroupChannelAPI";
 import { getHistoryListAll } from "../api/HistoryAPI";
 import { History } from "../api/_models";
@@ -17,6 +17,7 @@ import { GroupListPagination } from "./pagination/GroupListPagination";
 
 const GroupTable = () => {
   const [data, setData] = useState<any>([]);
+  const [historyList, setHistoryList] = useState<any>([]);
   const [filterGroup, setFilterGroup] = useState({
     limit: 100,
     offset: 0,
@@ -34,6 +35,7 @@ const GroupTable = () => {
     status: "enabled",
   };
 
+  const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState<any>(10); // Dynamic items per page
 
@@ -68,10 +70,11 @@ const GroupTable = () => {
   });
 
   const groupHistoryListQuery = useQuery({
-    queryKey: [`groupHistoryList`, filterGroup],
+    queryKey: [`historyList`, filterGroup],
     queryFn: async () => {
       if (!channelListByDeviceIdQuery.isSuccess || !channelListByDeviceIdQuery.data) return [];
 
+      let totalCount = 0;
       const channelList = channelListByDeviceIdQuery.data || [];
       const allHistoryData = [];
 
@@ -84,6 +87,7 @@ const GroupTable = () => {
               if (historyData.messages) {
                 allHistoryData.push(...historyData.messages);
               }
+              totalCount += historyData.total;
             } catch (error: any) {
               toast.error(error.message);
             }
@@ -94,6 +98,7 @@ const GroupTable = () => {
             if (historyData.messages) {
               allHistoryData.push(...historyData.messages);
             }
+            totalCount += historyData.total;
           } catch (error: any) {
             toast.error(error.message);
           }
@@ -101,8 +106,9 @@ const GroupTable = () => {
       }
 
       // order by unix time descending
-      allHistoryData.sort((a: any, b: any) => sortHistoryData(a, b));
-
+      // allHistoryData.sort((a: any, b: any) => sortHistoryData(a, b));
+      setHistoryList([...historyList, ...allHistoryData]);
+      setTotal(totalCount);
       return allHistoryData;
     },
     enabled: channelListByDeviceIdQuery.isSuccess && !!channelListByDeviceIdQuery.data, // Ensure channelListByThingIdQuery is successful
@@ -112,14 +118,17 @@ const GroupTable = () => {
   const isLoading = groupHistoryListQuery.isLoading || channelListByDeviceIdQuery.isLoading;
 
   useEffect(() => {
-    if (groupHistoryListQuery.data) {
+    if (historyList) {
       setData(
-        (groupHistoryListQuery.data || []).filter((_: any, index: number) => {
+        historyList.filter((_: any, index: number) => {
           return index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage;
         })
       );
+      if (currentPage * itemsPerPage >= historyList.length && historyList.length > 0) {
+        setFilterGroup({ ...filterGroup, offset: historyList.length });
+      }
     }
-  }, [groupHistoryListQuery.data, currentPage, itemsPerPage]);
+  }, [historyList, currentPage, itemsPerPage]);
 
   const columns = useMemo(() => assetColumns, []);
   const { getTableProps, getTableBodyProps, headers, rows, prepareRow } = useTable({
@@ -130,7 +139,7 @@ const GroupTable = () => {
   return (
     <>
       <KTCard className="mt-2">
-        <GroupListHeader setFilterGroup={setFilterGroup} groupHistoryList={groupHistoryListQuery?.data || []} />
+        <GroupListHeader setFilterGroup={setFilterGroup} setHistoryList={setHistoryList} filterGroup={filterGroup} />
         <KTCardBody className="py-4">
           <div className="table-responsive">
             <table id="kt_table_groups" className="table align-middle table-row-dashed fs-6 dataTable no-footer" {...getTableProps()}>
@@ -158,7 +167,8 @@ const GroupTable = () => {
             </table>
           </div>
           <GroupListPagination
-            groupHistoryListQuery={groupHistoryListQuery}
+            historyList={historyList}
+            total={total}
             currentPage={currentPage}
             itemsPerPage={itemsPerPage}
             data={data}

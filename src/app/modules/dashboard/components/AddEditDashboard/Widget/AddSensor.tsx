@@ -19,8 +19,10 @@ const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetSensorWidgetList }: 
     timeline: Yup.number(),
     fromDate: Yup.date(),
     toDate: Yup.date(),
-    interval: Yup.string(),
+    interval: Yup.number(),
     aggregationType: Yup.string(),
+    minValue: Yup.number(),
+    maxValue: Yup.number(),
     layout: Yup.string(),
   });
 
@@ -31,8 +33,10 @@ const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetSensorWidgetList }: 
       timeline: 30,
       fromDate: undefined,
       toDate: undefined,
-      interval: "",
+      interval: 1,
       aggregationType: "avg",
+      minValue: 0,
+      maxValue: 100,
       layout: selectedLayout?.name,
       uniqueDeviceList: [],
       tempSensorTypeList: [],
@@ -57,7 +61,7 @@ const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetSensorWidgetList }: 
     }
     const filterGroupChannel = {
       offset: 0,
-      limit: 100,
+      limit: 10,
       name: "",
       status: "enabled",
     };
@@ -94,8 +98,16 @@ const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetSensorWidgetList }: 
       }
     }
     const uniqueDeviceList = deviceList.filter((thing, index, self) => index === self.findIndex((t) => t.thingId === thing.thingId && t.sensorType === thing.sensorType));
-    if (deviceList.length !== uniqueDeviceList.length) {
-      toast.info("Duplicate device is not allowed");
+    // if (deviceList.length !== uniqueDeviceList.length) {
+    //   toast.info("Duplicate device is not allowed");
+    //   return false;
+    // }
+    if (uniqueDeviceList.length === 0) {
+      toast.info("Data not found");
+      return false;
+    }
+    if (uniqueDeviceList.length !== 1) {
+      toast.info("Only one device is allowed");
       return false;
     }
     values.uniqueDeviceList = uniqueDeviceList;
@@ -119,6 +131,16 @@ const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetSensorWidgetList }: 
     //   });
     // }
     return true;
+  };
+
+  const onChangeTimeline = (e: any) => {
+    formik.setFieldValue("timeline", e.target.value);
+    if (e.target.value === "0") {
+      formik.setFieldValue("fromDate", "");
+      formik.setFieldValue("toDate", "");
+    } else if (e.target.value === "1") {
+      formik.setFieldValue("interval", 1);
+    }
   };
 
   return (
@@ -174,7 +196,7 @@ const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetSensorWidgetList }: 
                     <div className="col-md-12">
                       <div className="fv-row mb-6">
                         <label className="required fw-bold fs-6 mb-2">Parameters</label>
-                        <WidgetParameters deviceData={formik.values.devices} setDeviceData={(device: any) => formik.setFieldValue("devices", device)} />
+                        <WidgetParameters deviceData={formik.values.devices} setDeviceData={(device: any) => formik.setFieldValue("devices", device)} maxDevices={1} />
                         {formik.touched.devices && formik.errors.devices && (
                           <div className="fv-plugins-message-container">
                             <div className="fv-help-block">
@@ -187,8 +209,14 @@ const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetSensorWidgetList }: 
                   </div>
                   <div className="row">
                     <div className="col-md-12">
+                      <label className="fw-bold fs-6">X-Axis Settings</label>
+                      <div className="separator my-3"></div>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-md-9">
                       <div className="fv-row mb-6">
-                        <label className="fw-bold fs-6 mb-2">Timeline</label>
+                        <label className="fw-bold text-muted fs-6 mb-2">Timeline</label>
                         {/* <select {...formik.getFieldProps("timeline")} className="form-select form-select form-select-lg fw-bold" name="timeline">
                           <option value="">Select Timeline</option>
                           <option value="7">7 days</option>
@@ -200,23 +228,31 @@ const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetSensorWidgetList }: 
                         </select> */}
                         <div className="flex-row mb-6">
                           <label className="m-2 cursor-pointer">
-                            <input {...formik.getFieldProps("timeline")} type="radio" name="timeline" value={30} className="form-check-input" defaultChecked={true} />
+                            <input
+                              {...formik.getFieldProps("timeline")}
+                              type="radio"
+                              name="timeline"
+                              value={30}
+                              className="form-check-input"
+                              onChange={onChangeTimeline}
+                              defaultChecked={true}
+                            />
                             <span className="fw-bold fs-6 mx-2">1 Month</span>
                           </label>
                           <label className="m-2 cursor-pointer">
-                            <input {...formik.getFieldProps("timeline")} type="radio" name="timeline" value={90} className="form-check-input" />
+                            <input {...formik.getFieldProps("timeline")} type="radio" name="timeline" value={90} className="form-check-input" onChange={onChangeTimeline} />
                             <span className="fw-bold fs-6 mx-2">3 Months</span>
                           </label>
                           <label className="m-2 cursor-pointer">
-                            <input {...formik.getFieldProps("timeline")} type="radio" name="timeline" value={180} className="form-check-input" />
+                            <input {...formik.getFieldProps("timeline")} type="radio" name="timeline" value={180} className="form-check-input" onChange={onChangeTimeline} />
                             <span className="fw-bold fs-6 mx-2">6 Months</span>
                           </label>
                           <label className="m-2 cursor-pointer">
-                            <input {...formik.getFieldProps("timeline")} type="radio" name="timeline" value={1} className="form-check-input" />
+                            <input {...formik.getFieldProps("timeline")} type="radio" name="timeline" value={1} className="form-check-input" onChange={onChangeTimeline} />
                             <span className="fw-bold fs-6 mx-2">Current Day</span>
                           </label>
                           <label className="m-2 cursor-pointer">
-                            <input {...formik.getFieldProps("timeline")} type="radio" name="timeline" value={0} className="form-check-input" />
+                            <input {...formik.getFieldProps("timeline")} type="radio" name="timeline" value={0} className="form-check-input" onChange={onChangeTimeline} />
                             <span className="fw-bold fs-6 mx-2">Custom</span>
                           </label>
                           {String(formik.values.timeline) === "0" && (
@@ -230,27 +266,53 @@ const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetSensorWidgetList }: 
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="row">
                     <div className="col-md-3">
                       <div className="fv-row mb-6">
-                        <label className="fw-bold fs-6 mb-2">Interval</label>
+                        <label className="fw-bold text-muted fs-6 mb-2">Interval</label>
                         <select {...formik.getFieldProps("interval")} className="form-select form-select form-select-lg fw-bold" name="interval">
-                          <option value="">Select Interval</option>
-                          <option value="10s">10s</option>
-                          <option value="30s">30s</option>
-                          <option value="1m">1m</option>
+                          <option value="1">Daily</option>
+                          <option value="7">Weekly</option>
+                          <option value="15">Half Monthly</option>
+                          <option value="30">Monthly</option>
                         </select>
                       </div>
                     </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-md-12">
+                      <label className="fw-bold fs-6">Y-Axis Settings</label>
+                      <div className="separator my-3"></div>
+                    </div>
+                  </div>
+                  <div className="row">
+                    {(selectedLayout?.name === "VerticalCard" ||
+                      selectedLayout?.name === "HorizontalCard" ||
+                      selectedLayout?.name === "DigitalGauge" ||
+                      selectedLayout?.name === "AnalogGauge") && (
+                      <>
+                        <div className="col-md-3">
+                          <div className="fv-row mb-6">
+                            <label className="fw-bold text-muted fs-6 mb-2">Minimum</label>
+                            <input {...formik.getFieldProps("minValue")} type="number" name="minValue" placeholder="0" className="form-control mb-3 mb-lg-0" autoComplete="off" />
+                          </div>
+                        </div>
+                        <div className="col-md-3">
+                          <div className="fv-row mb-6">
+                            <label className="fw-bold text-muted fs-6 mb-2">Maximum</label>
+                            <input {...formik.getFieldProps("maxValue")} type="number" name="maxValue" placeholder="100" className="form-control mb-3 mb-lg-0" autoComplete="off" />
+                          </div>
+                        </div>
+                      </>
+                    )}
                     <div className="col-md-3">
                       <div className="fv-row mb-6">
-                        <label className="fw-bold fs-6 mb-2">Aggregation Type</label>
+                        <label className="fw-bold text-muted fs-6 mb-2">Aggregation Type</label>
                         <select {...formik.getFieldProps("aggregationType")} className="form-select form-select form-select-lg fw-bold" name="aggregationType">
                           <option value="avg">Average</option>
                           <option value="min">Min</option>
                           <option value="max">Max</option>
                           <option value="sum">Sum</option>
+                          <option value="latest">Latest</option>
                         </select>
                       </div>
                     </div>

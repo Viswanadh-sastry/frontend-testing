@@ -18,6 +18,7 @@ interface IGroupListHeaderProps {
       name: any;
     }>
   >;
+  setHistoryList: Dispatch<SetStateAction<any>>;
 }
 
 const filterDevice = {
@@ -30,7 +31,7 @@ interface TypeaheadMethods {
   clear: () => void;
 }
 
-const GroupListFilter = ({ setFilterGroup }: IGroupListHeaderProps) => {
+const GroupListFilter = ({ setFilterGroup, setHistoryList }: IGroupListHeaderProps) => {
   const [filter, setFilter] = useState({ name: "", from: 0, to: 0 });
   const typeaheadRef = useRef<TypeaheadMethods | null>(null);
 
@@ -57,11 +58,11 @@ const GroupListFilter = ({ setFilterGroup }: IGroupListHeaderProps) => {
     if (value) {
       if (name === "from") {
         // Set time to 12:00:00 AM for "from" date
-        const fromDate = moment.utc(value).startOf("day");
+        const fromDate = moment(value).startOf("day");
         newValue = fromDate.valueOf();
       } else if (name === "to") {
         // Set time to 11:59:59 PM for "to" date
-        const toDate = moment.utc(value).endOf("day");
+        const toDate = moment(value).endOf("day");
         newValue = toDate.valueOf();
       }
     }
@@ -79,12 +80,14 @@ const GroupListFilter = ({ setFilterGroup }: IGroupListHeaderProps) => {
         return;
       }
     }
-    setFilterGroup((prev) => ({ ...prev, ...filter, from: filter.from * 1000, to: filter.to * 1000 }));
+    setHistoryList([]);
+    setFilterGroup((prev) => ({ ...prev, ...filter, from: filter.from * 1000, to: filter.to * 1000, offset: 0 }));
   };
 
   const resetFilter = () => {
+    setHistoryList([]);
     setFilter({ name: "", from: 0, to: 0 });
-    setFilterGroup((prev) => ({ ...prev, name: "", from: 0, to: 0 }));
+    setFilterGroup((prev) => ({ ...prev, name: "", from: 0, to: 0, offset: 0 }));
 
     // Clear the Typeahead input
     if (typeaheadRef.current) {

@@ -4,7 +4,7 @@ import { useLocation, useParams } from "react-router-dom";
 import { ColumnInstance, Row, useTable } from "react-table";
 import { toast } from "react-toastify";
 import { KTCardBody } from "../../../../_metronic/helpers";
-import { sortHistoryData } from "../../dashboard/api/DashboardHelper";
+// import { sortHistoryData } from "../../dashboard/api/DashboardHelper";
 import { getThingChannelList } from "../../things/api/ThingChannelAPI";
 import { getHistoryListAll } from "../api/HistoryAPI";
 import { History } from "../api/_models";
@@ -17,6 +17,7 @@ import { DeviceListPagination } from "./pagination/DeviceListPagination";
 
 const DeviceTable = () => {
   const [data, setData] = useState<any>([]);
+  const [historyList, setHistoryList] = useState<any>([]);
   const [filterDevice, setFilterDevice] = useState({
     limit: 100, // Always fetch 100 records from the API
     offset: 0,
@@ -28,12 +29,13 @@ const DeviceTable = () => {
     publisher: "",
   });
 
+  const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState<any>(10); // Dynamic items per page
 
   const filterGroupChannel = {
     offset: 0,
-    limit: 100,
+    limit: 10,
     name: "",
     status: "enabled",
   };
@@ -85,10 +87,11 @@ const DeviceTable = () => {
   });
 
   const deviceHistoryListQuery = useQuery({
-    queryKey: [`deviceHistoryList`, filterDevice],
+    queryKey: [`historyList`, filterDevice],
     queryFn: async () => {
       if (!channelListByThingIdQuery.isSuccess || !channelListByThingIdQuery.data) return [];
 
+      let totalCount = 0;
       const channelList = channelListByThingIdQuery.data || [];
       const allHistoryData = [];
 
@@ -101,6 +104,7 @@ const DeviceTable = () => {
               if (historyData.messages) {
                 allHistoryData.push(...historyData.messages);
               }
+              totalCount += historyData.total;
             } catch (error: any) {
               toast.error(error.message);
             }
@@ -112,6 +116,7 @@ const DeviceTable = () => {
             if (historyData.messages) {
               allHistoryData.push(...historyData.messages);
             }
+            totalCount += historyData.total;
           } catch (error: any) {
             toast.error(error.message);
           }
@@ -119,8 +124,9 @@ const DeviceTable = () => {
       }
 
       // order by unix time descending
-      allHistoryData.sort((a: any, b: any) => sortHistoryData(a, b));
-
+      // allHistoryData.sort((a: any, b: any) => sortHistoryData(a, b));
+      setHistoryList([...historyList, ...allHistoryData]);
+      setTotal(totalCount);
       return allHistoryData;
     },
     enabled: channelListByThingIdQuery.isSuccess && !!channelListByThingIdQuery.data,
@@ -129,14 +135,17 @@ const DeviceTable = () => {
   const isLoading = deviceHistoryListQuery.isLoading || channelListByThingIdQuery.isLoading;
 
   useEffect(() => {
-    if (deviceHistoryListQuery.data) {
+    if (historyList) {
       setData(
-        (deviceHistoryListQuery.data || []).filter((_: any, index: number) => {
+        historyList.filter((_: any, index: number) => {
           return index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage;
         })
       );
+      if (currentPage * itemsPerPage >= historyList.length && historyList.length > 0) {
+        setFilterDevice({ ...filterDevice, offset: historyList.length });
+      }
     }
-  }, [deviceHistoryListQuery.data, currentPage, itemsPerPage]);
+  }, [historyList, currentPage, itemsPerPage]);
 
   const columns = useMemo(() => assetColumns, []);
   const { getTableProps, getTableBodyProps, headers, rows, prepareRow } = useTable({
@@ -146,7 +155,7 @@ const DeviceTable = () => {
 
   return (
     <div className="card w-100">
-      <DeviceListHeader setFilterDevice={setFilterDevice} deviceHistoryList={deviceHistoryListQuery.data || []} />
+      <DeviceListHeader setFilterDevice={setFilterDevice} setHistoryList={setHistoryList} filterDevice={filterDevice} />
       <KTCardBody className="py-4">
         <div className="table-responsive">
           <table id="kt_table_groups" className="table align-middle table-row-dashed fs-6 dataTable no-footer" {...getTableProps()}>
@@ -174,7 +183,8 @@ const DeviceTable = () => {
           </table>
         </div>
         <DeviceListPagination
-          deviceHistoryListQuery={deviceHistoryListQuery}
+          historyList={historyList}
+          total={total}
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
           data={data}

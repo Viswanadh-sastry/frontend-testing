@@ -8,6 +8,7 @@ import { useAuth } from "../../../auth";
 import { updateDashboard } from "../../api/DashboardAPI";
 import { deleteWidgetById, editDashboard, getDashboard, getDashboardById, updateWidgetById } from "../../api/DashboardHelper";
 import { EditView } from "./Widget/EditView";
+import { EditSensor } from "./Widget/EditSensor";
 import { WidgetDrawer } from "./Widget/WidgetDrawer";
 import { WidgetItem } from "./Widget/WidgetItem";
 import { ViewSensor } from "./Widget/ViewSensor";
@@ -19,7 +20,7 @@ const LayoutBuilder = () => {
   const params = useParams();
   const id = params.id as string;
   const [dashboard, setDashboard] = useState<any>(getDashboardById(id));
-  const [editWidget, setEditWidget] = useState({
+  const [editWidget, setEditWidget] = useState<any>({
     open: false,
     data: null,
   });
@@ -38,6 +39,10 @@ const LayoutBuilder = () => {
           ? 200
           : data.layout === "TableCard"
           ? 330
+          : data.layout === "DigitalGauge"
+          ? 350
+          : data.layout === "AnalogGauge"
+          ? 350
           : 400,
       width:
         data.layout === "SquareCard"
@@ -50,6 +55,10 @@ const LayoutBuilder = () => {
           ? 450
           : data.layout === "TableCard"
           ? 300
+          : data.layout === "DigitalGauge"
+          ? 350
+          : data.layout === "AnalogGauge"
+          ? 350
           : 500,
       left: 0,
       top: 0,
@@ -131,6 +140,8 @@ const LayoutBuilder = () => {
       toDate: metadata.toDate,
       interval: metadata.updateInterval,
       aggregationType: metadata.aggregationType,
+      minValue: metadata.minValue,
+      maxValue: metadata.maxValue,
       layout: layout.widgetType,
       uniqueDeviceList: [],
       tempSensorTypeList: [],
@@ -234,7 +245,8 @@ const LayoutBuilder = () => {
                 widget.layouts.widgetType === "VerticalCard" ||
                 widget.layouts.widgetType === "HorizontalCard" ||
                 widget.layouts.widgetType === "TableCard" ||
-                widget.layouts.widgetType === "HorizontalLineCard" ? (
+                widget.layouts.widgetType === "DigitalGauge" ||
+                widget.layouts.widgetType === "AnalogGauge" ? (
                   <ViewSensor key={index} widgetData={widget} editWidget={(data) => onOpenWidget(data)} removeWidget={(id) => onRemoveWidget(id)} />
                 ) : (
                   <WidgetItem key={index} widgetData={widget} editWidget={(data) => onOpenWidget(data)} removeWidget={(id) => onRemoveWidget(id)} />
@@ -242,7 +254,31 @@ const LayoutBuilder = () => {
               )}
             </KTCardBody>
           </div>
-          {editWidget.open && <EditView inputData={editWidget.data} onEditView={(data) => onSaveWidget(data)} onClose={onCloseWidget} />}
+          {editWidget.open &&
+            (editWidget.data?.layout === "SquareCard" ||
+              editWidget.data?.layout === "RectangleCard" ||
+              editWidget.data?.layout === "VerticalCard" ||
+              editWidget.data?.layout === "HorizontalCard" ||
+              editWidget.data?.layout === "TableCard" ||
+              editWidget.data?.layout === "DigitalGauge" ||
+              editWidget.data?.layout === "AnalogGauge") && <EditSensor inputData={editWidget.data} onEditView={(data) => onSaveWidget(data)} onClose={onCloseWidget} />}
+          {editWidget.open &&
+            (editWidget.data?.layout === "line" ||
+              editWidget.data?.layout === "area" ||
+              editWidget.data?.layout === "bar" ||
+              editWidget.data?.layout === "histogram" ||
+              editWidget.data?.layout === "pie" ||
+              editWidget.data?.layout === "donut" ||
+              editWidget.data?.layout === "radialBar" ||
+              editWidget.data?.layout === "scatter" ||
+              editWidget.data?.layout === "bubble" ||
+              editWidget.data?.layout === "heatmap" ||
+              editWidget.data?.layout === "candlestick" ||
+              editWidget.data?.layout === "boxPlot" ||
+              editWidget.data?.layout === "radar" ||
+              editWidget.data?.layout === "polarArea" ||
+              editWidget.data?.layout === "rangeBar" ||
+              editWidget.data?.layout === "treemap") && <EditView inputData={editWidget.data} onEditView={(data) => onSaveWidget(data)} onClose={onCloseWidget} />}
         </FullScreen>
       </div>
       <WidgetDrawer onGetChartWidget={(data) => refreshChart(data)} onGetSensorWidget={(data) => refreshSensor(data)} />
@@ -299,6 +335,8 @@ const convertToJson = (inputData: any, selectedLayout: any, deviceList: any[]) =
         updateInterval: inputData.interval,
         aggregationType: inputData.aggregationType,
         timeline: inputData.timeline,
+        minValue: inputData.minValue,
+        maxValue: inputData.maxValue,
         fromDate: inputData.fromDate,
         toDate: inputData.toDate,
         title: inputData.name,
@@ -337,6 +375,8 @@ const updateToMetadata = (inputData: any, deviceList: any[]) => ({
     updateInterval: inputData.interval,
     aggregationType: inputData.aggregationType,
     timeline: inputData.timeline,
+    minValue: inputData.minValue,
+    maxValue: inputData.maxValue,
     fromDate: inputData.fromDate,
     toDate: inputData.toDate,
     title: inputData.name,

@@ -1,14 +1,18 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { Dispatch, SetStateAction, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { MenuComponent } from "../../../../_metronic/assets/ts/components";
 import { KTIcon } from "../../../../_metronic/helpers";
+import { convertUnixTimestampToLocalDateTime } from "../../../constants/Common";
+import { sortHistoryData } from "../../dashboard/api/DashboardHelper";
+import { exportHistoryListAll } from "../api/HistoryAPI";
 import { AssetListFilter } from "./AssetListFilter";
 
 interface IAssetListHeaderProps {
-  assetHistoryList: any;
+  setHistoryList: Dispatch<SetStateAction<any>>;
   setFilterAsset: Dispatch<
     SetStateAction<{
       channelId: any;
@@ -20,12 +24,79 @@ interface IAssetListHeaderProps {
       name: any;
     }>
   >;
+  filterAsset: {
+    channelId: any;
+    limit: number;
+    offset: number;
+    status: string;
+    from: number;
+    to: number;
+    name: any;
+  };
 }
 
-const AssetListHeader = ({ setFilterAsset, assetHistoryList }: IAssetListHeaderProps) => {
+const AssetListHeader = ({ setFilterAsset, setHistoryList, filterAsset }: IAssetListHeaderProps) => {
   useEffect(() => {
     MenuComponent.reinitialization();
   }, []);
+
+  const params = useParams();
+  const channelId = params.id;
+
+  const fetchExportData = async (): Promise<any[]> => {
+    const historyList: any[] = [];
+    try {
+      if (channelId) {
+        if (filterAsset.name && filterAsset.name.length === 0) {
+          const historyData = await exportHistoryListAll(channelId, filterAsset);
+          if (historyData.messages) {
+            historyList.push(...historyData.messages);
+          }
+        } else if (filterAsset.name && filterAsset.name.length > 0) {
+          for (const name of filterAsset.name) {
+            const filterWithName = { ...filterAsset, name: [name] };
+            try {
+              const historyData = await exportHistoryListAll(channelId, filterWithName);
+              if (historyData.messages) {
+                historyList.push(...historyData.messages);
+              }
+            } catch (error: any) {
+              toast.error(error.message);
+            }
+          }
+        }
+      } else if (filterAsset.channelId) {
+        for (const assetId of filterAsset.channelId) {
+          if (filterAsset.name && filterAsset.name.length > 0) {
+            for (const name of filterAsset.name) {
+              const filterWithName = { ...filterAsset, name: [name] };
+              try {
+                const historyData = await exportHistoryListAll(assetId, filterWithName);
+                if (historyData.messages) {
+                  historyList.push(...historyData.messages);
+                }
+              } catch (error: any) {
+                toast.error(error.message);
+              }
+            }
+          } else {
+            const historyData = await exportHistoryListAll(assetId, filterAsset);
+            if (historyData.messages) {
+              historyList.push(...historyData.messages);
+            }
+          }
+        }
+      }
+
+      // Sort by Unix time descending
+      historyList.sort((a: any, b: any) => sortHistoryData(a, b));
+
+      return historyList;
+    } catch (error: any) {
+      toast.error(`Error fetching history data: ${error.message}`);
+      return [];
+    }
+  };
 
   const convertToCSV = (data: any[], headerOrder: string[]) => {
     // Create a header with the specified order
@@ -56,14 +127,7 @@ const AssetListHeader = ({ setFilterAsset, assetHistoryList }: IAssetListHeaderP
 
             if (key === "time" && value !== undefined) {
               // Convert the timestamp (assuming it is in microseconds) to milliseconds
-              const timestamp = parseInt(value, 10) / 1000;
-              if (!isNaN(timestamp)) {
-                const date = new Date(timestamp);
-                // Format the date to include milliseconds in the ISO 8601 format
-                const isoString = date.toISOString();
-                const milliseconds = String(date.getMilliseconds()).padStart(3, "0");
-                value = isoString.replace("Z", `.${milliseconds}Z`);
-              }
+              value = convertUnixTimestampToLocalDateTime(value);
             }
 
             return value !== undefined ? value : ""; // Return value or blank if undefined
@@ -76,13 +140,15 @@ const AssetListHeader = ({ setFilterAsset, assetHistoryList }: IAssetListHeaderP
   };
 
   // convert data to csv
-  const downloadCSV = () => {
-    if (assetHistoryList.length === 0) {
+  const downloadCSV = async () => {
+    const historyList = await fetchExportData();
+
+    if (historyList.length === 0) {
       toast.error("No data found to download!");
       return;
     }
     const headerOrder = ["time", "subtopic", "publisher", "protocol", "name", "unit", "value"];
-    const csvString = convertToCSV(assetHistoryList, headerOrder);
+    const csvString = convertToCSV(historyList, headerOrder);
     const blob = new Blob([csvString], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -95,8 +161,10 @@ const AssetListHeader = ({ setFilterAsset, assetHistoryList }: IAssetListHeaderP
   };
 
   // convert data to xlsx
-  const downloadXlsx = () => {
-    if (assetHistoryList.length === 0) {
+  const downloadXlsx = async () => {
+    const historyList = await fetchExportData();
+
+    if (historyList.length === 0) {
       toast.error("No data found to download!");
       return;
     }
@@ -118,20 +186,13 @@ const AssetListHeader = ({ setFilterAsset, assetHistoryList }: IAssetListHeaderP
     );
 
     // Prepare the data in the correct order with stringified metadata
-    const formattedData = assetHistoryList.map((item: any) => {
+    const formattedData = historyList.map((item: any) => {
       return headerOrder.reduce((acc: Record<string, any>, key) => {
         let value = item[key];
 
         if (key === "time" && value !== undefined) {
           // Convert the timestamp (assuming it is in microseconds) to milliseconds
-          const timestamp = parseInt(value, 10) / 1000;
-          if (!isNaN(timestamp)) {
-            const date = new Date(timestamp);
-            // Format the date to include milliseconds in the ISO 8601 format
-            const isoString = date.toISOString();
-            const milliseconds = String(date.getMilliseconds()).padStart(3, "0");
-            value = isoString.replace("Z", `.${milliseconds}Z`);
-          }
+          value = convertUnixTimestampToLocalDateTime(value);
         }
 
         acc[key] = value !== undefined ? value : "";
@@ -178,8 +239,10 @@ const AssetListHeader = ({ setFilterAsset, assetHistoryList }: IAssetListHeaderP
   };
 
   // download pdf
-  const downloadPDF = () => {
-    if (assetHistoryList.length === 0) {
+  const downloadPDF = async () => {
+    const historyList = await fetchExportData();
+
+    if (historyList.length === 0) {
       toast.error("No data found to download!");
       return;
     }
@@ -199,16 +262,10 @@ const AssetListHeader = ({ setFilterAsset, assetHistoryList }: IAssetListHeaderP
         }[key])
     );
 
-    const data = assetHistoryList.map((item: any) =>
+    const data = historyList.map((item: any) =>
       headerOrder.map((key) => {
         if (key === "time") {
-          const timestamp = parseInt(item[key], 10) / 1000;
-          if (!isNaN(timestamp)) {
-            const date = new Date(timestamp);
-            const isoString = date.toISOString();
-            const milliseconds = String(date.getMilliseconds()).padStart(3, "0");
-            return isoString.replace("Z", `.${milliseconds}Z`);
-          }
+          return convertUnixTimestampToLocalDateTime(item[key]);
         }
         return item[key] || "";
       })
@@ -264,7 +321,7 @@ const AssetListHeader = ({ setFilterAsset, assetHistoryList }: IAssetListHeaderP
               Back
             </button>
             <div>
-              <AssetListFilter setFilterAsset={setFilterAsset} />
+              <AssetListFilter setFilterAsset={setFilterAsset} setHistoryList={setHistoryList} />
             </div>
             <button type="button" className="btn btn-light-primary me-3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
               <KTIcon iconName="exit-down" className="fs-2" />

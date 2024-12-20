@@ -2,12 +2,13 @@ import { FC, lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { MasterLayout } from "../../_metronic/layout/MasterLayout";
 import TopBarProgress from "react-topbar-progress-indicator";
-import { HomeWrapper } from "../modules/home/HomeWrapper";
+// import { HomeWrapper } from "../modules/home/HomeWrapper";
 import { getCSSVariableValue } from "../../_metronic/assets/ts/_utils";
 import { WithChildren } from "../../_metronic/helpers";
 import BuilderPageWrapper from "../pages/layout-builder/BuilderPageWrapper";
 
 const PrivateRoutes = () => {
+  const HomeWrapper = lazy(() => import("../modules/home/HomeWrapper"));
   const DomainsPage = lazy(() => import("../modules/domains/DomainsPage"));
   const InvitationPage = lazy(() => import("../modules/invitations/InvitationPage"));
   const UserPage = lazy(() => import("../modules/users/UserPage"));
@@ -24,7 +25,14 @@ const PrivateRoutes = () => {
       <Route element={<MasterLayout />}>
         <Route path="auth/*" element={<Navigate to="/home" />} />
         {/* Pages */}
-        <Route path="home" element={<HomeWrapper />} />
+        <Route
+          path="home"
+          element={
+            <SuspensedView>
+              <HomeWrapper />
+            </SuspensedView>
+          }
+        />
         <Route
           path="dashboard/*"
           element={

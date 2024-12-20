@@ -15,7 +15,8 @@ const mappedLabel = (label: string): string => {
 };
 
 interface IDeviceListPaginationProps {
-  deviceHistoryListQuery: any;
+  historyList: any;
+  total: number;
   currentPage: number;
   itemsPerPage: any;
   data: any;
@@ -24,22 +25,21 @@ interface IDeviceListPaginationProps {
   setData: (data: any) => void;
 }
 
-const DeviceListPagination = ({ deviceHistoryListQuery, currentPage, itemsPerPage, data, setCurrentPage, setItemsPerPage, setData }: IDeviceListPaginationProps) => {
+const DeviceListPagination = ({ historyList, total, currentPage, itemsPerPage, data, setCurrentPage, setItemsPerPage, setData }: IDeviceListPaginationProps) => {
   const [pagination, setPagination] = useState<PaginationState>({
     page: currentPage,
     items_per_page: itemsPerPage,
     links: [],
   });
-  // const isLoading = deviceHistoryListQuery.isLoading;
 
   useEffect(() => {
-    if (data.length > 0) {
+    if (data) {
       getLinks();
     }
   }, [data]);
 
   const getLinks = () => {
-    const noOfLinks = deviceHistoryListQuery.data?.length;
+    const noOfLinks = historyList.length;
     const noOfPages = Math.ceil(noOfLinks / itemsPerPage);
     const links = [];
     links.push({ label: "&laquo; Previous", active: false, url: null, page: pagination.page === 1 ? null : pagination.page - 1 });
@@ -65,10 +65,11 @@ const DeviceListPagination = ({ deviceHistoryListQuery, currentPage, itemsPerPag
       page: state.page,
       items_per_page: state.items_per_page,
     });
-    const historyData = deviceHistoryListQuery.data.filter((_: any, index: number) => {
+    const historyData = historyList.filter((_: any, index: number) => {
       return index >= (state.page - 1) * state.items_per_page && index < state.page * state.items_per_page;
     });
     setItemsPerPage(state.items_per_page);
+    setCurrentPage(state.page);
     setData(historyData);
   };
 
@@ -133,7 +134,7 @@ const DeviceListPagination = ({ deviceHistoryListQuery, currentPage, itemsPerPag
           <option value="50">50</option>
         </select>
         <div id="kt_table_things_info" className="dataTables_info">
-          Total {deviceHistoryListQuery.data?.length || 0} entries
+          Total {total} entries
         </div>
       </div>
       <div className="col-sm-12 col-md-8 d-flex align-items-center justify-content-center justify-content-md-end">

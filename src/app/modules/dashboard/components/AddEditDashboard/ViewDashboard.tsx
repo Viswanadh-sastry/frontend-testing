@@ -46,7 +46,8 @@ const ViewDashboard = () => {
                 widget.layouts.widgetType === "VerticalCard" ||
                 widget.layouts.widgetType === "HorizontalCard" ||
                 widget.layouts.widgetType === "TableCard" ||
-                widget.layouts.widgetType === "HorizontalLineCard" ? (
+                widget.layouts.widgetType === "DigitalGauge" ||
+                widget.layouts.widgetType === "AnalogGauge" ? (
                   <SensorPreviewItem key={index} widgetData={widget} />
                 ) : (
                   <WidgetPreviewItem key={index} widgetData={widget} />

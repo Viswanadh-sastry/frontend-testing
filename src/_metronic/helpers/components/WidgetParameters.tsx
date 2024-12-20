@@ -9,9 +9,10 @@ import { getThing, getThingListAll } from "../../../app/modules/things/api/Thing
 interface IWidgetParameters {
   deviceData: any;
   setDeviceData: (deviceData: any) => void;
+  maxDevices?: number;
 }
 
-const WidgetParameters = ({ deviceData, setDeviceData }: IWidgetParameters) => {
+const WidgetParameters = ({ deviceData, setDeviceData, maxDevices = 10 }: IWidgetParameters) => {
   const [inputs, setInputs] = useState(convertArrayToObject(deviceData));
   const [uniqueTags, setUniqueTags] = useState<any[]>([]);
   const filterChannel = {
@@ -99,10 +100,11 @@ const WidgetParameters = ({ deviceData, setDeviceData }: IWidgetParameters) => {
   };
 
   const handleAddInput = () => {
-    // if (inputs.length >= 5) {
-    //   toast.error("You can add up to 5 devices");
-    //   return;
-    // }
+    if (inputs.length >= maxDevices) {
+      if (maxDevices === 1) toast.warn(`Only ${maxDevices} device is allowed.`);
+      else toast.warn(`Maximum ${maxDevices} devices are allowed.`);
+      return;
+    }
     const addDevice = { deviceLabel: "thing", deviceValue: "", deviceName: "", sensorType: "" };
     setInputs([...inputs, addDevice]);
     setDeviceData(convertArrayToObject([...inputs, addDevice]));

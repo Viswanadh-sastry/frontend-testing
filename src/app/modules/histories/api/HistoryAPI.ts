@@ -11,6 +11,18 @@ export async function getHistoryList(channelId: string, data: any) {
 export async function getHistoryListAll(channelId: string, data: any) {
     const query = searchAsset(data);
     const response = await axios.get(`${API_URL}/channels/${channelId}/messages${query}`);
+    // const totalRecords = response.data.total;
+    // for (let i = 100; i < totalRecords; i += 100) {
+    //     const query = searchAsset({ ...data, offset: i });
+    //     const result = await axios.get(`${API_URL}/channels/${channelId}/messages${query}`);
+    //     response.data.messages.push(...result.data.messages);
+    // }
+    return response.data;
+}
+
+export async function exportHistoryListAll(channelId: string, data: any) {
+    const query = searchAsset(data);
+    const response = await axios.get(`${API_URL}/channels/${channelId}/messages${query}`);
     const totalRecords = response.data.total;
     for (let i = 100; i < totalRecords; i += 100) {
         const query = searchAsset({ ...data, offset: i });

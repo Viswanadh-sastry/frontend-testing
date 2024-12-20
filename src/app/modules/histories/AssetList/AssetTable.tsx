@@ -4,7 +4,7 @@ import { useLocation, useParams } from "react-router-dom";
 import { ColumnInstance, Row, useTable } from "react-table";
 import { toast } from "react-toastify";
 import { KTCardBody } from "../../../../_metronic/helpers";
-import { sortHistoryData } from "../../dashboard/api/DashboardHelper";
+// import { sortHistoryData } from "../../dashboard/api/DashboardHelper";
 import { getHistoryListAll } from "../api/HistoryAPI";
 import { History } from "../api/_models";
 import { AssetListHeader } from "./AssetListHeader";
@@ -16,6 +16,7 @@ import { AssetListPagination } from "./pagination/AssetListPagination";
 
 const AssetTable = () => {
   const [data, setData] = useState<any>([]);
+  const [historyList, setHistoryList] = useState<any>([]);
   const [filterAsset, setFilterAsset] = useState({
     limit: 100,
     offset: 0,
@@ -30,6 +31,7 @@ const AssetTable = () => {
     selectedValues: [];
   }
 
+  const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState<any>(10); // Dynamic items per page
   const params = useParams();
@@ -45,8 +47,9 @@ const AssetTable = () => {
   }, [selectedValues]);
 
   const assetHistoryListQuery = useQuery({
-    queryKey: [`assetHistoryList`, filterAsset],
+    queryKey: [`historyList`, filterAsset],
     queryFn: async () => {
+      let totalCount = 0;
       if (channelId) {
         let channelListByThingId;
         if (filterAsset.name && filterAsset.name.length == 0) {
@@ -62,14 +65,20 @@ const AssetTable = () => {
               if (historyData.messages) {
                 channelList.push(...historyData.messages);
               }
+              totalCount += historyData.total;
             } catch (error: any) {
               toast.error(error.message);
             }
           }
+          setHistoryList([...historyList, ...channelList]);
+          setTotal(totalCount);
           return channelList;
         }
 
         if (channelListByThingId.messages) {
+          totalCount += channelListByThingId.total;
+          setHistoryList([...historyList, ...channelListByThingId.messages]);
+          setTotal(totalCount);
           return channelListByThingId.messages;
         }
       } else {
@@ -85,6 +94,7 @@ const AssetTable = () => {
                   if (historyData.messages) {
                     channelList.push(...historyData.messages);
                   }
+                  totalCount += historyData.total;
                 } catch (error: any) {
                   toast.error(error.message);
                 }
@@ -94,12 +104,14 @@ const AssetTable = () => {
               if (channelListByThingId.messages) {
                 channelList.push(...channelListByThingId.messages);
               }
+              totalCount += channelListByThingId.total;
             }
           }
 
           // order by unix time descending
-          channelList.sort((a: any, b: any) => sortHistoryData(a, b));
-
+          // channelList.sort((a: any, b: any) => sortHistoryData(a, b));
+          setHistoryList([...historyList, ...channelList]);
+          setTotal(totalCount);
           return channelList;
         }
       }
@@ -111,14 +123,17 @@ const AssetTable = () => {
   const isLoading = assetHistoryListQuery.isLoading;
 
   useEffect(() => {
-    if (assetHistoryListQuery.data) {
+    if (historyList) {
       setData(
-        (assetHistoryListQuery.data || []).filter((_: any, index: number) => {
+        historyList.filter((_: any, index: number) => {
           return index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage;
         })
       );
+      if (currentPage * itemsPerPage >= historyList.length && historyList.length > 0) {
+        setFilterAsset({ ...filterAsset, offset: historyList.length });
+      }
     }
-  }, [assetHistoryListQuery.data, currentPage, itemsPerPage]);
+  }, [historyList, currentPage, itemsPerPage]);
 
   const columns = useMemo(() => assetColumns, []);
   const { getTableProps, getTableBodyProps, headers, rows, prepareRow } = useTable({
@@ -128,7 +143,7 @@ const AssetTable = () => {
 
   return (
     <div className="card w-100">
-      <AssetListHeader setFilterAsset={setFilterAsset} assetHistoryList={assetHistoryListQuery?.data || []} />
+      <AssetListHeader setFilterAsset={setFilterAsset} setHistoryList={setHistoryList} filterAsset={filterAsset} />
       <KTCardBody className="py-4">
         <div className="table-responsive">
           <table id="kt_table_groups" className="table align-middle table-row-dashed fs-6 dataTable no-footer" {...getTableProps()}>
@@ -156,7 +171,8 @@ const AssetTable = () => {
           </table>
         </div>
         <AssetListPagination
-          assetHistoryListQuery={assetHistoryListQuery}
+          historyList={historyList}
+          total={total}
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
           data={data}

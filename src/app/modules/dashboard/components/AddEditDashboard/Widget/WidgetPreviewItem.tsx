@@ -55,6 +55,8 @@ const WidgetPreviewItem = ({ widgetData }: IWidgetPreviewItemProps) => {
         interval: metadata.updateInterval,
         aggregationType: metadata.aggregationType,
         timeline: metadata.timeline,
+        minValue: metadata.minValue,
+        maxValue: metadata.maxValue,
         fromDate: metadata.fromDate,
         toDate: metadata.toDate,
         devices: devices,
@@ -77,7 +79,7 @@ const WidgetPreviewItem = ({ widgetData }: IWidgetPreviewItemProps) => {
     }
     const filterGroupChannel = {
       offset: 0,
-      limit: 100,
+      limit: 10,
       name: "",
       status: "enabled",
     };
@@ -122,11 +124,11 @@ const WidgetPreviewItem = ({ widgetData }: IWidgetPreviewItemProps) => {
     let fromTime: number = 0;
     let toTime: number = 0;
     if (data.timeline === "0") {
-      fromTime = moment.utc(data.fromDate).startOf("day").valueOf() * 1000000;
-      toTime = moment.utc(data.toDate).endOf("day").valueOf() * 1000000 + 999999;
+      fromTime = moment(data.fromDate).startOf("day").valueOf() * 1000000;
+      toTime = moment(data.toDate).endOf("day").valueOf() * 1000000 + 999000;
     } else {
-      fromTime = moment.utc(moment().subtract(data.timeline, "days").format("YYYY-MM-DD")).startOf("day").valueOf() * 1000000;
-      toTime = moment.utc(moment().format("YYYY-MM-DD")).endOf("day").valueOf() * 1000000 + 999999;
+      fromTime = moment(moment().subtract(data.timeline, "days").format("YYYY-MM-DD")).startOf("day").valueOf() * 1000000;
+      toTime = moment(moment().format("YYYY-MM-DD")).endOf("day").valueOf() * 1000000 + 999000;
     }
 
     const allHistoryData = [];
@@ -185,11 +187,11 @@ const WidgetPreviewItem = ({ widgetData }: IWidgetPreviewItemProps) => {
     let fromTime: number = 0;
     let toTime: number = 0;
     if (inputData.timeline === "0") {
-      fromTime = moment.utc(inputData.fromDate).startOf("day").valueOf() * 1000000;
-      toTime = moment.utc(inputData.toDate).endOf("day").valueOf() * 1000000 + 999999;
+      fromTime = moment(inputData.fromDate).startOf("day").valueOf() * 1000000;
+      toTime = moment(inputData.toDate).endOf("day").valueOf() * 1000000 + 999000;
     } else {
-      fromTime = moment.utc(moment().subtract(inputData.timeline, "days").format("YYYY-MM-DD")).startOf("day").valueOf() * 1000000;
-      toTime = moment.utc(moment().format("YYYY-MM-DD")).endOf("day").valueOf() * 1000000 + 999999;
+      fromTime = moment(moment().subtract(inputData.timeline, "days").format("YYYY-MM-DD")).startOf("day").valueOf() * 1000000;
+      toTime = moment(moment().format("YYYY-MM-DD")).endOf("day").valueOf() * 1000000 + 999000;
     }
 
     const allHistoryData = [];

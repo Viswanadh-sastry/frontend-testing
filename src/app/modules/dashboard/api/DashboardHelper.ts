@@ -188,11 +188,12 @@ const sortHistoryData = (a: any, b: any) => {
 const getChartOptions = (sensorType: string, inputData: any, deviceList: any, messages: any): ApexOptions => {
     const categories: any = [];
     if (inputData.timeline === "0") {
-        for (let i = moment.utc(inputData.fromDate).startOf("day").valueOf(); i <= moment.utc(inputData.toDate).startOf("day").valueOf(); i += 86400000) {
+        const intervalValue = inputData.interval * 86400000;
+        for (let i = moment(inputData.fromDate).startOf("day").valueOf(); i <= moment(inputData.toDate).startOf("day").valueOf(); i += intervalValue) {
             categories.push({
                 timeInFromTimestamp: i * 1000000,
-                timeInToTimestamp: ((i + 86400000) * 1000000) + 999999,
-                timeInDisplay: moment.utc(i).format("DD/MM"),
+                timeInToTimestamp: ((i + (86400000 - 1)) * 1000000) + 999000,
+                timeInDisplay: moment(i).format("DD/MM"),
             });
         }
     } else if (inputData.timeline === "1") {
@@ -204,10 +205,10 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
             });
         }
     } else {
-        for (let i = inputData.timeline - 1; i >= 0; i--) {
+        for (let i = inputData.timeline - 1; i >= 0; i -= inputData.interval) {
             categories.push({
-                timeInFromTimestamp: moment.utc(moment().subtract(i, "days").format("YYYY-MM-DD")).startOf("day").valueOf() * 1000000,
-                timeInToTimestamp: (moment.utc(moment().subtract(i, "days").format("YYYY-MM-DD")).endOf("day").valueOf() * 1000000) + 999999,
+                timeInFromTimestamp: moment(moment().subtract(i, "days").format("YYYY-MM-DD")).startOf("day").valueOf() * 1000000,
+                timeInToTimestamp: (moment(moment().subtract(i, "days").format("YYYY-MM-DD")).endOf("day").valueOf() * 1000000) + 999000,
                 timeInDisplay: moment().subtract(i, "days").format("DD/MM"),
             });
         }
@@ -226,8 +227,9 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
         categories.map((category: any) => {
             // Filter messages per device and category (day)
             const data = messages.filter(
-                (message: any) => message.publisher === device.thingId && Number(String(message.time).slice(0, 10)) > Number(String(category.timeInFromTimestamp).slice(0, 10)) && Number(String(message.time).slice(0, 10)) < Number(String(category.timeInToTimestamp).slice(0, 10))
+                (message: any) => message.publisher === device.thingId && Number(String(message.time).slice(0, 10)) >= Number(String(category.timeInFromTimestamp).slice(0, 10)) && Number(String(message.time).slice(0, 10)) <= Number(String(category.timeInToTimestamp).slice(0, 10))
             );
+
             // For histogram, we use the count of messages
             if (inputData.aggregationType === "avg") {
                 // Average value for the day
@@ -253,6 +255,12 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
                     ? data.reduce((a: number, b: any) => a + (typeof b.value === 'number' ? b.value : 0), 0)
                     : 0;
                 categoryData.push(sum);
+            } else if (inputData.aggregationType === "latest") {
+                // Latest value for the day
+                const latest = data.length > 0
+                    ? data[0].value
+                    : 0;
+                categoryData.push(latest);
             }
 
             categoryCount.push(data.length);
@@ -272,7 +280,7 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
     console.log("seriesCount", seriesCount);
 
     // Chart Options for different layouts
-    const { layout } = inputData;
+    const { layout, minValue, maxValue } = inputData;
     if (layout === "pie" || layout === "donut") {
         return {
             series: seriesCount.map((series: any) => series.data.reduce((a: any, b: any) => a + b, 0)),
@@ -307,8 +315,14 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
             },
             xaxis: {
                 categories: categories.map((category: any) => category.timeInDisplay),
+                labels: {
+                    rotate: -45,
+                    rotateAlways: true,
+                },
             },
             yaxis: {
+                min: minValue,
+                max: maxValue,
                 title: {
                     text: sensorType,
                 },
@@ -350,6 +364,17 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
             },
             xaxis: {
                 categories: categories.map((category: any) => category.timeInDisplay),
+                labels: {
+                    rotate: -45,
+                    rotateAlways: true,
+                },
+            },
+            yaxis: {
+                min: minValue,
+                max: maxValue,
+                title: {
+                    text: sensorType,
+                },
             },
             dataLabels: {
                 enabled: false,
@@ -381,6 +406,17 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
             },
             xaxis: {
                 categories: categories.map((category: any) => category.timeInDisplay),
+                labels: {
+                    rotate: -45,
+                    rotateAlways: true,
+                },
+            },
+            yaxis: {
+                min: minValue,
+                max: maxValue,
+                title: {
+                    text: sensorType,
+                },
             },
             dataLabels: {
                 enabled: false,
@@ -472,6 +508,17 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
             },
             xaxis: {
                 categories: categories.map((category: any) => category.timeInDisplay),
+                labels: {
+                    rotate: -45,
+                    rotateAlways: true,
+                },
+            },
+            yaxis: {
+                min: minValue,
+                max: maxValue,
+                title: {
+                    text: sensorType,
+                },
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
             legend: {
@@ -496,6 +543,17 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
             },
             xaxis: {
                 categories: categories.map((category: any) => category.timeInDisplay),
+                labels: {
+                    rotate: -45,
+                    rotateAlways: true,
+                },
+            },
+            yaxis: {
+                min: minValue,
+                max: maxValue,
+                title: {
+                    text: sensorType,
+                },
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
             legend: {
@@ -520,6 +578,17 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
             },
             xaxis: {
                 categories: categories.map((category: any) => category.timeInDisplay),
+                labels: {
+                    rotate: -45,
+                    rotateAlways: true,
+                },
+            },
+            yaxis: {
+                min: minValue,
+                max: maxValue,
+                title: {
+                    text: sensorType,
+                },
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
             legend: {
@@ -545,6 +614,17 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
             },
             xaxis: {
                 categories: categories.map((category: any) => category.timeInDisplay),
+                labels: {
+                    rotate: -45,
+                    rotateAlways: true,
+                },
+            },
+            yaxis: {
+                min: minValue,
+                max: maxValue,
+                title: {
+                    text: sensorType,
+                },
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
             legend: {
@@ -576,6 +656,17 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
             },
             xaxis: {
                 categories: categories.map((category: any) => category.timeInDisplay),
+                labels: {
+                    rotate: -45,
+                    rotateAlways: true,
+                },
+            },
+            yaxis: {
+                min: minValue,
+                max: maxValue,
+                title: {
+                    text: sensorType,
+                },
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
             legend: {

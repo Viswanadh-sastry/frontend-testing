@@ -5,10 +5,14 @@ import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { MenuComponent } from "../../../../_metronic/assets/ts/components";
 import { KTIcon } from "../../../../_metronic/helpers";
+import { convertUnixTimestampToLocalDateTime } from "../../../constants/Common";
+import { sortHistoryData } from "../../dashboard/api/DashboardHelper";
+import { getGroupChannelList } from "../../groups/api/GroupChannelAPI";
+import { exportHistoryListAll } from "../api/HistoryAPI";
 import { GroupListFilter } from "./GroupListFilter";
 
 interface IAssetListHeaderProps {
-  groupHistoryList: any;
+  setHistoryList: Dispatch<SetStateAction<any>>;
   setFilterGroup: Dispatch<
     SetStateAction<{
       groupId: any;
@@ -20,12 +24,94 @@ interface IAssetListHeaderProps {
       name: any;
     }>
   >;
+  filterGroup: {
+    groupId: any;
+    limit: number;
+    offset: number;
+    status: string;
+    from: number;
+    to: number;
+    name: any;
+  };
 }
 
-const GroupListHeader = ({ groupHistoryList, setFilterGroup }: IAssetListHeaderProps) => {
+const GroupListHeader = ({ setFilterGroup, setHistoryList, filterGroup }: IAssetListHeaderProps) => {
   useEffect(() => {
     MenuComponent.reinitialization();
   }, []);
+
+  const fetchExportData = async (): Promise<any[]> => {
+    const allHistoryData: any[] = [];
+    const filterChannel = {
+      offset: 0,
+      limit: 100,
+      name: "",
+      status: "enabled",
+    };
+
+    try {
+      // Fetch channel data by group ID
+      const fetchChannels = async (): Promise<any[]> => {
+        if (!filterGroup.groupId || filterGroup.groupId.length === 0) return [];
+
+        const channels: any[] = [];
+        for (const groupId of filterGroup.groupId) {
+          try {
+            const channelData = await getGroupChannelList(groupId, filterChannel);
+            if (channelData.groups) {
+              channels.push(...channelData.groups.map((group: any) => ({ ...group, groupId })));
+            }
+          } catch (error: any) {
+            toast.error(`Failed to fetch channels for group ${groupId}: ${error.message}`);
+          }
+        }
+        return channels;
+      };
+
+      const channelList = await fetchChannels();
+
+      if (channelList.length === 0) {
+        toast.error("No channels found for the provided groups.");
+        return [];
+      }
+
+      // Fetch history data for each channel
+      for (const channel of channelList) {
+        if (filterGroup.name && filterGroup.name.length > 0) {
+          // Fetch history data for each name
+          for (const name of filterGroup.name) {
+            const filterWithName = { ...filterGroup, name: [name] };
+            try {
+              const historyData = await exportHistoryListAll(channel.id, filterWithName);
+              if (historyData.messages) {
+                allHistoryData.push(...historyData.messages);
+              }
+            } catch (error: any) {
+              toast.error(`Failed to fetch history for channel ${channel.id}: ${error.message}`);
+            }
+          }
+        } else {
+          // Fetch history data without name-based filtering
+          try {
+            const historyData = await exportHistoryListAll(channel.id, filterGroup);
+            if (historyData.messages) {
+              allHistoryData.push(...historyData.messages);
+            }
+          } catch (error: any) {
+            toast.error(`Failed to fetch history for channel ${channel.id}: ${error.message}`);
+          }
+        }
+      }
+
+      // Sort by Unix time descending
+      allHistoryData.sort((a: any, b: any) => sortHistoryData(a, b));
+
+      return allHistoryData;
+    } catch (error: any) {
+      toast.error(`Error fetching group history data: ${error.message}`);
+      return [];
+    }
+  };
 
   const convertToCSV = (data: any[], headerOrder: string[]) => {
     // Create a header with the specified order
@@ -56,14 +142,7 @@ const GroupListHeader = ({ groupHistoryList, setFilterGroup }: IAssetListHeaderP
 
             if (key === "time" && value !== undefined) {
               // Convert the timestamp (assuming it is in microseconds) to milliseconds
-              const timestamp = parseInt(value, 10) / 1000;
-              if (!isNaN(timestamp)) {
-                const date = new Date(timestamp);
-                // Format the date to include milliseconds in the ISO 8601 format
-                const isoString = date.toISOString();
-                const milliseconds = String(date.getMilliseconds()).padStart(3, "0");
-                value = isoString.replace("Z", `.${milliseconds}Z`);
-              }
+              value = convertUnixTimestampToLocalDateTime(value);
             }
 
             return value !== undefined ? value : ""; // Return value or blank if undefined
@@ -76,13 +155,15 @@ const GroupListHeader = ({ groupHistoryList, setFilterGroup }: IAssetListHeaderP
   };
 
   // convert data to csv
-  const downloadCSV = () => {
-    if (groupHistoryList.length === 0) {
+  const downloadCSV = async () => {
+    const historyList = await fetchExportData();
+
+    if (historyList.length === 0) {
       toast.error("No data found to download!");
       return;
     }
     const headerOrder = ["time", "subtopic", "publisher", "protocol", "name", "unit", "value"];
-    const csvString = convertToCSV(groupHistoryList, headerOrder);
+    const csvString = convertToCSV(historyList, headerOrder);
     const blob = new Blob([csvString], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -95,8 +176,10 @@ const GroupListHeader = ({ groupHistoryList, setFilterGroup }: IAssetListHeaderP
   };
 
   // convert data to xlsx
-  const downloadXlsx = () => {
-    if (groupHistoryList.length === 0) {
+  const downloadXlsx = async () => {
+    const historyList = await fetchExportData();
+
+    if (historyList.length === 0) {
       toast.error("No data found to download!");
       return;
     }
@@ -118,20 +201,13 @@ const GroupListHeader = ({ groupHistoryList, setFilterGroup }: IAssetListHeaderP
     );
 
     // Prepare the data in the correct order with stringified metadata
-    const formattedData = groupHistoryList.map((item: any) => {
+    const formattedData = historyList.map((item: any) => {
       return headerOrder.reduce((acc: Record<string, any>, key) => {
         let value = item[key];
 
         if (key === "time" && value !== undefined) {
           // Convert the timestamp (assuming it is in microseconds) to milliseconds
-          const timestamp = parseInt(value, 10) / 1000;
-          if (!isNaN(timestamp)) {
-            const date = new Date(timestamp);
-            // Format the date to include milliseconds in the ISO 8601 format
-            const isoString = date.toISOString();
-            const milliseconds = String(date.getMilliseconds()).padStart(3, "0");
-            value = isoString.replace("Z", `.${milliseconds}Z`);
-          }
+          value = convertUnixTimestampToLocalDateTime(value);
         }
 
         acc[key] = value !== undefined ? value : "";
@@ -178,8 +254,10 @@ const GroupListHeader = ({ groupHistoryList, setFilterGroup }: IAssetListHeaderP
   };
 
   // download pdf
-  const downloadPDF = () => {
-    if (groupHistoryList.length === 0) {
+  const downloadPDF = async () => {
+    const historyList = await fetchExportData();
+
+    if (historyList.length === 0) {
       toast.error("No data found to download!");
       return;
     }
@@ -199,16 +277,10 @@ const GroupListHeader = ({ groupHistoryList, setFilterGroup }: IAssetListHeaderP
         }[key])
     );
 
-    const data = groupHistoryList.map((item: any) =>
+    const data = historyList.map((item: any) =>
       headerOrder.map((key) => {
         if (key === "time") {
-          const timestamp = parseInt(item[key], 10) / 1000;
-          if (!isNaN(timestamp)) {
-            const date = new Date(timestamp);
-            const isoString = date.toISOString();
-            const milliseconds = String(date.getMilliseconds()).padStart(3, "0");
-            return isoString.replace("Z", `.${milliseconds}Z`);
-          }
+          return convertUnixTimestampToLocalDateTime(item[key]);
         }
         return item[key] || "";
       })
@@ -263,7 +335,7 @@ const GroupListHeader = ({ groupHistoryList, setFilterGroup }: IAssetListHeaderP
               Back
             </button>
             <div>
-              <GroupListFilter setFilterGroup={setFilterGroup} />
+              <GroupListFilter setFilterGroup={setFilterGroup} setHistoryList={setHistoryList} />
             </div>
             <button type="button" className="btn btn-light-primary me-3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
               <KTIcon iconName="exit-down" className="fs-2" />

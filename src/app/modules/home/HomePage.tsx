@@ -120,12 +120,19 @@ const HomePage: React.FC = () => {
           const things = await Promise.all(
             response.things.map(async (thing: any) => {
               try {
-                const channel = await getThingChannelList(thing.id, filterChannel);
+                const filterThingChannel = {
+                  limit: 10,
+                  offset: 0,
+                  name: "",
+                  metadata: "",
+                  status: "enabled",
+                };
+                const channel = await getThingChannelList(thing.id, filterThingChannel);
                 const historyData = await Promise.all(
                   channel.groups.map(async (group: any) => {
                     try {
                       const filterHistory = {
-                        limit: 100,
+                        limit: 10,
                         offset: 0,
                         name: "",
                         publisher: thing.id,

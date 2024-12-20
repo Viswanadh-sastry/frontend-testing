@@ -15,7 +15,8 @@ const mappedLabel = (label: string): string => {
 };
 
 interface IAssetListPaginationProps {
-  assetHistoryListQuery: any;
+  historyList: any;
+  total: number;
   currentPage: number;
   itemsPerPage: any;
   data: any;
@@ -24,22 +25,21 @@ interface IAssetListPaginationProps {
   setData: (data: any) => void;
 }
 
-const AssetListPagination = ({ assetHistoryListQuery, currentPage, itemsPerPage, data, setCurrentPage, setItemsPerPage, setData }: IAssetListPaginationProps) => {
+const AssetListPagination = ({ historyList, total, currentPage, itemsPerPage, data, setCurrentPage, setItemsPerPage, setData }: IAssetListPaginationProps) => {
   const [pagination, setPagination] = useState<PaginationState>({
     page: currentPage,
     items_per_page: itemsPerPage,
     links: [],
   });
-  // const isLoading = assetHistoryListQuery.isLoading;
 
   useEffect(() => {
-    if (data.length > 0) {
+    if (data) {
       getLinks();
     }
   }, [data]);
 
   const getLinks = () => {
-    const noOfLinks = assetHistoryListQuery.data?.length;
+    const noOfLinks = historyList.length;
     const noOfPages = Math.ceil(noOfLinks / itemsPerPage);
     const links = [];
     links.push({ label: "&laquo; Previous", active: false, url: null, page: pagination.page === 1 ? null : pagination.page - 1 });
@@ -65,10 +65,11 @@ const AssetListPagination = ({ assetHistoryListQuery, currentPage, itemsPerPage,
       page: state.page,
       items_per_page: state.items_per_page,
     });
-    const historyData = assetHistoryListQuery.data.filter((_: any, index: number) => {
+    const historyData = historyList.filter((_: any, index: number) => {
       return index >= (state.page - 1) * state.items_per_page && index < state.page * state.items_per_page;
     });
     setItemsPerPage(state.items_per_page);
+    setCurrentPage(state.page);
     setData(historyData);
   };
 
@@ -133,7 +134,7 @@ const AssetListPagination = ({ assetHistoryListQuery, currentPage, itemsPerPage,
           <option value="50">50</option>
         </select>
         <div id="kt_table_things_info" className="dataTables_info">
-          Total {assetHistoryListQuery.data?.length || 0} entries
+          Total {total} entries
         </div>
       </div>
       <div className="col-sm-12 col-md-8 d-flex align-items-center justify-content-center justify-content-md-end">
