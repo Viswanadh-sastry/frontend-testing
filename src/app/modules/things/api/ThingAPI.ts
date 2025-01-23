@@ -131,7 +131,7 @@ export async function getDeviceProfileList() {
     const response = await axios.get(`${EDGEX_API_URL}/deviceprofile/all`, {
         // add headers with authorization token
         headers: {
-            'Authorization': `Bearer eyJhbGciOiJFUzM4NCIsImtpZCI6IjEzZjQ2YjExLTMzYmQtYjMzZi05YjliLWJhZWUwNGJlMzJjYyJ9.eyJhdWQiOiJlZGdleCIsImV4cCI6MTczNDA4NDg3NywiaWF0IjoxNzM0MDc3NzM3LCJpc3MiOiIvdjEvaWRlbnRpdHkvb2lkYyIsIm5hbWUiOiJleDEiLCJuYW1lc3BhY2UiOiJyb290Iiwic3ViIjoiYTg3MTA5MjAtNjEwZS02MTllLWEzNTQtYWU5M2Y3ZGY0NDEwIn0.WBf-ti55NL2qvuE1DZmYG3xIYFWe0dkVMdH2DNkSvdWFBhoXICsdjfnG0XF0gtLI0gy14CsLNBnzHmtwSNRknAS0zjaIiawKcx2r5SKLVajkYSg0R5tiQLwbPMYWKDgk`,
+            'Authorization': `Bearer eyJhbGciOiJFUzM4NCIsImtpZCI6IjQ2OTY2YzMyLTExNGMtNGQ2Yy1hOWZjLTg4YmUwNWM0NWZjNyJ9.eyJhdWQiOiJlZGdleCIsImV4cCI6MTczNjk0MDI3MSwiaWF0IjoxNzM2OTMzMTMxLCJpc3MiOiIvdjEvaWRlbnRpdHkvb2lkYyIsIm5hbWUiOiJleDEiLCJuYW1lc3BhY2UiOiJyb290Iiwic3ViIjoiYTg3MTA5MjAtNjEwZS02MTllLWEzNTQtYWU5M2Y3ZGY0NDEwIn0.viPUoMp20WXzbt25uEVwtDEIRKrpqq8IAWuPFqLt8-sUF4JVaJ35ROpqTU5VCoduW-mvrNUjI54ylTG92rToZM0ZW7gbwvVS6HO6uIHyv3Fftv3hC59sgLXQeltQGPaI`,
         }
     });
     return response.data;
@@ -148,7 +148,7 @@ export async function getDeviceServiceList() {
     const response = await axios.get(`${EDGEX_API_URL}/deviceservice/all`, {
         // add headers with authorization token
         headers: {
-            'Authorization': `Bearer eyJhbGciOiJFUzM4NCIsImtpZCI6IjEzZjQ2YjExLTMzYmQtYjMzZi05YjliLWJhZWUwNGJlMzJjYyJ9.eyJhdWQiOiJlZGdleCIsImV4cCI6MTczNDA4NDg3NywiaWF0IjoxNzM0MDc3NzM3LCJpc3MiOiIvdjEvaWRlbnRpdHkvb2lkYyIsIm5hbWUiOiJleDEiLCJuYW1lc3BhY2UiOiJyb290Iiwic3ViIjoiYTg3MTA5MjAtNjEwZS02MTllLWEzNTQtYWU5M2Y3ZGY0NDEwIn0.WBf-ti55NL2qvuE1DZmYG3xIYFWe0dkVMdH2DNkSvdWFBhoXICsdjfnG0XF0gtLI0gy14CsLNBnzHmtwSNRknAS0zjaIiawKcx2r5SKLVajkYSg0R5tiQLwbPMYWKDgk`,
+            'Authorization': `Bearer eyJhbGciOiJFUzM4NCIsImtpZCI6IjQ2OTY2YzMyLTExNGMtNGQ2Yy1hOWZjLTg4YmUwNWM0NWZjNyJ9.eyJhdWQiOiJlZGdleCIsImV4cCI6MTczNjk0MDI3MSwiaWF0IjoxNzM2OTMzMTMxLCJpc3MiOiIvdjEvaWRlbnRpdHkvb2lkYyIsIm5hbWUiOiJleDEiLCJuYW1lc3BhY2UiOiJyb290Iiwic3ViIjoiYTg3MTA5MjAtNjEwZS02MTllLWEzNTQtYWU5M2Y3ZGY0NDEwIn0.viPUoMp20WXzbt25uEVwtDEIRKrpqq8IAWuPFqLt8-sUF4JVaJ35ROpqTU5VCoduW-mvrNUjI54ylTG92rToZM0ZW7gbwvVS6HO6uIHyv3Fftv3hC59sgLXQeltQGPaI`,
         }
     });
     return response.data;

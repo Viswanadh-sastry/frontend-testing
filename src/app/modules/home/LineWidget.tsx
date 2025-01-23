@@ -1,6 +1,7 @@
 import ApexCharts, { ApexOptions } from "apexcharts";
 import { useEffect, useRef } from "react";
 import moment from "moment";
+import { ThemeModeComponent } from "../../../_metronic/assets/ts/layout";
 
 interface ILineWidgetProps {
   userData: any;
@@ -51,6 +52,10 @@ const LineWidget = ({ userData, groupData, assetData, deviceData }: ILineWidgetP
 export { LineWidget };
 
 function getChartOptions(userData: any, groupData: any, assetData: any, deviceData: any): ApexOptions {
+  let ktThemeModeValue = localStorage.getItem("kt_theme_mode_value");
+  if (ktThemeModeValue === "system") {
+    ktThemeModeValue = ThemeModeComponent.getSystemMode() as "light" | "dark";
+  }
   // get last 7 days data for each user, group, asset, device using moment.js
   const last0DayUserData = userData.filter((item: any) => moment(item.created_at).format("YYYY-MM-DD") === moment().format("YYYY-MM-DD"));
   const last1DayUserData = userData.filter((item: any) => moment(item.created_at).format("YYYY-MM-DD") === moment().subtract(1, "days").format("YYYY-MM-DD"));
@@ -145,18 +150,13 @@ function getChartOptions(userData: any, groupData: any, assetData: any, deviceDa
     dataLabels: {
       enabled: false,
     },
+    legend: {
+      labels: {
+        colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+      },
+    },
     stroke: {
       curve: "straight",
-    },
-    // title: {
-    //   text: "Data by days",
-    //   align: "left",
-    // },
-    grid: {
-      row: {
-        colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
-        opacity: 0.5,
-      },
     },
     xaxis: {
       categories: [
@@ -168,6 +168,18 @@ function getChartOptions(userData: any, groupData: any, assetData: any, deviceDa
         moment().subtract(1, "days").format("DD/MM"),
         moment().format("DD/MM"),
       ],
+      labels: {
+        style: {
+          colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+        },
+      },
+    },
+    yaxis: {
+      labels: {
+        style: {
+          colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+        },
+      },
     },
     colors: ["#f8c529", "#f9bc34", "#f9a62a", "#f9942a"],
   };

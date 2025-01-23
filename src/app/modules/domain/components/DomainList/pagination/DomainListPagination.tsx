@@ -27,9 +27,7 @@ interface IDomainListPaginationProps {
 
 const DomainListPagination = ({ domainList, itemsPerPage, pagination, data, setCurrentPage, setItemsPerPage, setPagination, setData }: IDomainListPaginationProps) => {
   useEffect(() => {
-    if (data.length > 0) {
-      getLinks();
-    }
+    getLinks();
   }, [data]);
 
   const getLinks = () => {

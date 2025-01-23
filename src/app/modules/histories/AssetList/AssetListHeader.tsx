@@ -1,6 +1,6 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { Dispatch, SetStateAction, useEffect } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
@@ -10,6 +10,7 @@ import { convertUnixTimestampToLocalDateTime } from "../../../constants/Common";
 import { sortHistoryData } from "../../dashboard/api/DashboardHelper";
 import { exportHistoryListAll } from "../api/HistoryAPI";
 import { AssetListFilter } from "./AssetListFilter";
+import { AssetListExporting } from "./pagination/AssetListExporting";
 
 interface IAssetListHeaderProps {
   setHistoryList: Dispatch<SetStateAction<any>>;
@@ -36,6 +37,7 @@ interface IAssetListHeaderProps {
 }
 
 const AssetListHeader = ({ setFilterAsset, setHistoryList, filterAsset }: IAssetListHeaderProps) => {
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     MenuComponent.reinitialization();
   }, []);
@@ -141,7 +143,9 @@ const AssetListHeader = ({ setFilterAsset, setHistoryList, filterAsset }: IAsset
 
   // convert data to csv
   const downloadCSV = async () => {
+    setIsLoading(true);
     const historyList = await fetchExportData();
+    setIsLoading(false);
 
     if (historyList.length === 0) {
       toast.error("No data found to download!");
@@ -162,7 +166,9 @@ const AssetListHeader = ({ setFilterAsset, setHistoryList, filterAsset }: IAsset
 
   // convert data to xlsx
   const downloadXlsx = async () => {
+    setIsLoading(true);
     const historyList = await fetchExportData();
+    setIsLoading(false);
 
     if (historyList.length === 0) {
       toast.error("No data found to download!");
@@ -240,7 +246,9 @@ const AssetListHeader = ({ setFilterAsset, setHistoryList, filterAsset }: IAsset
 
   // download pdf
   const downloadPDF = async () => {
+    setIsLoading(true);
     const historyList = await fetchExportData();
+    setIsLoading(false);
 
     if (historyList.length === 0) {
       toast.error("No data found to download!");
@@ -341,6 +349,7 @@ const AssetListHeader = ({ setFilterAsset, setHistoryList, filterAsset }: IAsset
           </div>
         </div>
       </div>
+      {isLoading && <AssetListExporting />}
     </>
   );
 };

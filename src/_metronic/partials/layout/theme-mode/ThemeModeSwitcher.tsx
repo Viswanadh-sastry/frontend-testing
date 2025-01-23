@@ -27,7 +27,7 @@ const ThemeModeSwitcher = ({ toggleBtnClass = "", toggleBtnIconClass = "fs-1", m
   return (
     <>
       {/* begin::Menu toggle */}
-      <a href="#" className={clsx("btn btn-icon ", toggleBtnClass)} data-kt-menu-trigger={menuTrigger} data-kt-menu-attach="parent" data-kt-menu-placement={menuPlacement}>
+      <a className={clsx("btn btn-icon ", toggleBtnClass)} data-kt-menu-trigger={menuTrigger} data-kt-menu-attach="parent" data-kt-menu-placement={menuPlacement}>
         {calculatedMode === "dark" && <KTIcon iconName="moon" className={clsx("theme-light-hide", toggleBtnIconClass)} />}
 
         {calculatedMode === "light" && <KTIcon iconName="night-day" className={clsx("theme-dark-hide", toggleBtnIconClass)} />}
@@ -41,7 +41,7 @@ const ThemeModeSwitcher = ({ toggleBtnClass = "", toggleBtnIconClass = "fs-1", m
       >
         {/* begin::Menu item */}
         <div className="menu-item px-3 my-0">
-          <a href="#" className={clsx("menu-link px-3 py-2", { active: menuMode === "light" })} onClick={() => switchMode("light")}>
+          <a className={clsx("menu-link px-3 py-2", { active: menuMode === "light" })} onClick={() => switchMode("light")}>
             <span className="menu-icon" data-kt-element="icon">
               <KTIcon iconName="night-day" className="fs-1" />
             </span>
@@ -52,7 +52,7 @@ const ThemeModeSwitcher = ({ toggleBtnClass = "", toggleBtnIconClass = "fs-1", m
 
         {/* begin::Menu item */}
         <div className="menu-item px-3 my-0">
-          <a href="#" className={clsx("menu-link px-3 py-2", { active: menuMode === "dark" })} onClick={() => switchMode("dark")}>
+          <a className={clsx("menu-link px-3 py-2", { active: menuMode === "dark" })} onClick={() => switchMode("dark")}>
             <span className="menu-icon" data-kt-element="icon">
               <KTIcon iconName="moon" className="fs-1" />
             </span>
@@ -63,7 +63,7 @@ const ThemeModeSwitcher = ({ toggleBtnClass = "", toggleBtnIconClass = "fs-1", m
 
         {/* begin::Menu item */}
         <div className="menu-item px-3 my-0">
-          <a href="#" className={clsx("menu-link px-3 py-2", { active: menuMode === "system" })} onClick={() => switchMode("system")}>
+          <a className={clsx("menu-link px-3 py-2", { active: menuMode === "system" })} onClick={() => switchMode("system")}>
             <span className="menu-icon" data-kt-element="icon">
               <KTIcon iconName="screen" className="fs-1" />
             </span>

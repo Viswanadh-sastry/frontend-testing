@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 import { getUserDetails, loginWithDomain } from "../../../../app/modules/auth/core/_requests";
 import { useAuth } from "../../../../app/modules/auth/core/Auth";
 import { getCred } from "../../../../app/modules/auth/core/CredentialHelpers";
@@ -19,7 +19,6 @@ const userAvatarClass = "symbol-35px";
 const btnIconClass = "fs-2";
 
 const Navbar = () => {
-  const navigate = useNavigate();
   const { saveAuth, setCurrentUser } = useAuth();
   const { id, name } = getDomain();
   const { config } = useLayout();
@@ -39,37 +38,52 @@ const Navbar = () => {
   const data = useMemo(() => domainListQuery.data?.domains || [], [domainListQuery.data]);
 
   const onSelectOrganization = (domainId: string, domainName: string, permission: string) => {
-    if (!domainId) {
-      toast.info("Please select a organization");
-      return;
-    }
-    const { identity, secret } = getCred() || {};
-    if (!identity || !secret) {
-      toast.error("No identity or secret found");
-      return;
-    }
-    loginWithDomain(identity, secret, domainId)
-      .then(async (auth) => {
-        if (!auth.access_token) {
-          throw new Error("No access token found");
+    Swal.fire({
+      title: "Are you sure?",
+      text: `Are you sure you want to switch to ${domainName} organization?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, switch it!",
+      cancelButtonText: "Cancel",
+      customClass: {
+        confirmButton: "btn btn-success",
+        cancelButton: "btn btn-secondary",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        if (!domainId) {
+          toast.info("Please select a organization");
+          return;
         }
+        const { identity, secret } = getCred() || {};
+        if (!identity || !secret) {
+          toast.error("No identity or secret found");
+          return;
+        }
+        loginWithDomain(identity, secret, domainId)
+          .then(async (auth) => {
+            if (!auth.access_token) {
+              throw new Error("No access token found");
+            }
 
-        setRole(permission || "");
+            setRole(permission || "");
 
-        // credHelper.removeCred();
-        removeDAuth();
-        setDomain({ id: domainId, name: domainName });
+            // credHelper.removeCred();
+            removeDAuth();
+            setDomain({ id: domainId, name: domainName });
 
-        saveAuth(auth);
-        const user = await getUserDetails();
+            saveAuth(auth);
+            const user = await getUserDetails();
 
-        setCurrentUser(user);
-        navigate("/");
-      })
-      .catch((error) => {
-        toast.error(error.message);
-        saveAuth(undefined);
-      });
+            setCurrentUser(user);
+            window.location.reload();
+          })
+          .catch((error) => {
+            toast.error(error.message);
+            saveAuth(undefined);
+          });
+      }
+    });
   };
 
   return (
@@ -101,7 +115,11 @@ const Navbar = () => {
             {data.map((domain: any) => (
               <div className="menu-item px-3" key={domain.id}>
                 <a className={clsx("menu-link px-3", { active: id === domain.id })} onClick={() => onSelectOrganization(domain.id, domain.name, domain.permission)}>
-                  {domain.name}
+                  {/* {domain.name} */}
+                  <span className="menu-icon" data-kt-element="icon">
+                    <KTIcon iconName="element-6" className="fs-1" />
+                  </span>
+                  <span className="menu-title">{domain.name}</span>
                 </a>
               </div>
             ))}

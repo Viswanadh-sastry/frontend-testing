@@ -1,6 +1,6 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { Dispatch, SetStateAction, useEffect } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
@@ -11,6 +11,7 @@ import { sortHistoryData } from "../../dashboard/api/DashboardHelper";
 import { getThingChannelList } from "../../things/api/ThingChannelAPI";
 import { exportHistoryListAll } from "../api/HistoryAPI";
 import { DeviceListFilter } from "./DeviceListFilter";
+import { DeviceListExporting } from "./pagination/DeviceListExporting";
 
 interface IAssetListHeaderProps {
   setHistoryList: Dispatch<SetStateAction<any>>;
@@ -39,6 +40,7 @@ interface IAssetListHeaderProps {
 }
 
 const DeviceListHeader = ({ setFilterDevice, setHistoryList, filterDevice }: IAssetListHeaderProps) => {
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     MenuComponent.reinitialization();
   }, []);
@@ -156,7 +158,9 @@ const DeviceListHeader = ({ setFilterDevice, setHistoryList, filterDevice }: IAs
 
   // convert data to csv
   const downloadCSV = async () => {
+    setIsLoading(true);
     const historyList = await fetchExportData();
+    setIsLoading(false);
 
     if (historyList.length === 0) {
       toast.error("No data found to download!");
@@ -177,7 +181,9 @@ const DeviceListHeader = ({ setFilterDevice, setHistoryList, filterDevice }: IAs
 
   // convert data to xlsx
   const downloadXlsx = async () => {
+    setIsLoading(true);
     const historyList = await fetchExportData();
+    setIsLoading(false);
 
     if (historyList.length === 0) {
       toast.error("No data found to download!");
@@ -255,7 +261,9 @@ const DeviceListHeader = ({ setFilterDevice, setHistoryList, filterDevice }: IAs
 
   // download pdf
   const downloadPDF = async () => {
+    setIsLoading(true);
     const historyList = await fetchExportData();
+    setIsLoading(false);
 
     if (historyList.length === 0) {
       toast.error("No data found to download!");
@@ -333,7 +341,7 @@ const DeviceListHeader = ({ setFilterDevice, setHistoryList, filterDevice }: IAs
             <i className="bi bi-arrow-left"></i>
             Back
           </button>
-          <div className="d-flex justify-content-end" data-kt-user-table-toolbar="base">
+          <div className="d-flex justify-content-end" data-kt-device-table-toolbar="base">
             <div>
               <DeviceListFilter setFilterDevice={setFilterDevice} setHistoryList={setHistoryList} />
             </div>
@@ -355,6 +363,7 @@ const DeviceListHeader = ({ setFilterDevice, setHistoryList, filterDevice }: IAs
           </div>
         </div>
       </div>
+      {isLoading && <DeviceListExporting />}
     </>
   );
 };

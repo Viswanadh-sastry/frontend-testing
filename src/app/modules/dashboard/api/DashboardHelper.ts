@@ -1,5 +1,6 @@
 import { ApexOptions } from "apexcharts"
 import moment from "moment"
+import { ThemeModeComponent } from "../../../../_metronic/assets/ts/layout"
 
 const DASH_LOCAL_STORAGE_KEY = 'rapid-dashboard'
 
@@ -186,6 +187,12 @@ const sortHistoryData = (a: any, b: any) => {
 
 // Final code for getChartOptions function
 const getChartOptions = (sensorType: string, inputData: any, deviceList: any, messages: any): ApexOptions => {
+    // Get the theme mode value
+    let ktThemeModeValue = localStorage.getItem("kt_theme_mode_value");
+    if (ktThemeModeValue === "system") {
+        ktThemeModeValue = ThemeModeComponent.getSystemMode() as "light" | "dark";
+    }
+    // Categories for the chart
     const categories: any = [];
     if (inputData.timeline === "0") {
         const intervalValue = inputData.interval * 86400000;
@@ -294,7 +301,7 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
             labels: deviceData.map((device: any) => device.thingName),
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
             legend: {
-                showForSingleSeries: true
+                showForSingleSeries: true,
             },
         };
     } else if (layout === "histogram") {
@@ -318,6 +325,9 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
                 labels: {
                     rotate: -45,
                     rotateAlways: true,
+                    style: {
+                        colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
                 },
             },
             yaxis: {
@@ -325,11 +335,22 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
                 max: maxValue,
                 title: {
                     text: sensorType,
+                    style: {
+                        color: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
+                },
+                labels: {
+                    style: {
+                        colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
                 },
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
             legend: {
-                showForSingleSeries: true
+                showForSingleSeries: true,
+                labels: {
+                    colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                },
             },
         };
     } else if (layout === "radialBar") {
@@ -345,6 +366,7 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
                         total: {
                             show: true,
                             label: "Total",
+                            color: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
                         },
                     },
                 },
@@ -367,6 +389,9 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
                 labels: {
                     rotate: -45,
                     rotateAlways: true,
+                    style: {
+                        colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
                 },
             },
             yaxis: {
@@ -374,6 +399,14 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
                 max: maxValue,
                 title: {
                     text: sensorType,
+                    style: {
+                        color: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
+                },
+                labels: {
+                    style: {
+                        colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
                 },
             },
             dataLabels: {
@@ -381,7 +414,10 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
             legend: {
-                showForSingleSeries: true
+                showForSingleSeries: true,
+                labels: {
+                    colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                },
             },
         };
     } else if (layout === "heatmap") {
@@ -409,6 +445,9 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
                 labels: {
                     rotate: -45,
                     rotateAlways: true,
+                    style: {
+                        colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
                 },
             },
             yaxis: {
@@ -416,13 +455,24 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
                 max: maxValue,
                 title: {
                     text: sensorType,
+                    style: {
+                        color: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
+                },
+                labels: {
+                    style: {
+                        colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
                 },
             },
             dataLabels: {
                 enabled: false,
             },
             legend: {
-                showForSingleSeries: true
+                showForSingleSeries: true,
+                labels: {
+                    colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                },
             },
         };
     } else if (layout === "radar") {
@@ -511,6 +561,9 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
                 labels: {
                     rotate: -45,
                     rotateAlways: true,
+                    style: {
+                        colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
                 },
             },
             yaxis: {
@@ -518,11 +571,22 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
                 max: maxValue,
                 title: {
                     text: sensorType,
+                    style: {
+                        color: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
+                },
+                labels: {
+                    style: {
+                        colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
                 },
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
             legend: {
-                showForSingleSeries: true
+                showForSingleSeries: true,
+                labels: {
+                    colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                },
             },
         };
     } else if (layout === "candlestick") {
@@ -546,6 +610,9 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
                 labels: {
                     rotate: -45,
                     rotateAlways: true,
+                    style: {
+                        colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
                 },
             },
             yaxis: {
@@ -553,11 +620,22 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
                 max: maxValue,
                 title: {
                     text: sensorType,
+                    style: {
+                        color: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
+                },
+                labels: {
+                    style: {
+                        colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
                 },
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
             legend: {
-                showForSingleSeries: true
+                showForSingleSeries: true,
+                labels: {
+                    colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                },
             },
         };
     } else if (layout === "boxPlot") {
@@ -581,6 +659,9 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
                 labels: {
                     rotate: -45,
                     rotateAlways: true,
+                    style: {
+                        colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
                 },
             },
             yaxis: {
@@ -588,11 +669,22 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
                 max: maxValue,
                 title: {
                     text: sensorType,
+                    style: {
+                        color: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
+                },
+                labels: {
+                    style: {
+                        colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
                 },
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
             legend: {
-                showForSingleSeries: true
+                showForSingleSeries: true,
+                labels: {
+                    colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                },
             },
         };
     } else if (layout === "bubble") {
@@ -617,6 +709,9 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
                 labels: {
                     rotate: -45,
                     rotateAlways: true,
+                    style: {
+                        colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
                 },
             },
             yaxis: {
@@ -624,11 +719,22 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
                 max: maxValue,
                 title: {
                     text: sensorType,
+                    style: {
+                        color: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
+                },
+                labels: {
+                    style: {
+                        colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
                 },
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
             legend: {
-                showForSingleSeries: true
+                showForSingleSeries: true,
+                labels: {
+                    colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                },
             },
         };
     } else {
@@ -648,17 +754,14 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
             stroke: {
                 curve: "straight",
             },
-            grid: {
-                row: {
-                    colors: ["#f3f3f3", "transparent"],
-                    opacity: 0.5,
-                },
-            },
             xaxis: {
                 categories: categories.map((category: any) => category.timeInDisplay),
                 labels: {
                     rotate: -45,
                     rotateAlways: true,
+                    style: {
+                        colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
                 },
             },
             yaxis: {
@@ -666,11 +769,22 @@ const getChartOptions = (sensorType: string, inputData: any, deviceList: any, me
                 max: maxValue,
                 title: {
                     text: sensorType,
+                    style: {
+                        color: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
+                },
+                labels: {
+                    style: {
+                        colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                    },
                 },
             },
             colors: ["#F97E1C", "#F9B32A", "#F9C63E", "#F9D94C", "#F9E75A", "#F9F068", "#FAF576", "#FAF884", "#FBF993", "#FBFAA2"],
             legend: {
-                showForSingleSeries: true
+                showForSingleSeries: true,
+                labels: {
+                    colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+                },
             },
         };
     }

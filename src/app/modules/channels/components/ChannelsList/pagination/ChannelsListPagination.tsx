@@ -27,9 +27,7 @@ interface IChannelsListPaginationProps {
 
 const ChannelsListPagination = ({ channelList, itemsPerPage, pagination, data, setCurrentPage, setItemsPerPage, setPagination, setData }: IChannelsListPaginationProps) => {
   useEffect(() => {
-    if (data.length > 0) {
-      getLinks();
-    }
+    getLinks();
   }, [data]);
 
   const getLinks = () => {

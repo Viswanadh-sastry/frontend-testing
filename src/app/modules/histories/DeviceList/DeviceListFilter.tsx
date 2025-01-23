@@ -5,6 +5,7 @@ import { Typeahead } from "react-bootstrap-typeahead";
 import { toast } from "react-toastify";
 import { KTIcon } from "../../../../_metronic/helpers";
 import { getThingListAll } from "../../things/api/ThingAPI";
+import { ThemeModeComponent } from "../../../../_metronic/assets/ts/layout";
 
 interface IDeviceListHeaderProps {
   setFilterDevice: Dispatch<
@@ -33,6 +34,10 @@ const filterDevice = {
 };
 
 const DeviceListFilter = ({ setFilterDevice, setHistoryList }: IDeviceListHeaderProps) => {
+  let ktThemeModeValue = localStorage.getItem("kt_theme_mode_value");
+  if (ktThemeModeValue === "system") {
+    ktThemeModeValue = ThemeModeComponent.getSystemMode() as "light" | "dark";
+  }
   const [filter, setFilter] = useState({ name: "", from: 0, to: 0 });
   const typeaheadRef = useRef<TypeaheadMethods | null>(null);
 
@@ -82,7 +87,7 @@ const DeviceListFilter = ({ setFilterDevice, setHistoryList }: IDeviceListHeader
       }
     }
     setHistoryList([]);
-    setFilterDevice((prev) => ({ ...prev, ...filter, from: filter.from * 1000, to: filter.to * 1000, offset: 0 }));
+    setFilterDevice((prev) => ({ ...prev, ...filter, from: filter.from / 1000, to: filter.to / 1000, offset: 0 }));
   };
 
   const handleTypeaheadContainerClick = (e: React.MouseEvent) => {
@@ -111,7 +116,7 @@ const DeviceListFilter = ({ setFilterDevice, setHistoryList }: IDeviceListHeader
           <div className="fs-5 text-gray-900 fw-bolder">Filter Options</div>
         </div>
         <div className="separator border-gray-200"></div>
-        <div className="px-7 py-5" data-kt-user-table-filter="form">
+        <div className="px-7 py-5" data-kt-device-table-filter="form">
           <div className="mt-1">
             <label className="form-label fs-6 fw-bold">Sensor Type:</label>
             <div onClick={handleTypeaheadContainerClick}>
@@ -135,11 +140,25 @@ const DeviceListFilter = ({ setFilterDevice, setHistoryList }: IDeviceListHeader
           </div>
           <div className="mt-2">
             <label className="form-label fs-6 fw-bold">From Date</label>
-            <input type="date" className="form-control" name="from" onChange={handleChange} value={filter.from ? new Date(filter.from).toISOString().split("T")[0] : ""} />
+            <input
+              type="date"
+              className="form-control"
+              name="from"
+              onChange={handleChange}
+              value={filter.from ? moment(filter.from).format("YYYY-MM-DD") : ""}
+              style={{ colorScheme: ktThemeModeValue || undefined }}
+            />
           </div>
           <div className="mt-2 mb-5">
             <label className="form-label fs-6 fw-bold">To Date</label>
-            <input type="date" className="form-control" name="to" onChange={handleChange} value={filter.to ? new Date(filter.to).toISOString().split("T")[0] : ""} />
+            <input
+              type="date"
+              className="form-control"
+              name="to"
+              onChange={handleChange}
+              value={filter.to ? moment(filter.to).format("YYYY-MM-DD") : ""}
+              style={{ colorScheme: ktThemeModeValue || undefined }}
+            />
           </div>
           <div className="d-flex justify-content-end">
             <button type="button" className="btn btn-light btn-active-light-primary fw-bold me-2 px-6" data-kt-menu-dismiss="true" onClick={resetFilter}>

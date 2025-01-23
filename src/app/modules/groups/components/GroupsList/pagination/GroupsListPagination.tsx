@@ -27,9 +27,7 @@ interface IGroupsListPaginationProps {
 
 const GroupsListPagination = ({ groupList, itemsPerPage, pagination, data, setCurrentPage, setItemsPerPage, setPagination, setData }: IGroupsListPaginationProps) => {
   useEffect(() => {
-    if (data.length > 0) {
-      getLinks();
-    }
+    getLinks();
   }, [data]);
 
   const getLinks = () => {

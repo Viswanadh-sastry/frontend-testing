@@ -1,6 +1,8 @@
 import clsx from "clsx";
 import { useEffect, useMemo } from "react";
 import { PaginationState } from "../../../../../../_metronic/helpers";
+import { getHistoryList } from "../../../../histories/api/HistoryAPI";
+import { getThingChannelList } from "../../../api/ThingChannelAPI";
 
 const mappedLabel = (label: string): string => {
   if (label === "&laquo; Previous") {
@@ -27,9 +29,7 @@ interface IThingsListPaginationProps {
 
 const ThingsListPagination = ({ thingList, itemsPerPage, pagination, data, setCurrentPage, setItemsPerPage, setPagination, setData }: IThingsListPaginationProps) => {
   useEffect(() => {
-    if (data.length > 0) {
-      getLinks();
-    }
+    getLinks();
   }, [data]);
 
   const getLinks = () => {
@@ -47,30 +47,101 @@ const ThingsListPagination = ({ thingList, itemsPerPage, pagination, data, setCu
     });
   };
 
+  const getUpdatedThingList = async (currentPage: number, itemsPerPage: number) => {
+    const filterChannel = {
+      limit: 10,
+      offset: 0,
+      name: "",
+      metadata: "",
+      status: "enabled",
+    };
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = currentPage * itemsPerPage;
+    const things = thingList.filter((_: any, index: any) => index >= startIndex && index < endIndex);
+
+    const updatedThings = await Promise.all(
+      things.map(async (thing: any) => {
+        try {
+          const channel = await getThingChannelList(thing.id, filterChannel);
+          const historyData = await Promise.all(
+            channel.groups.map(async (group: any) => {
+              try {
+                const filterHistory = {
+                  offset: 0,
+                  limit: 10,
+                  name: "",
+                  publisher: thing.id,
+                  status: "enabled",
+                };
+                const history = await getHistoryList(group.id, filterHistory);
+                return history;
+              } catch (error) {
+                return [];
+              }
+            })
+          );
+
+          const flatHistory: any = historyData.flat().sort((a: any, b: any) => a.time - b.time);
+
+          // Convert current time to Unix timestamp
+          const now = Math.floor(new Date().getTime() / 1000);
+
+          // Calculate activity status
+          let activity = "inactive";
+
+          if (thing.metadata?.Update_Frequency) {
+            const updateFrequency = parseInt(thing.metadata.Update_Frequency);
+
+            if (flatHistory.length > 0 && flatHistory[0].messages?.length > 0) {
+              const firstRecordTime = Math.floor(flatHistory[0].messages[0].time / 1000);
+              const timeDifference = now - firstRecordTime;
+              if (timeDifference >= 0 && timeDifference <= updateFrequency) {
+                activity = "active";
+              }
+            }
+          }
+
+          return {
+            ...thing,
+            isConnected: channel.total > 0,
+            activity,
+            lastSeenMsg: flatHistory.length > 0 && flatHistory[0].messages?.length > 0 && flatHistory[0].messages[0].time ? flatHistory[0].messages[0].time : null,
+          };
+        } catch (error) {
+          return {
+            ...thing,
+            isConnected: false,
+            activity: "inactive",
+            lastSeenMsg: null,
+          };
+        }
+      })
+    );
+    return updatedThings;
+  };
+
   const onChangePageSize = (e: any) => {
     setItemsPerPage(e.target.value);
     setCurrentPage(1);
     setPagination({ ...pagination, page: 1, items_per_page: e.target.value });
   };
 
-  const updateState = (state: any) => {
+  const updateState = async (state: any) => {
     setPagination({
       ...pagination,
       page: state.page,
       items_per_page: state.items_per_page,
     });
-    const historyData = thingList.filter((_: any, index: number) => {
-      return index >= (state.page - 1) * state.items_per_page && index < state.page * state.items_per_page;
-    });
     setItemsPerPage(state.items_per_page);
+    const historyData = await getUpdatedThingList(state.page, state.items_per_page);
     setData(historyData);
   };
 
-  const updatePage = (page: number | undefined | null) => {
+  const updatePage = async (page: number | undefined | null) => {
     if (!page || pagination.page === page) {
       return;
     }
-    updateState({ page, items_per_page: itemsPerPage });
+    await updateState({ page, items_per_page: itemsPerPage });
   };
 
   const PAGINATION_PAGES_COUNT = 10;
@@ -138,7 +209,7 @@ const ThingsListPagination = ({ thingList, itemsPerPage, pagination, data, setCu
                 disabled: pagination.page === 1,
               })}
             >
-              <a onClick={() => updatePage(1)} style={{ cursor: "pointer" }} className="page-link">
+              <a onClick={async () => await updatePage(1)} style={{ cursor: "pointer" }} className="page-link">
                 First
               </a>
             </li>
@@ -160,7 +231,7 @@ const ThingsListPagination = ({ thingList, itemsPerPage, pagination, data, setCu
                       "page-text": link.label === "Previous" || link.label === "Next",
                       "me-5": link.label === "Previous",
                     })}
-                    onClick={() => updatePage(link.page)}
+                    onClick={async () => await updatePage(link.page)}
                     style={{ cursor: "pointer" }}
                   >
                     {mappedLabel(link.label)}
@@ -172,7 +243,7 @@ const ThingsListPagination = ({ thingList, itemsPerPage, pagination, data, setCu
                 disabled: pagination.page === (pagination.links?.length || 3) - 2,
               })}
             >
-              <a onClick={() => updatePage((pagination.links?.length || 3) - 2)} style={{ cursor: "pointer" }} className="page-link">
+              <a onClick={async () => await updatePage((pagination.links?.length || 3) - 2)} style={{ cursor: "pointer" }} className="page-link">
                 Last
               </a>
             </li>

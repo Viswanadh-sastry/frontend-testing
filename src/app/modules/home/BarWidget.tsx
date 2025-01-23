@@ -1,5 +1,6 @@
 import ApexCharts, { ApexOptions } from "apexcharts";
 import { useEffect, useRef } from "react";
+import { ThemeModeComponent } from "../../../_metronic/assets/ts/layout";
 
 interface IBarWidgetProps {
   userData: any;
@@ -68,6 +69,10 @@ function getChartOptions(
   disabledAssetData: any,
   disabledDeviceData: any
 ): ApexOptions {
+  let ktThemeModeValue = localStorage.getItem("kt_theme_mode_value");
+  if (ktThemeModeValue === "system") {
+    ktThemeModeValue = ThemeModeComponent.getSystemMode() as "light" | "dark";
+  }
   return {
     series: [
       {
@@ -135,6 +140,9 @@ function getChartOptions(
     legend: {
       show: true,
       position: "bottom",
+      labels: {
+        colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+      },
     },
     plotOptions: {
       bar: {
@@ -145,6 +153,20 @@ function getChartOptions(
     },
     fill: {
       opacity: 1,
+    },
+    xaxis: {
+      labels: {
+        style: {
+          colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+        },
+      },
+    },
+    yaxis: {
+      labels: {
+        style: {
+          colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+        },
+      },
     },
     colors: ["#f9bc34", "#F4572C"],
   };

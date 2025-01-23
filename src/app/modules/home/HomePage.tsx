@@ -8,8 +8,8 @@ import { getUserListAll } from "../users/api/UserAPI";
 import { getGroupListAll } from "../groups/api/GroupAPI";
 import { getChannelListAll } from "../channels/api/ChannelsAPI";
 import { getThingListAll } from "../things/api/ThingAPI";
-import { getThingChannelList } from "../things/api/ThingChannelAPI";
-import { getHistoryListAll } from "../histories/api/HistoryAPI";
+// import { getThingChannelList } from "../things/api/ThingChannelAPI";
+// import { getHistoryListAll } from "../histories/api/HistoryAPI";
 import { KTIcon } from "../../../_metronic/helpers";
 import "./HomePage.css";
 
@@ -114,76 +114,17 @@ const HomePage: React.FC = () => {
   };
   const thingListQuery = useQuery({
     queryKey: [`thingList`, filterThing],
-    queryFn: async () =>
-      getThingListAll(filterThing)
-        .then(async (response) => {
-          const things = await Promise.all(
-            response.things.map(async (thing: any) => {
-              try {
-                const filterThingChannel = {
-                  limit: 10,
-                  offset: 0,
-                  name: "",
-                  metadata: "",
-                  status: "enabled",
-                };
-                const channel = await getThingChannelList(thing.id, filterThingChannel);
-                const historyData = await Promise.all(
-                  channel.groups.map(async (group: any) => {
-                    try {
-                      const filterHistory = {
-                        limit: 10,
-                        offset: 0,
-                        name: "",
-                        publisher: thing.id,
-                        status: "enabled",
-                      };
-                      const history = await getHistoryListAll(group.id, filterHistory);
-                      return history;
-                    } catch (error) {
-                      return [];
-                    }
-                  })
-                );
-
-                const flatHistory: any = historyData.flat().sort((a: any, b: any) => a.time - b.time);
-
-                // Convert current time to Unix timestamp
-                const now = Number(String(new Date().getTime()).slice(0, 10));
-
-                // Calculate activity status
-                let activity = "inactive";
-
-                if (thing.metadata?.Update_Frequency) {
-                  const updateFrequency = parseInt(thing.metadata.Update_Frequency);
-
-                  if (flatHistory.length > 0 && flatHistory[0].messages?.length > 0) {
-                    const firstRecordTime = Number(String(flatHistory[0].messages[0].time).slice(0, 10));
-                    const timeDifference = now - firstRecordTime;
-                    if (timeDifference >= 0 && timeDifference <= updateFrequency) {
-                      activity = "active";
-                    }
-                  }
-                }
-                return {
-                  ...thing,
-                  isConnected: channel.total > 0,
-                  activity,
-                  lastSeenMsg: flatHistory.length > 0 && flatHistory[0].messages?.length > 0 && flatHistory[0].messages[0].time ? flatHistory[0].messages[0].time : null,
-                };
-              } catch (error) {
-                return {
-                  ...thing,
-                  isConnected: false,
-                  activity: "inactive",
-                  lastSeenMsg: null,
-                };
-              }
-            })
-          );
-          return { ...response, things };
-        })
-        .catch((error) => toast.error(error.message)),
+    queryFn: async () => {
+      const response = await getThingListAll(filterThing).catch((error) => toast.error(error.message));
+      return {
+        ...response,
+        things: [
+          ...response.things.map((thing: any) => {
+            return { ...thing, isConnected: false, activity: "inactive", lastSeenMsg: null };
+          }),
+        ],
+      };
+    },
     enabled: true,
   });
   const deviceData = useMemo(() => thingListQuery.data?.things || [], [thingListQuery.data]);
@@ -307,6 +248,52 @@ const HomePage: React.FC = () => {
               <button className={`btn btn-assets btn-lg btn-block w-100 h-70px ${button.active && button.index === 3 ? "active" : ""}`} onClick={() => handleButtonClick(3)}>
                 Assets
               </button>
+            </div>
+          </div>
+          <div className="row g-5 g-xl-8 mb-5">
+            <div className="col-xl-3">
+              <div className="card hoverable mb-xl-4">
+                <div className="card-body d-flex align-items-center pt-3 pb-5">
+                  <div className="d-flex flex-column flex-grow-1 py-5 me-2">
+                    <div className="fs-2hx fw-bold text-gray-900 mb-2 mt-5">1</div>
+                    <div className="fw-semibold text-gray-700">New Notifications</div>
+                  </div>
+                  <KTIcon iconName="notification" className="text-warning fs-5x ms-n1" />
+                </div>
+              </div>
+            </div>
+            <div className="col-xl-3">
+              <div className="card hoverable mb-xl-4">
+                <div className="card-body d-flex align-items-center pt-3 pb-5">
+                  <div className="d-flex flex-column flex-grow-1 py-5 me-2">
+                    <div className="fs-2hx fw-bold text-gray-900 mb-2 mt-5">3</div>
+                    <div className="fw-semibold text-gray-700">Processed Notifications</div>
+                  </div>
+                  <KTIcon iconName="notification" className="text-warning fs-5x ms-n1" />
+                </div>
+              </div>
+            </div>
+            <div className="col-xl-3">
+              <div className="card hoverable mb-xl-4">
+                <div className="card-body d-flex align-items-center pt-3 pb-5">
+                  <div className="d-flex flex-column flex-grow-1 py-5 me-2">
+                    <div className="fs-2hx fw-bold text-gray-900 mb-2 mt-5">2</div>
+                    <div className="fw-semibold text-gray-700">Escalated Notifications</div>
+                  </div>
+                  <KTIcon iconName="notification" className="text-warning fs-5x ms-n1" />
+                </div>
+              </div>
+            </div>
+            <div className="col-xl-3">
+              <div className="card hoverable mb-xl-4">
+                <div className="card-body d-flex align-items-center pt-3 pb-5">
+                  <div className="d-flex flex-column flex-grow-1 py-5 me-2">
+                    <div className="fs-2hx fw-bold text-gray-900 mb-2 mt-5">6</div>
+                    <div className="fw-semibold text-gray-700">Total Notifications</div>
+                  </div>
+                  <KTIcon iconName="notification" className="text-warning fs-5x ms-n1" />
+                </div>
+              </div>
             </div>
           </div>
 

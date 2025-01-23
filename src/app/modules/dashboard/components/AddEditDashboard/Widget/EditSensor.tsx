@@ -5,6 +5,7 @@ import * as Yup from "yup";
 import { KTIcon, WidgetParameters } from "../../../../../../_metronic/helpers";
 import { getChannelThingList } from "../../../../channels/api/ChannelThingAPI";
 import { getThingChannelList } from "../../../../things/api/ThingChannelAPI";
+import { ThemeModeComponent } from "../../../../../../_metronic/assets/ts/layout";
 
 interface IEditViewProps {
   inputData: any;
@@ -13,6 +14,10 @@ interface IEditViewProps {
 }
 
 const EditSensor = ({ inputData, onClose, onEditView }: IEditViewProps) => {
+  let ktThemeModeValue = localStorage.getItem("kt_theme_mode_value");
+  if (ktThemeModeValue === "system") {
+    ktThemeModeValue = ThemeModeComponent.getSystemMode() as "light" | "dark";
+  }
   const chartSchema = Yup.object().shape({
     id: Yup.string(),
     name: Yup.string().required("Name is required"),
@@ -292,8 +297,22 @@ const EditSensor = ({ inputData, onClose, onEditView }: IEditViewProps) => {
                           {String(formik.values.timeline) === "0" && (
                             <label>
                               <div className="d-flex">
-                                <input {...formik.getFieldProps("fromDate")} type="date" className="form-control w-150px mx-2" name="fromDate" placeholder="From Date" />
-                                <input {...formik.getFieldProps("toDate")} type="date" className="form-control w-150px" name="toDate" placeholder="To Date" />
+                                <input
+                                  {...formik.getFieldProps("fromDate")}
+                                  type="date"
+                                  className="form-control w-150px mx-2"
+                                  name="fromDate"
+                                  placeholder="From Date"
+                                  style={{ colorScheme: ktThemeModeValue || undefined }}
+                                />
+                                <input
+                                  {...formik.getFieldProps("toDate")}
+                                  type="date"
+                                  className="form-control w-150px"
+                                  name="toDate"
+                                  placeholder="To Date"
+                                  style={{ colorScheme: ktThemeModeValue || undefined }}
+                                />
                               </div>
                             </label>
                           )}

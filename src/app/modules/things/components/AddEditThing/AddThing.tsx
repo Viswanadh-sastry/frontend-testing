@@ -48,6 +48,11 @@ const AddThing = ({ onCloseAddThing, onGetThingList }: IAddThingProps) => {
     },
     validationSchema: thingSchema,
     onSubmit: async (values, { setSubmitting }) => {
+      if (!isValidateMetadata(values.metadata)) {
+        toast.warn("Invalid metadata format");
+        setSubmitting(false);
+        return;
+      }
       const data = {
         name: values.name,
         credentials: {
@@ -99,6 +104,22 @@ const AddThing = ({ onCloseAddThing, onGetThingList }: IAddThingProps) => {
         .finally(() => setSubmitting(false));
     },
   });
+
+  const isValidateMetadata = (metadata: any) => {
+    if (!metadata || Object.keys(metadata).length === 0) {
+      return true;
+    }
+
+    return Object.keys(metadata).every((key) => {
+      if (key.toLowerCase() === "phone_number") {
+        return /^\d{10}$/.test(metadata[key]) && metadata[key] !== "0000000000";
+      }
+      if (key.toLowerCase() === "update_frequency") {
+        return /^\d+$/.test(metadata[key]) && parseInt(metadata[key]) !== 0;
+      }
+      return true;
+    });
+  };
 
   // Ensure that the "Update_Frequency" key is initialized in metadata
   const initialMetadata = {

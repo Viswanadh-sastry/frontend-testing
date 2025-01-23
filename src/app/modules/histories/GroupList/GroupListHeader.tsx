@@ -1,6 +1,6 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { Dispatch, SetStateAction, useEffect } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { MenuComponent } from "../../../../_metronic/assets/ts/components";
@@ -10,6 +10,7 @@ import { sortHistoryData } from "../../dashboard/api/DashboardHelper";
 import { getGroupChannelList } from "../../groups/api/GroupChannelAPI";
 import { exportHistoryListAll } from "../api/HistoryAPI";
 import { GroupListFilter } from "./GroupListFilter";
+import { GroupListExporting } from "./pagination/GroupListExporting";
 
 interface IAssetListHeaderProps {
   setHistoryList: Dispatch<SetStateAction<any>>;
@@ -36,6 +37,7 @@ interface IAssetListHeaderProps {
 }
 
 const GroupListHeader = ({ setFilterGroup, setHistoryList, filterGroup }: IAssetListHeaderProps) => {
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     MenuComponent.reinitialization();
   }, []);
@@ -156,7 +158,9 @@ const GroupListHeader = ({ setFilterGroup, setHistoryList, filterGroup }: IAsset
 
   // convert data to csv
   const downloadCSV = async () => {
+    setIsLoading(true);
     const historyList = await fetchExportData();
+    setIsLoading(false);
 
     if (historyList.length === 0) {
       toast.error("No data found to download!");
@@ -177,7 +181,9 @@ const GroupListHeader = ({ setFilterGroup, setHistoryList, filterGroup }: IAsset
 
   // convert data to xlsx
   const downloadXlsx = async () => {
+    setIsLoading(true);
     const historyList = await fetchExportData();
+    setIsLoading(false);
 
     if (historyList.length === 0) {
       toast.error("No data found to download!");
@@ -255,7 +261,9 @@ const GroupListHeader = ({ setFilterGroup, setHistoryList, filterGroup }: IAsset
 
   // download pdf
   const downloadPDF = async () => {
+    setIsLoading(true);
     const historyList = await fetchExportData();
+    setIsLoading(false);
 
     if (historyList.length === 0) {
       toast.error("No data found to download!");
@@ -355,6 +363,7 @@ const GroupListHeader = ({ setFilterGroup, setHistoryList, filterGroup }: IAsset
           </div>
         </div>
       </div>
+      {isLoading && <GroupListExporting />}
     </>
   );
 };

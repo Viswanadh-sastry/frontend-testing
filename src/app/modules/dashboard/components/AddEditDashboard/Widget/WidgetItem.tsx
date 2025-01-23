@@ -34,13 +34,6 @@ const WidgetItem = ({ widgetData, editWidget, removeWidget }: IWidgetItemProps) 
   const [sensorTypeList, setSensorTypeList] = useState<string[]>([]);
   const [deviceData, setDeviceData] = useState<any[]>([]);
   const [inputData, setInputData] = useState<any>(null);
-  const style = {
-    // display: "flex",
-    // alignItems: "center",
-    // justifyContent: "center",
-    border: "solid 1px #ddd",
-    background: "#fff",
-  };
 
   useEffect(() => {
     if (widgetData) {
@@ -270,8 +263,7 @@ const WidgetItem = ({ widgetData, editWidget, removeWidget }: IWidgetItemProps) 
     <>
       <Rnd
         bounds="parent"
-        style={style}
-        className="d-flex flex-column align-items-center justify-content-center px-5"
+        className="card d-flex flex-column align-items-center justify-content-center px-5"
         default={{ x: selectedLayout.left, y: selectedLayout.top, width: selectedLayout.width, height: selectedLayout.height }}
         size={{ width: selectedLayout.width, height: selectedLayout.height }}
         position={{ x: selectedLayout.left, y: selectedLayout.top }}

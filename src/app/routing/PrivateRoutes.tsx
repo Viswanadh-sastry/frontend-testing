@@ -20,6 +20,11 @@ const PrivateRoutes = () => {
   const History = lazy(() => import("../modules/histories/HistoriesPage"));
   const DashboardPage = lazy(() => import("../modules/dashboard/DashboardPage"));
 
+  const StreamPage = lazy(() => import("../modules/stream/StreamPage"));
+  const RulePage = lazy(() => import("../modules/rules/RulePage"));
+  const NotificationPage = lazy(() => import("../modules/notifications/NotificationPage"));
+  const SubscriptionPage = lazy(() => import("../modules/subscriptions/SubscriptionPage"));
+
   return (
     <Routes>
       <Route element={<MasterLayout />}>
@@ -121,6 +126,39 @@ const PrivateRoutes = () => {
           element={
             <SuspensedView>
               <ProfilePage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path="stream/*"
+          element={
+            <SuspensedView>
+              <StreamPage />
+            </SuspensedView>
+          }
+        />
+        <Route
+          path="rule/*"
+          element={
+            <SuspensedView>
+              <RulePage />
+            </SuspensedView>
+          }
+        />
+        <Route
+          path="notifications/*"
+          element={
+            <SuspensedView>
+              <NotificationPage />
+            </SuspensedView>
+          }
+        />
+        <Route
+          path="subscriptions/*"
+          element={
+            <SuspensedView>
+              <SubscriptionPage />
             </SuspensedView>
           }
         />

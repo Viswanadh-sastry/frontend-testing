@@ -3,11 +3,12 @@ import { useEffect, useState } from "react";
 import { Rnd } from "react-rnd";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { ThemeModeComponent } from "../../../../../../_metronic/assets/ts/layout";
 import { toAbsoluteUrl } from "../../../../../../_metronic/helpers";
+import { convertUnixTimestampToLocalDateTime } from "../../../../../constants/Common";
 import { getHistoryListAll } from "../../../../histories/api/HistoryAPI";
 import { getThingChannelList } from "../../../../things/api/ThingChannelAPI";
 import { editDashboard, getDashboardById } from "../../../api/DashboardHelper";
-import { convertUnixTimestampToLocalDateTime } from "../../../../../constants/Common";
 import "./ViewSensor.css";
 
 interface IViewSensorProps {
@@ -17,6 +18,10 @@ interface IViewSensorProps {
 }
 
 const ViewSensor = ({ widgetData, editWidget, removeWidget }: IViewSensorProps) => {
+  let ktThemeModeValue = localStorage.getItem("kt_theme_mode_value");
+  if (ktThemeModeValue === "system") {
+    ktThemeModeValue = ThemeModeComponent.getSystemMode() as "light" | "dark";
+  }
   const [lastData, setLastData] = useState<any>(null);
   const [progressPercentage, setProgressPercentage] = useState<number>(0);
   const [lastFiveData, setLastFiveData] = useState<any[]>([]);
@@ -51,13 +56,6 @@ const ViewSensor = ({ widgetData, editWidget, removeWidget }: IViewSensorProps) 
     imageUrl: "",
   };
   const [selectedLayout, setSelectedLayout] = useState<any>(layoutData);
-  const style = {
-    // display: "flex",
-    // alignItems: "center",
-    // justifyContent: "center",
-    border: "solid 1px #ddd",
-    background: "#fff",
-  };
   console.log("devices", devices);
   // const data = {
   //   layout: layout.widgetType,
@@ -214,8 +212,7 @@ const ViewSensor = ({ widgetData, editWidget, removeWidget }: IViewSensorProps) 
     <>
       <Rnd
         bounds="parent"
-        style={style}
-        className="d-flex flex-column align-items-center justify-content-center p-5"
+        className="card d-flex flex-column align-items-center justify-content-center p-5"
         default={{ x: selectedLayout.left, y: selectedLayout.top, width: selectedLayout.width, height: selectedLayout.height }}
         size={{ width: selectedLayout.width, height: selectedLayout.height }}
         position={{ x: selectedLayout.left, y: selectedLayout.top }}
@@ -472,7 +469,7 @@ const ViewSensor = ({ widgetData, editWidget, removeWidget }: IViewSensorProps) 
                   const y1 = 100 + 80 * Math.sin(angle);
                   const x2 = 100 + 85 * Math.cos(angle);
                   const y2 = 100 + 85 * Math.sin(angle);
-                  return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#000" strokeWidth="2" />;
+                  return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={ktThemeModeValue === "dark" ? "#fff" : "#000"} strokeWidth="2" />;
                 })}
 
                 {/* Needle */}
@@ -481,12 +478,12 @@ const ViewSensor = ({ widgetData, editWidget, removeWidget }: IViewSensorProps) 
                   y1="100"
                   x2={100 + 70 * Math.cos((calculateRotation(progressPercentage) - 90) * (Math.PI / 180))}
                   y2={100 + 70 * Math.sin((calculateRotation(progressPercentage) - 90) * (Math.PI / 180))}
-                  stroke="#000"
+                  stroke={ktThemeModeValue === "dark" ? "#fff" : "#000"}
                   strokeWidth="3"
                 />
 
                 {/* Center of the needle */}
-                <circle cx="100" cy="100" r="5" fill="#000" />
+                <circle cx="100" cy="100" r="5" fill={ktThemeModeValue === "dark" ? "#fff" : "#000"} />
 
                 {/* Dynamic Labels */}
                 {[...Array(13)].map((_, i) => {
@@ -498,14 +495,14 @@ const ViewSensor = ({ widgetData, editWidget, removeWidget }: IViewSensorProps) 
                   const x = 100 + 60 * Math.cos(angle);
                   const y = 100 + 60 * Math.sin(angle);
                   return (
-                    <text key={i} x={x} y={y} textAnchor="middle" fontSize="9" fill="#000">
+                    <text key={i} x={x} y={y} textAnchor="middle" fontSize="9" fill={ktThemeModeValue === "dark" ? "#fff" : "#000"}>
                       {value}
                     </text>
                   );
                 })}
 
                 {/* Current value display */}
-                <text x="100" y="150" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#333">
+                <text x="100" y="150" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#555">
                   {lastData?.value || 0} {lastData?.unit}
                 </text>
               </svg>

@@ -49,69 +49,17 @@ const ThingsTable = () => {
 
   const thingListQuery = useQuery({
     queryKey: [`thingList`, filterThing],
-    queryFn: async () =>
-      getThingListAll(filterThing)
-        .then(async (response) => {
-          const things = await Promise.all(
-            response.things.map(async (thing: any) => {
-              try {
-                const channel = await getThingChannelList(thing.id, filterChannel);
-                const historyData = await Promise.all(
-                  channel.groups.map(async (group: any) => {
-                    try {
-                      const filterHistory = {
-                        offset: 0,
-                        limit: 10,
-                        name: "",
-                        publisher: thing.id,
-                        status: "enabled",
-                      };
-                      const history = await getHistoryList(group.id, filterHistory);
-                      return history;
-                    } catch (error) {
-                      return [];
-                    }
-                  })
-                );
-
-                const flatHistory: any = historyData.flat().sort((a: any, b: any) => a.time - b.time);
-
-                // Convert current time to Unix timestamp
-                const now = Number(String(new Date().getTime()).slice(0, 10));
-
-                // Calculate activity status
-                let activity = "inactive";
-
-                if (thing.metadata?.Update_Frequency) {
-                  const updateFrequency = parseInt(thing.metadata.Update_Frequency);
-
-                  if (flatHistory.length > 0 && flatHistory[0].messages?.length > 0) {
-                    const firstRecordTime = Number(String(flatHistory[0].messages[0].time).slice(0, 10));
-                    const timeDifference = now - firstRecordTime;
-                    if (timeDifference >= 0 && timeDifference <= updateFrequency) {
-                      activity = "active";
-                    }
-                  }
-                }
-                return {
-                  ...thing,
-                  isConnected: channel.total > 0,
-                  activity,
-                  lastSeenMsg: flatHistory.length > 0 && flatHistory[0].messages?.length > 0 && flatHistory[0].messages[0].time ? flatHistory[0].messages[0].time : null,
-                };
-              } catch (error) {
-                return {
-                  ...thing,
-                  isConnected: false,
-                  activity: "inactive",
-                  lastSeenMsg: null,
-                };
-              }
-            })
-          );
-          return { ...response, things };
-        })
-        .catch((error) => toast.error(error.message)),
+    queryFn: async () => {
+      const response = await getThingListAll(filterThing).catch((error) => toast.error(error.message));
+      return {
+        ...response,
+        things: [
+          ...response.things.map((thing: any) => {
+            return { ...thing, isConnected: false, activity: "inactive", lastSeenMsg: null };
+          }),
+        ],
+      };
+    },
     enabled: true,
   });
 
@@ -123,11 +71,74 @@ const ThingsTable = () => {
     }
   }, [thingListQuery.data?.things]);
   useEffect(() => {
-    setData(
-      thingList.filter((_: any, index: number) => {
-        return index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage;
-      })
-    );
+    const fetchThingsData = async () => {
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = currentPage * itemsPerPage;
+      const things = thingList.filter((_: any, index: any) => index >= startIndex && index < endIndex);
+
+      const updatedThings = await Promise.all(
+        things.map(async (thing: any) => {
+          try {
+            const channel = await getThingChannelList(thing.id, filterChannel);
+            const historyData = await Promise.all(
+              channel.groups.map(async (group: any) => {
+                try {
+                  const filterHistory = {
+                    offset: 0,
+                    limit: 10,
+                    name: "",
+                    publisher: thing.id,
+                    status: "enabled",
+                  };
+                  const history = await getHistoryList(group.id, filterHistory);
+                  return history;
+                } catch (error) {
+                  return [];
+                }
+              })
+            );
+
+            const flatHistory: any = historyData.flat().sort((a: any, b: any) => a.time - b.time);
+
+            // Convert current time to Unix timestamp
+            const now = Math.floor(new Date().getTime() / 1000);
+
+            // Calculate activity status
+            let activity = "inactive";
+
+            if (thing.metadata?.Update_Frequency) {
+              const updateFrequency = parseInt(thing.metadata.Update_Frequency);
+
+              if (flatHistory.length > 0 && flatHistory[0].messages?.length > 0) {
+                const firstRecordTime = Math.floor(flatHistory[0].messages[0].time / 1000);
+                const timeDifference = now - firstRecordTime;
+                if (timeDifference >= 0 && timeDifference <= updateFrequency) {
+                  activity = "active";
+                }
+              }
+            }
+
+            return {
+              ...thing,
+              isConnected: channel.total > 0,
+              activity,
+              lastSeenMsg: flatHistory.length > 0 && flatHistory[0].messages?.length > 0 && flatHistory[0].messages[0].time ? flatHistory[0].messages[0].time : null,
+            };
+          } catch (error) {
+            return {
+              ...thing,
+              isConnected: false,
+              activity: "inactive",
+              lastSeenMsg: null,
+            };
+          }
+        })
+      );
+
+      setData(updatedThings);
+    };
+
+    fetchThingsData();
   }, [thingList, currentPage, itemsPerPage]);
 
   const columns = useMemo(() => thingsColumns, []);

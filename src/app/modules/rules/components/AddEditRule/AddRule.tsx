@@ -1,0 +1,141 @@
+import clsx from "clsx";
+import { useFormik } from "formik";
+import { toast } from "react-toastify";
+import * as Yup from "yup";
+import { KTIcon } from "../../../../../_metronic/helpers";
+import { addRule } from "../../api/RuleAPI";
+
+interface IAddRuleProps {
+  onCloseAddRule: () => void;
+  onGetRuleList: () => void;
+}
+
+const AddRule = ({ onCloseAddRule, onGetRuleList }: IAddRuleProps) => {
+  const ruleSchema = Yup.object().shape({
+    name: Yup.string().required("Name is required"),
+    sql: Yup.string().required("Query is required"),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      sql: "",
+    },
+    validationSchema: ruleSchema,
+    onSubmit: async (values, { setSubmitting }) => {
+      addRule(values)
+        .then(() => {
+          toast.success("Rule created successfully");
+          onCloseAddRule();
+          onGetRuleList();
+        })
+        .catch((error) => toast.error(error.message))
+        .finally(() => setSubmitting(false));
+    },
+  });
+
+  return (
+    <>
+      <div className="modal fade show d-block" id="kt_modal_add_rule" role="dialog" tabIndex={-1} aria-modal="true">
+        {/* begin::Modal dialog */}
+        <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable mw-900px mh-900px">
+          {/* begin::Modal content */}
+          <div className="modal-content">
+            <div className="modal-header d-flex justify-content-between align-items-center">
+              {/* begin::Modal title */}
+              <h2 className="fw-bolder">Add Rule</h2>
+              {/* end::Modal title */}
+
+              {/* begin::Close */}
+              <div className="btn btn-icon btn-sm btn-active-icon-primary" data-kt-rule-modal-action="close" onClick={onCloseAddRule} style={{ cursor: "pointer" }}>
+                <KTIcon iconName="cross" className="fs-1" />
+              </div>
+              {/* end::Close */}
+            </div>
+            {/* begin::Modal body */}
+            <div className="modal-body mx-5 mx-xl-15 my-7">
+              <form id="kt_modal_add_rule_form" className="form" onSubmit={formik.handleSubmit} noValidate>
+                {/* begin::Scroll */}
+                <div className="d-flex flex-column me-n7 pe-7">
+                  <div className="row">
+                    {/* Name */}
+                    <div className="col-md-12">
+                      <div className="fv-row mb-6">
+                        <label className="required fw-bold fs-6 mb-2">Name</label>
+                        <input
+                          {...formik.getFieldProps("name")}
+                          type="text"
+                          name="name"
+                          placeholder="Rule Name"
+                          className={clsx(
+                            "form-control mb-3 mb-lg-0",
+                            { "is-invalid": formik.touched.name && formik.errors.name },
+                            { "is-valid": formik.touched.name && !formik.errors.name }
+                          )}
+                          autoComplete="off"
+                        />
+                        {formik.touched.name && formik.errors.name && (
+                          <div className="fv-plugins-message-container">
+                            <div className="fv-help-block">
+                              <span role="alert">{formik.errors.name}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="row">
+                    {/* SQL */}
+                    <div className="col-md-12">
+                      <div className="fv-row mb-6">
+                        <label className="required fw-bold fs-6 mb-2">SQL</label>
+                        <textarea
+                          {...formik.getFieldProps("sql")}
+                          rows={10}
+                          name="sql"
+                          placeholder="Enter SQL"
+                          className={clsx(
+                            "form-control mb-3 mb-lg-0",
+                            { "is-invalid": formik.touched.sql && formik.errors.sql },
+                            { "is-valid": formik.touched.sql && !formik.errors.sql }
+                          )}
+                          autoComplete="off"
+                        />
+                        {formik.touched.sql && formik.errors.sql && (
+                          <div className="fv-plugins-message-container">
+                            <div className="fv-help-block">
+                              <span role="alert">{formik.errors.sql}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* begin::Actions */}
+                <div className="text-center pt-15">
+                  <button type="reset" onClick={onCloseAddRule} className="btn btn-light me-3" data-kt-rule-modal-action="cancel" disabled={formik.isSubmitting}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-primary">
+                    <span className="indicator-label">Submit</span>
+                  </button>
+                </div>
+                {/* end::Actions */}
+              </form>
+            </div>
+            {/* end::Modal body */}
+          </div>
+          {/* end::Modal content */}
+        </div>
+        {/* end::Modal dialog */}
+      </div>
+      {/* begin::Modal Backdrop */}
+      <div className="modal-backdrop fade show"></div>
+      {/* end::Modal Backdrop */}
+    </>
+  );
+};
+
+export { AddRule };

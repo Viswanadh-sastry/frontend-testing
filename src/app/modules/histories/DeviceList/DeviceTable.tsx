@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { ColumnInstance, Row, useTable } from "react-table";
 import { toast } from "react-toastify";
-import { KTCardBody } from "../../../../_metronic/helpers";
+import { KTCard, KTCardBody } from "../../../../_metronic/helpers";
 // import { sortHistoryData } from "../../dashboard/api/DashboardHelper";
 import { getThingChannelList } from "../../things/api/ThingChannelAPI";
 import { getHistoryListAll } from "../api/HistoryAPI";
@@ -154,7 +154,7 @@ const DeviceTable = () => {
   });
 
   return (
-    <div className="card w-100">
+    <KTCard>
       <DeviceListHeader setFilterDevice={setFilterDevice} setHistoryList={setHistoryList} filterDevice={filterDevice} />
       <KTCardBody className="py-4">
         <div className="table-responsive">
@@ -194,7 +194,7 @@ const DeviceTable = () => {
         />
         {isLoading && <DeviceListLoading />}
       </KTCardBody>
-    </div>
+    </KTCard>
   );
 };
 

@@ -56,12 +56,23 @@ const SidebarMenuMain = () => {
         <SidebarMenuItem to="/history/asset" title="Asset History" icon="arrow-right-left" />
         <SidebarMenuItem to="/history/device" title="Device History" icon="technology" />
       </SidebarMenuItemWithSub>
-      <div className="menu-item">
+      {/* <div className="menu-item">
         <div className="menu-content pt-8 pb-2">
           <span className="menu-section text-muted text-uppercase fs-8 ls-1">Report</span>
         </div>
       </div>
-      <SidebarMenuItem to="/report" title="Reports" icon="chart" />
+      <SidebarMenuItem to="/report" title="Reports" icon="chart" /> */}
+      <div className="menu-item">
+        <div className="menu-content pt-8 pb-2">
+          <span className="menu-section text-muted text-uppercase fs-8 ls-1">EDGE</span>
+        </div>
+      </div>
+      <SidebarMenuItemWithSub to="" title="Rule Engine" icon="code">
+        <SidebarMenuItem to="/stream" title="Stream" icon="square-brackets" />
+        <SidebarMenuItem to="/rule" title="Rules" icon="code" />
+      </SidebarMenuItemWithSub>
+      <SidebarMenuItem to="/notifications" title="Notifications" icon="notification" />
+      <SidebarMenuItem to="/subscriptions" title="Subscriptions" icon="tablet-text-up" />
     </>
   );
 };

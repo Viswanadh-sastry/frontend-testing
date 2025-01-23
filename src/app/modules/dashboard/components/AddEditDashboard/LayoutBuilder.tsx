@@ -3,17 +3,22 @@ import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
+import { ThemeModeComponent } from "../../../../../_metronic/assets/ts/layout";
 import { KTCardBody, KTIcon } from "../../../../../_metronic/helpers";
 import { useAuth } from "../../../auth";
 import { updateDashboard } from "../../api/DashboardAPI";
 import { deleteWidgetById, editDashboard, getDashboard, getDashboardById, updateWidgetById } from "../../api/DashboardHelper";
-import { EditView } from "./Widget/EditView";
 import { EditSensor } from "./Widget/EditSensor";
+import { EditView } from "./Widget/EditView";
+import { ViewSensor } from "./Widget/ViewSensor";
 import { WidgetDrawer } from "./Widget/WidgetDrawer";
 import { WidgetItem } from "./Widget/WidgetItem";
-import { ViewSensor } from "./Widget/ViewSensor";
 
 const LayoutBuilder = () => {
+  let ktThemeModeValue = localStorage.getItem("kt_theme_mode_value");
+  if (ktThemeModeValue === "system") {
+    ktThemeModeValue = ThemeModeComponent.getSystemMode() as "light" | "dark";
+  }
   const { currentUser } = useAuth();
   const { id: userId } = currentUser || { id: "" };
   const handle = useFullScreenHandle();
@@ -220,7 +225,14 @@ const LayoutBuilder = () => {
             style={{
               width: "1920px",
               height: "1080px",
-              background: `
+              background:
+                ktThemeModeValue === "dark"
+                  ? `
+            linear-gradient(-90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+            linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+            #1e1e1e
+          `
+                  : `
             linear-gradient(-90deg, rgba(0, 0, 0, .04) 1px, transparent 1px),
             linear-gradient(rgba(0, 0, 0, .04) 1px, transparent 1px),
             #f2f2f2
@@ -235,7 +247,6 @@ const LayoutBuilder = () => {
             80px 80px,
             80px 80px
           `,
-              backgroundColor: "#f2f2f2",
             }}
           >
             <KTCardBody className="py-4">

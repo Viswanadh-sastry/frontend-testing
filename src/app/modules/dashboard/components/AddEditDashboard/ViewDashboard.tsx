@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import { useNavigate, useParams } from "react-router-dom";
+import { ThemeModeComponent } from "../../../../../_metronic/assets/ts/layout";
 import { KTCardBody, KTIcon } from "../../../../../_metronic/helpers";
 import { getDashboardById } from "../../api/DashboardHelper";
-import { WidgetPreviewItem } from "./Widget/WidgetPreviewItem";
 import { SensorPreviewItem } from "./Widget/SensorPreviewItem";
+import { WidgetPreviewItem } from "./Widget/WidgetPreviewItem";
 
 const ViewDashboard = () => {
+  let ktThemeModeValue = localStorage.getItem("kt_theme_mode_value");
+  if (ktThemeModeValue === "system") {
+    ktThemeModeValue = ThemeModeComponent.getSystemMode() as "light" | "dark";
+  }
   const navigate = useNavigate();
   const params = useParams();
   const id = params.id as string;
@@ -38,7 +43,7 @@ const ViewDashboard = () => {
       </div>
       <div className="card" style={{ width: "100%", overflowX: "auto" }}>
         <FullScreen handle={handle}>
-          <div className="card" style={{ width: "1920px", height: "1080px" }}>
+          <div className="card" style={{ width: "1920px", height: "1080px", backgroundColor: ktThemeModeValue === "dark" ? "#1a1a1a" : "#f9f9f9" }}>
             <KTCardBody className="py-4">
               {dashboard?.data?.widgets?.map((widget: any, index: number) =>
                 widget.layouts.widgetType === "SquareCard" ||

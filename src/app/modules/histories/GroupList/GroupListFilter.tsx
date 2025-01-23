@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getThingListAll } from "../../things/api/ThingAPI";
 import { toast } from "react-toastify";
 import moment from "moment";
+import { ThemeModeComponent } from "../../../../_metronic/assets/ts/layout";
 
 interface IGroupListHeaderProps {
   setFilterGroup: Dispatch<
@@ -32,6 +33,10 @@ interface TypeaheadMethods {
 }
 
 const GroupListFilter = ({ setFilterGroup, setHistoryList }: IGroupListHeaderProps) => {
+  let ktThemeModeValue = localStorage.getItem("kt_theme_mode_value");
+  if (ktThemeModeValue === "system") {
+    ktThemeModeValue = ThemeModeComponent.getSystemMode() as "light" | "dark";
+  }
   const [filter, setFilter] = useState({ name: "", from: 0, to: 0 });
   const typeaheadRef = useRef<TypeaheadMethods | null>(null);
 
@@ -81,7 +86,7 @@ const GroupListFilter = ({ setFilterGroup, setHistoryList }: IGroupListHeaderPro
       }
     }
     setHistoryList([]);
-    setFilterGroup((prev) => ({ ...prev, ...filter, from: filter.from * 1000, to: filter.to * 1000, offset: 0 }));
+    setFilterGroup((prev) => ({ ...prev, ...filter, from: filter.from / 1000, to: filter.to / 1000, offset: 0 }));
   };
 
   const resetFilter = () => {
@@ -133,11 +138,25 @@ const GroupListFilter = ({ setFilterGroup, setHistoryList }: IGroupListHeaderPro
           </div>
           <div className="mb-5 mt-2">
             <label className="form-label fs-6 fw-bold">From Date</label>
-            <input type="date" className="form-control" name="from" onChange={handleChange} value={filter.from ? new Date(filter.from).toISOString().split("T")[0] : ""} />
+            <input
+              type="date"
+              className="form-control"
+              name="from"
+              onChange={handleChange}
+              value={filter.from ? moment(filter.from).format("YYYY-MM-DD") : ""}
+              style={{ colorScheme: ktThemeModeValue || undefined }}
+            />
           </div>
           <div className="mb-5">
             <label className="form-label fs-6 fw-bold">To Date</label>
-            <input type="date" className="form-control" name="to" onChange={handleChange} value={filter.to ? new Date(filter.to).toISOString().split("T")[0] : ""} />
+            <input
+              type="date"
+              className="form-control"
+              name="to"
+              onChange={handleChange}
+              value={filter.to ? moment(filter.to).format("YYYY-MM-DD") : ""}
+              style={{ colorScheme: ktThemeModeValue || undefined }}
+            />
           </div>
           <div className="d-flex justify-content-end">
             <button type="button" className="btn btn-light btn-active-light-primary fw-bold me-2 px-6" data-kt-menu-dismiss="true" onClick={resetFilter}>

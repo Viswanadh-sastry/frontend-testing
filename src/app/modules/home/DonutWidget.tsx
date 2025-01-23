@@ -1,5 +1,6 @@
 import ApexCharts, { ApexOptions } from "apexcharts";
 import { useEffect, useRef } from "react";
+import { ThemeModeComponent } from "../../../_metronic/assets/ts/layout";
 
 interface IDonutWidgetProps {
   chartParams: { dataPointIndex: any; originalState: boolean };
@@ -79,6 +80,10 @@ function getChartOptions(
   dataPointIndex = null,
   originalState = true
 ): ApexOptions {
+  let ktThemeModeValue = localStorage.getItem("kt_theme_mode_value");
+  if (ktThemeModeValue === "system") {
+    ktThemeModeValue = ThemeModeComponent.getSystemMode() as "light" | "dark";
+  }
   const originalSeries = [userData?.length ?? 0, deviceData?.length ?? 0, groupData?.length ?? 0, assetData?.length ?? 0];
   const originalLabels = ["Users", "Devices", "Asset Groups", "Assets"];
   const isOriginalState = originalState; // Flag to track the current state
@@ -130,11 +135,16 @@ function getChartOptions(
                 show: true,
                 showAlways: true,
                 label: dataPointIndex === 0 ? "Users" : dataPointIndex === 1 ? "Devices" : dataPointIndex === 2 ? "Asset Groups" : dataPointIndex === 3 ? "Assets" : "",
+                color: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
                 formatter: function (w: any) {
                   return w.globals.seriesTotals.reduce((a: any, b: any) => {
                     return a + b;
                   }, 0);
                 },
+              },
+              value: {
+                show: true,
+                color: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
               },
             },
           },
@@ -142,6 +152,9 @@ function getChartOptions(
       },
       legend: {
         position: "bottom",
+        labels: {
+          colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+        },
       },
       fill: {
         type: "gradient",
@@ -238,6 +251,9 @@ function getChartOptions(
       },
       legend: {
         position: "bottom",
+        labels: {
+          colors: ktThemeModeValue === "dark" ? "#ffffff" : "#000000",
+        },
       },
       fill: {
         type: "gradient",

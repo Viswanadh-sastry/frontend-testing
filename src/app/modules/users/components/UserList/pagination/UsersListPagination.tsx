@@ -27,9 +27,7 @@ interface IUsersListPaginationProps {
 
 const UsersListPagination = ({ userList, itemsPerPage, pagination, data, setCurrentPage, setItemsPerPage, setPagination, setData }: IUsersListPaginationProps) => {
   useEffect(() => {
-    if (data.length > 0) {
-      getLinks();
-    }
+    getLinks();
   }, [data]);
 
   const getLinks = () => {
