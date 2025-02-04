@@ -13,16 +13,6 @@ export async function login(identity: string, secret: string) {
   const response = await axios.post<AuthModel>(LOGIN_URL, {
     identity,
     secret,
-  }, {
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Access-Control-Allow-Origin': '*', // This is for CORS
-      'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS', // This is for CORS
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, Content-Length, X-Requested-With', // This is for CORS
-      'Access-Control-Allow-Credentials': 'true', // This is for CORS
-      'Access-Control-Max-Age': '86400', // This is for CORS
-    },
   });
   return response.data;
 }

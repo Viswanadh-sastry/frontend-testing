@@ -49,6 +49,11 @@ export async function enableChannel(id: string) {
     return response.data;
 }
 
+export async function deleteChannel(id: string) {
+    const response = await axios.delete(`${API_URL}/channels/${id}`);
+    return response.data;
+}
+
 export async function updateThingIdentity(id: string, identity: string) {
     const response = await axios.patch(`${API_URL}/channels/${id}/identity`, { identity });
     return response.data;

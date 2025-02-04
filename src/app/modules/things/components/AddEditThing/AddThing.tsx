@@ -5,7 +5,7 @@ import { Typeahead } from "react-bootstrap-typeahead";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { AutoEventInputFields, KTIcon, MetadataInputFields } from "../../../../../_metronic/helpers";
-import { createDevice, createThing, getDeviceProfileList, getDeviceServiceList } from "../../api/ThingAPI";
+import { createDevice, createThing, getDeviceProfileList, getDeviceServiceList, createDeviceProfile } from "../../api/ThingAPI";
 
 interface IAddThingProps {
   onCloseAddThing: () => void;
@@ -29,6 +29,25 @@ const AddThing = ({ onCloseAddThing, onGetThingList }: IAddThingProps) => {
     secret: Yup.string(),
     tags: Yup.array(),
     metadata: Yup.object(),
+    enabledRule: Yup.boolean(),
+    description: Yup.string(),
+    adminState: Yup.string(),
+    serviceName: Yup.string().when("enabledRule", {
+      is: (val: boolean) => val === true,
+      then: (schema) => schema.required("Service Name is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    profileName: Yup.string().when("enabledRule", {
+      is: (val: boolean) => val === true,
+      then: (schema) => schema.required("Profile Name is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    protocolName: Yup.string().when("enabledRule", {
+      is: (val: boolean) => val === true,
+      then: (schema) => schema.required("Protocol Name is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    autoEvents: Yup.array(),
   });
 
   const formik = useFormik({
@@ -78,12 +97,13 @@ const AddThing = ({ onCloseAddThing, onGetThingList }: IAddThingProps) => {
                   serviceName: values.serviceName,
                   profileName: values.profileName,
                   autoEvents: values.autoEvents.map((autoEvent: any) => ({
-                    interval: autoEvent.interval,
-                    unit: autoEvent.unit,
-                    onchange: autoEvent.onchange,
-                    resource: autoEvent.resource,
+                    interval: `${autoEvent.interval}${autoEvent.unit}`,
+                    onChange: autoEvent.onchange === "true",
+                    sourceName: autoEvent.resource,
                   })),
-                  protocolName: values.protocolName,
+                  protocols: {
+                    [values.protocolName]: {},
+                  },
                 },
               },
             ];
@@ -104,6 +124,23 @@ const AddThing = ({ onCloseAddThing, onGetThingList }: IAddThingProps) => {
         .finally(() => setSubmitting(false));
     },
   });
+
+  const onClickUploadFile = () => {
+    // Validate to check if the file is selected
+    if (!(document.querySelector('input[name="uploadProfile"]') as HTMLInputElement)?.files?.length) {
+      toast.error("Please select a file to upload");
+      return;
+    }
+    const data = new FormData();
+    data.append("file", (document.querySelector('input[name="uploadProfile"]') as HTMLInputElement)?.files?.[0] as Blob);
+    createDeviceProfile(data)
+      .then(() => {
+        toast.success("Profile uploaded successfully");
+        (document.querySelector('input[name="uploadProfile"]') as HTMLInputElement).value = "";
+        deviceProfileListQuery.refetch();
+      })
+      .catch((error) => toast.error(error.message));
+  };
 
   const isValidateMetadata = (metadata: any) => {
     if (!metadata || Object.keys(metadata).length === 0) {
@@ -324,10 +361,24 @@ const AddThing = ({ onCloseAddThing, onGetThingList }: IAddThingProps) => {
                             <Typeahead
                               id="protocolName"
                               labelKey="name"
-                              options={deviceServiceListQuery.data?.profiles || []}
+                              options={deviceServiceListQuery.data?.services || []}
                               placeholder="Select a protocol"
-                              onChange={(selected) => formik.setFieldValue("protocolName", selected)}
+                              inputProps={{
+                                className: clsx(
+                                  "form-control mb-3 mb-lg-0",
+                                  { "is-invalid": formik.touched.protocolName && formik.errors.protocolName },
+                                  { "is-valid": formik.touched.protocolName && !formik.errors.protocolName }
+                                ),
+                              }}
+                              onChange={(selected: any) => formik.setFieldValue("protocolName", selected[0].name)}
                             />
+                            {formik.touched.protocolName && formik.errors.protocolName && (
+                              <div className="fv-plugins-message-container">
+                                <div className="fv-help-block">
+                                  <span role="alert">{formik.errors.protocolName}</span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -340,10 +391,24 @@ const AddThing = ({ onCloseAddThing, onGetThingList }: IAddThingProps) => {
                             <Typeahead
                               id="serviceName"
                               labelKey="name"
-                              options={deviceServiceListQuery.data?.profiles || []}
+                              options={deviceServiceListQuery.data?.services || []}
                               placeholder="Select a service"
-                              onChange={(selected) => formik.setFieldValue("serviceName", selected)}
+                              inputProps={{
+                                className: clsx(
+                                  "form-control mb-3 mb-lg-0",
+                                  { "is-invalid": formik.touched.serviceName && formik.errors.serviceName },
+                                  { "is-valid": formik.touched.serviceName && !formik.errors.serviceName }
+                                ),
+                              }}
+                              onChange={(selected: any) => formik.setFieldValue("serviceName", selected[0].name)}
                             />
+                            {formik.touched.serviceName && formik.errors.serviceName && (
+                              <div className="fv-plugins-message-container">
+                                <div className="fv-help-block">
+                                  <span role="alert">{formik.errors.serviceName}</span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -374,13 +439,19 @@ const AddThing = ({ onCloseAddThing, onGetThingList }: IAddThingProps) => {
                                     <div className="card-px text-center">
                                       <h2 className="fs-2x fw-bold mb-0">Upload Profile</h2>
                                       <p className="text-gray-500 fs-7 fw-semibold py-7">
-                                        <input type="file" accept=".yml" />
+                                        <input name="uploadProfile" type="file" accept=".yml" />
                                         <br />
                                         Click on the below buttons to upload the file.
                                       </p>
-                                      <a href="#" className="btn btn-light-primary er fs-7" data-bs-toggle="modal" data-bs-target="#kt_modal_select_location">
+                                      <button
+                                        type="button"
+                                        className="btn btn-light-primary er fs-7"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#kt_modal_select_location"
+                                        onClick={onClickUploadFile}
+                                      >
                                         Upload File
-                                      </a>
+                                      </button>
                                     </div>
                                   </div>
                                 </div>
@@ -391,8 +462,22 @@ const AddThing = ({ onCloseAddThing, onGetThingList }: IAddThingProps) => {
                               labelKey="name"
                               options={deviceProfileListQuery.data?.profiles || []}
                               placeholder="Select a profile"
-                              onChange={(selected) => formik.setFieldValue("profileName", selected)}
+                              inputProps={{
+                                className: clsx(
+                                  "form-control mb-3 mb-lg-0",
+                                  { "is-invalid": formik.touched.profileName && formik.errors.profileName },
+                                  { "is-valid": formik.touched.profileName && !formik.errors.profileName }
+                                ),
+                              }}
+                              onChange={(selected: any) => formik.setFieldValue("profileName", selected[0].name)}
                             />
+                            {formik.touched.profileName && formik.errors.profileName && (
+                              <div className="fv-plugins-message-container">
+                                <div className="fv-help-block">
+                                  <span role="alert">{formik.errors.profileName}</span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>

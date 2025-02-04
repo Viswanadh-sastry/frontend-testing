@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { getRolePermission, MODULENAME } from "../../../auth/core/RoleHelpers";
-import { disableChannel, enableChannel, getChannel } from "../../api/ChannelsAPI";
+import { disableChannel, enableChannel, getChannel, deleteChannel } from "../../api/ChannelsAPI";
 import { UserTable } from "../ChannelUser/UserList/UserTable";
 import { EditDescription } from "./modals/EditDescription";
 import { EditMetadata } from "./modals/EditMetadata";
@@ -84,6 +84,28 @@ const EditChannel = () => {
         })
         .catch((error) => toast.error(error.message));
     }
+  };
+
+  const deleteChannels = () => {
+    Swal.fire({
+      heightAuto: false,
+      icon: "warning",
+      title: "Delete Asset",
+      text: "Are you sure you want to delete this asset?",
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+      confirmButtonColor: "#d33",
+      cancelButtonText: "No",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteChannel(channel?.id)
+          .then(() => {
+            toast.success("Asset deleted successfully");
+            navigate("/channels");
+          })
+          .catch((error) => toast.error(error.message));
+      }
+    });
   };
 
   const openThingPage = () => {
@@ -220,19 +242,26 @@ const EditChannel = () => {
           </div>
         </div>
       </div>
-      {rolePermission?.disable && (
-        <div className="card-footer d-flex justify-content-end py-6 px-9">
-          {enabled ? (
-            <button type="button" className="btn btn-danger mx-2" onClick={enableDisableChannel}>
-              <span className="indicator-label">Disable Asset</span>
-            </button>
-          ) : (
-            <button type="button" className="btn btn-success mx-2" onClick={enableDisableChannel}>
-              <span className="indicator-label">Enable Asset</span>
-            </button>
-          )}
-        </div>
-      )}
+      <div className="card-footer d-flex justify-content-end py-6 px-9">
+        {rolePermission?.disable && (
+          <>
+            {enabled ? (
+              <button type="button" className="btn btn-danger mx-2" onClick={enableDisableChannel}>
+                <span className="indicator-label">Disable Asset</span>
+              </button>
+            ) : (
+              <button type="button" className="btn btn-success mx-2" onClick={enableDisableChannel}>
+                <span className="indicator-label">Enable Asset</span>
+              </button>
+            )}
+          </>
+        )}
+        {rolePermission?.delete && (
+          <button type="button" className="btn btn-danger" onClick={deleteChannels}>
+            <span className="indicator-label">Delete Asset</span>
+          </button>
+        )}
+      </div>
       {modal.show && modal.name === "name" && <EditName data={channel} onClose={onClose} onDisplay={onDisplay} />}
       {modal.show && modal.name === "metadata" && <EditMetadata data={channel} onClose={onClose} onDisplay={onDisplay} />}
       {modal.show && modal.name === "description" && <EditDescription data={channel} onClose={onClose} onDisplay={onDisplay} />}

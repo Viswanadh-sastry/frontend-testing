@@ -84,7 +84,7 @@ const ThingsListPagination = ({ thingList, itemsPerPage, pagination, data, setCu
           const flatHistory: any = historyData.flat().sort((a: any, b: any) => a.time - b.time);
 
           // Convert current time to Unix timestamp
-          const now = Math.floor(new Date().getTime() / 1000);
+          const now = Number(String(new Date().getTime()).slice(0, 10));
 
           // Calculate activity status
           let activity = "inactive";
@@ -93,7 +93,7 @@ const ThingsListPagination = ({ thingList, itemsPerPage, pagination, data, setCu
             const updateFrequency = parseInt(thing.metadata.Update_Frequency);
 
             if (flatHistory.length > 0 && flatHistory[0].messages?.length > 0) {
-              const firstRecordTime = Math.floor(flatHistory[0].messages[0].time / 1000);
+              const firstRecordTime = Number(String(flatHistory[0].messages[0].time).slice(0, 10));
               const timeDifference = now - firstRecordTime;
               if (timeDifference >= 0 && timeDifference <= updateFrequency) {
                 activity = "active";
@@ -132,6 +132,7 @@ const ThingsListPagination = ({ thingList, itemsPerPage, pagination, data, setCu
       page: state.page,
       items_per_page: state.items_per_page,
     });
+    setCurrentPage(state.page);
     setItemsPerPage(state.items_per_page);
     const historyData = await getUpdatedThingList(state.page, state.items_per_page);
     setData(historyData);

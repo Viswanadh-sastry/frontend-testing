@@ -50,6 +50,11 @@ export async function enableGroup(id: string) {
     return response.data;
 }
 
+export async function deleteGroup(id: string) {
+    const response = await axios.delete(`${API_URL}/groups/${id}`);
+    return response.data;
+}
+
 export async function updateGroup(id: string, group: any) {
     const response = await axios.put(`${API_URL}/groups/${id}`, group);
     return response.data;

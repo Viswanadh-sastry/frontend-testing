@@ -1,6 +1,9 @@
-import { AuthModel } from './_models';
+import { getJWTToken, getVaultToken } from '../../users/api/VaultAPI';
 import { refresh } from "../core/_requests";
+import { AuthModel } from './_models';
+import { getCred } from "./CredentialHelpers";
 import { getDAuth, getDomain } from "./DomainHelpers";
+import { setVaultToken } from "./VaultHelpers";
 
 const AUTH_LOCAL_STORAGE_KEY = 'rapid-auth'
 const USER_LOCAL_STORAGE_KEY = 'rapid-user'
@@ -129,6 +132,14 @@ export function setupAxios(axios: any) {
           const { refresh_token = '' } = getAuth() || {};
           const newAuth = await refresh(refresh_token, id);
           setAuth(newAuth); // Save the new auth data, including access_token and refresh_token
+
+          // Get the vault token and set it in the axios headers
+          const { identity, secret } = getCred() || {};
+          const username = identity?.split("@")[0] || '';
+          const vault = await getVaultToken({ username: username, password: secret });
+          const vaultToken = await getJWTToken(username, vault.auth.client_token);
+          setVaultToken(vaultToken.data.token);
+
           if (!originalRequest.headers.Authorization) {
             originalRequest.headers.Authorization = `Bearer ${newAuth.access_token}`;
           }
@@ -145,4 +156,5 @@ export function setupAxios(axios: any) {
   );
 }
 
-export { getAuth, setAuth, removeAuth, getUser, setUser, removeUser, AUTH_LOCAL_STORAGE_KEY }
+export { AUTH_LOCAL_STORAGE_KEY, getAuth, getUser, removeAuth, removeUser, setAuth, setUser };
+

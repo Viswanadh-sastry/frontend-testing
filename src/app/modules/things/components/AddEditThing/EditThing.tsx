@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { getRolePermission, MODULENAME } from "../../../auth/core/RoleHelpers";
-import { disableThing, enableThing, getThing } from "../../api/ThingAPI";
+import { disableThing, enableThing, getThing, deleteThing } from "../../api/ThingAPI";
 import { EditMetadata } from "./modals/EditMetadata";
 import { EditProfile } from "./modals/EditProfile";
 import { EditSecret } from "./modals/EditSecret";
@@ -84,6 +84,28 @@ const EditThing = () => {
         })
         .catch((error) => toast.error(error.message));
     }
+  };
+
+  const deleteThings = () => {
+    Swal.fire({
+      heightAuto: false,
+      icon: "warning",
+      title: "Delete Device",
+      text: "Are you sure you want to delete this device?",
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+      confirmButtonColor: "#d33",
+      cancelButtonText: "No",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteThing(thing?.id)
+          .then(() => {
+            toast.success("Device deleted successfully");
+            navigate("/things");
+          })
+          .catch((error) => toast.error(error.message));
+      }
+    });
   };
 
   // const openUserPage = () => {
@@ -216,19 +238,26 @@ const EditThing = () => {
           </div>
         </div>
       </div>
-      {rolePermission?.disable && (
-        <div className="card-footer d-flex justify-content-end py-6 px-9">
-          {enabled ? (
-            <button type="button" className="btn btn-danger mx-2" onClick={enableDisableThing}>
-              <span className="indicator-label">Disable Device</span>
-            </button>
-          ) : (
-            <button type="button" className="btn btn-success mx-2" onClick={enableDisableThing}>
-              <span className="indicator-label">Enable Device</span>
-            </button>
-          )}
-        </div>
-      )}
+      <div className="card-footer d-flex justify-content-end py-6 px-9">
+        {rolePermission?.disable && (
+          <>
+            {enabled ? (
+              <button type="button" className="btn btn-danger mx-2" onClick={enableDisableThing}>
+                <span className="indicator-label">Disable Device</span>
+              </button>
+            ) : (
+              <button type="button" className="btn btn-success mx-2" onClick={enableDisableThing}>
+                <span className="indicator-label">Enable Device</span>
+              </button>
+            )}
+          </>
+        )}
+        {rolePermission?.delete && (
+          <button type="button" className="btn btn-danger" onClick={deleteThings}>
+            <span className="indicator-label">Delete Device</span>
+          </button>
+        )}
+      </div>
       {modal.show && modal.name === "name" && <EditProfile data={thing} onClose={onClose} onDisplay={onDisplay} />}
       {modal.show && modal.name === "metadata" && <EditMetadata data={thing} onClose={onClose} onDisplay={onDisplay} />}
       {modal.show && modal.name === "secret" && <EditSecret data={thing} onClose={onClose} onDisplay={onDisplay} />}

@@ -37,7 +37,7 @@ const NotificationTable = () => {
   return (
     <SelectedValuesProvider>
       <KTCard>
-        <NotificationListHeader setFilterNotification={setFilterNotification} notificationListQuery={notificationListQuery} />
+        <NotificationListHeader setFilterNotification={setFilterNotification} filterNotification={filterNotification} notificationListQuery={notificationListQuery} />
         <KTCardBody className="py-4">
           <div className="table-responsive">
             <table id="kt_table_notifications" className="table align-middle table-row-dashed fs-6 dataTable no-footer" {...getTableProps()}>

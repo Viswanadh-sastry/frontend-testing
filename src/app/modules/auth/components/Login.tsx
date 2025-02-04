@@ -9,7 +9,7 @@ import * as credHelper from "../core/CredentialHelpers";
 import * as vaultHelper from "../core/VaultHelpers";
 import { toAbsoluteUrl } from "../../../../_metronic/helpers";
 import { ThemeModeComponent } from "../../../../_metronic/assets/ts/layout";
-// import { getJWTToken, getVaultToken } from "../../users/api/VaultAPI";
+import { getJWTToken, getVaultToken } from "../../users/api/VaultAPI";
 
 const loginSchema = Yup.object().shape({
   identity: Yup.string().min(3, "Minimum 3 symbols").max(50, "Maximum 50 symbols").required("Email/Username is required"),
@@ -39,18 +39,19 @@ export function Login() {
         if (!auth.access_token) {
           throw new Error("No access token found");
         }
-        // const vault = await getVaultToken({ username: values.identity, password: values.secret });
-        // if (!vault.auth.client_token) {
-        //   throw new Error("No client token found");
-        // }
-        // const vaultToken = await getJWTToken(values.identity);
-        // if (!vaultToken.token) {
-        //   throw new Error("No token found");
-        // }
-        // vaultHelper.setVaultToken(vault);
-        vaultHelper.setVaultToken(
-          "eyJhbGciOiJFUzM4NCIsImtpZCI6IjgzNzMzMmJlLWVjODEtNjc2Mi01MGQ5LTA3YWQxZWE1NjQzZCJ9.eyJhdWQiOiJlZGdleCIsImV4cCI6MTczNzk2MTgwNSwiaWF0IjoxNzM3OTU0NjY1LCJpc3MiOiIvdjEvaWRlbnRpdHkvb2lkYyIsIm5hbWUiOiJleDEiLCJuYW1lc3BhY2UiOiJyb290Iiwic3ViIjoiYTg3MTA5MjAtNjEwZS02MTllLWEzNTQtYWU5M2Y3ZGY0NDEwIn0._ASuIrVZXs-WSiofqAAxpy0qASBnJr8ta24BaeHjYkXWsML66dg-gcAamw9z8TboLMw-qkzWKQNt4lvbGozIC8SCE9z7YV7W4cE2fVqvlHa0itcxbtWWHoDqdOh8f1OI"
-        );
+        const username = values.identity.split("@")[0];
+        const vault = await getVaultToken({ username: username, password: values.secret });
+        if (!vault.auth.client_token) {
+          throw new Error("No client token found");
+        }
+        const vaultToken = await getJWTToken(username, vault.auth.client_token);
+        if (!vaultToken.data.token) {
+          throw new Error("No token found");
+        }
+        vaultHelper.setVaultToken(vaultToken.data.token);
+        // vaultHelper.setVaultToken(
+        //   "eyJhbGciOiJFUzM4NCIsImtpZCI6ImJkMjJjZTlmLTY2MjAtNjQ3Ny03ZjFmLTBmZWE2YjNlMzI1MyJ9.eyJhdWQiOiJlZGdleCIsImV4cCI6MTczODEzMTQzNywiaWF0IjoxNzM4MTI0Mjk3LCJpc3MiOiIvdjEvaWRlbnRpdHkvb2lkYyIsIm5hbWUiOiJleDEiLCJuYW1lc3BhY2UiOiJyb290Iiwic3ViIjoiYTg3MTA5MjAtNjEwZS02MTllLWEzNTQtYWU5M2Y3ZGY0NDEwIn0.EYzEHdPwd-o5QHsGYYnwC-iHUARUSIWeQ-Ohyn118NUykXPAxYF3pXde_XZKR33Ewlu6-wiIQg2Q7ByikY9RfOGqvloAlJVaWG-EhU7g_pylXxfn4aeTVeP8Q7krhL92"
+        // );
         domainHelper.setDAuth(auth);
         credHelper.setCred(values);
         navigate("/domain/list");

@@ -4,7 +4,7 @@ import { Table } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2/dist/sweetalert2.js";
-import { disableGroup, enableGroup, getGroup } from "../../api/GroupAPI";
+import { disableGroup, enableGroup, getGroup, deleteGroup } from "../../api/GroupAPI";
 import { EditDescription } from "./modals/EditDescription";
 import { EditMetadata } from "./modals/EditMetadata";
 import { EditName } from "./modals/EditName";
@@ -103,6 +103,28 @@ const EditGroup = () => {
         })
         .catch((error) => toast.error(error.message));
     }
+  };
+
+  const deleteAssetGroup = () => {
+    Swal.fire({
+      heightAuto: false,
+      icon: "warning",
+      title: "Delete Asset Group",
+      text: "Are you sure you want to delete this asset group?",
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+      confirmButtonColor: "#d33",
+      cancelButtonText: "No",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteGroup(group?.id)
+          .then(() => {
+            toast.success("Asset Group deleted successfully");
+            navigate("/groups");
+          })
+          .catch((error) => toast.error(error.message));
+      }
+    });
   };
 
   const openChannelPage = () => {
@@ -236,19 +258,26 @@ const EditGroup = () => {
           </div>
         </div>
       </div>
-      {rolePermission?.disable && (
-        <div className="card-footer d-flex justify-content-end py-6 px-9">
-          {enabled ? (
-            <button type="button" className="btn btn-danger mx-2" onClick={enableDisableGroup}>
-              <span className="indicator-label">Disable Asset Group</span>
-            </button>
-          ) : (
-            <button type="button" className="btn btn-success mx-2" onClick={enableDisableGroup}>
-              <span className="indicator-label">Enable Asset Group</span>
-            </button>
-          )}
-        </div>
-      )}
+      <div className="card-footer d-flex justify-content-end py-6 px-9">
+        {rolePermission?.disable && (
+          <>
+            {enabled ? (
+              <button type="button" className="btn btn-danger mx-2" onClick={enableDisableGroup}>
+                <span className="indicator-label">Disable Asset Group</span>
+              </button>
+            ) : (
+              <button type="button" className="btn btn-success mx-2" onClick={enableDisableGroup}>
+                <span className="indicator-label">Enable Asset Group</span>
+              </button>
+            )}
+          </>
+        )}
+        {rolePermission?.delete && (
+          <button type="button" className="btn btn-danger" onClick={deleteAssetGroup}>
+            <span className="indicator-label">Delete Asset Group</span>
+          </button>
+        )}
+      </div>
       {modal.show && modal.name === "name" && <EditName data={group} onClose={onClose} onDisplay={onDisplay} />}
       {modal.show && modal.name === "metadata" && <EditMetadata data={group} onClose={onClose} onDisplay={onDisplay} />}
       {modal.show && modal.name === "description" && <EditDescription data={group} onClose={onClose} onDisplay={onDisplay} />}

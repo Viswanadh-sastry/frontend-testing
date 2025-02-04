@@ -1,21 +1,26 @@
 import { useQuery } from "@tanstack/react-query";
 import React, { useMemo, useState } from "react";
 import { toast } from "react-toastify";
-import { LineWidget } from "./LineWidget";
+import { KTIcon } from "../../../_metronic/helpers";
+import { getChannelListAll } from "../channels/api/ChannelsAPI";
+import { getGroupListAll } from "../groups/api/GroupAPI";
+import { getHistoryListAll } from "../histories/api/HistoryAPI";
+import { getThingListAll } from "../things/api/ThingAPI";
+import { getThingChannelList } from "../things/api/ThingChannelAPI";
+import { getUserListAll } from "../users/api/UserAPI";
 import { BarWidget } from "./BarWidget";
 import { DonutWidget } from "./DonutWidget";
-import { getUserListAll } from "../users/api/UserAPI";
-import { getGroupListAll } from "../groups/api/GroupAPI";
-import { getChannelListAll } from "../channels/api/ChannelsAPI";
-import { getThingListAll } from "../things/api/ThingAPI";
-// import { getThingChannelList } from "../things/api/ThingChannelAPI";
-// import { getHistoryListAll } from "../histories/api/HistoryAPI";
-import { KTIcon } from "../../../_metronic/helpers";
+import { HomeLoading } from "./HomeLoading";
 import "./HomePage.css";
+import { LineWidget } from "./LineWidget";
+import { getNotification } from "../notifications/api/NotificationAPI";
 
 const HomePage: React.FC = () => {
   const [button, setButton] = useState<{ index: any; active: boolean }>({ index: null, active: false });
   const [chartParams, setChartParams] = useState<{ dataPointIndex: any; originalState: boolean }>({ dataPointIndex: null, originalState: false });
+  const [inactiveDevices, setInactiveDevices] = useState<any[]>([]);
+  const [activeDevices, setActiveDevices] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const filterUser = {
     limit: 100,
@@ -128,8 +133,6 @@ const HomePage: React.FC = () => {
     enabled: true,
   });
   const deviceData = useMemo(() => thingListQuery.data?.things || [], [thingListQuery.data]);
-  const activeDevices = deviceData.filter((device: any) => device.activity === "active");
-  const inactiveDevices = deviceData.filter((device: any) => device.activity === "inactive");
   const disabledFilterThing = {
     limit: 100,
     offset: 0,
@@ -145,29 +148,128 @@ const HomePage: React.FC = () => {
   });
   const disabledDeviceData = useMemo(() => disabledThingListQuery.data?.things || [], [disabledThingListQuery.data]);
 
+  const newFilterNotification = {
+    limit: 10,
+    offset: 0,
+    status: "NEW",
+    from: 0,
+    to: 0,
+  };
+  const newNotificationListQuery = useQuery({
+    queryKey: [`newNotificationList`, newFilterNotification],
+    queryFn: async () => getNotification(newFilterNotification),
+    enabled: true,
+  });
+  const newNotificationCount = useMemo(() => newNotificationListQuery.data?.totalCount || 0, [newNotificationListQuery.data]);
+  const processedFilterNotification = {
+    limit: 10,
+    offset: 0,
+    status: "PROCESSED",
+    from: 0,
+    to: 0,
+  };
+  const processedNotificationListQuery = useQuery({
+    queryKey: [`processedNotificationList`, processedFilterNotification],
+    queryFn: async () => getNotification(processedFilterNotification),
+    enabled: true,
+  });
+  const processedNotificationCount = useMemo(() => processedNotificationListQuery.data?.totalCount || 0, [processedNotificationListQuery.data]);
+  const escalatedFilterNotification = {
+    limit: 10,
+    offset: 0,
+    status: "ESCALATED",
+    from: 0,
+    to: 0,
+  };
+  const escalatedNotificationListQuery = useQuery({
+    queryKey: [`escalatedNotificationList`, escalatedFilterNotification],
+    queryFn: async () => getNotification(escalatedFilterNotification),
+    enabled: true,
+  });
+  const escalatedNotificationCount = useMemo(() => escalatedNotificationListQuery.data?.totalCount || 0, [escalatedNotificationListQuery.data]);
+
   const handleButtonClick = (dataPointIndex: number) => {
     setButton({ index: dataPointIndex, active: button.index === dataPointIndex ? !button.active : true });
     setChartParams({ dataPointIndex, originalState: chartParams.dataPointIndex === dataPointIndex ? !chartParams.originalState : true });
   };
 
+  const handleDisplayDevice = async () => {
+    if (activeDevices.length !== 0 || inactiveDevices.length !== 0) {
+      return;
+    }
+    setIsLoading(true);
+    const things = await Promise.all(
+      deviceData.map(async (thing: any) => {
+        try {
+          const filterThingChannel = {
+            limit: 10,
+            offset: 0,
+            name: "",
+            metadata: "",
+            status: "enabled",
+          };
+          const channel = await getThingChannelList(thing.id, filterThingChannel);
+          const historyData = await Promise.all(
+            channel.groups.map(async (group: any) => {
+              try {
+                const filterHistory = {
+                  limit: 10,
+                  offset: 0,
+                  name: "",
+                  publisher: thing.id,
+                  status: "enabled",
+                };
+                const history = await getHistoryListAll(group.id, filterHistory);
+                return history;
+              } catch (error) {
+                return [];
+              }
+            })
+          );
+
+          const flatHistory: any = historyData.flat().sort((a: any, b: any) => a.time - b.time);
+
+          // Convert current time to Unix timestamp
+          const now = Number(String(new Date().getTime()).slice(0, 10));
+
+          // Calculate activity status
+          let activity = "inactive";
+
+          if (thing.metadata?.Update_Frequency) {
+            const updateFrequency = parseInt(thing.metadata.Update_Frequency);
+
+            if (flatHistory.length > 0 && flatHistory[0].messages?.length > 0) {
+              const firstRecordTime = Number(String(flatHistory[0].messages[0].time).slice(0, 10));
+              const timeDifference = now - firstRecordTime;
+              if (timeDifference >= 0 && timeDifference <= updateFrequency) {
+                activity = "active";
+              }
+            }
+          }
+          return {
+            ...thing,
+            isConnected: channel.total > 0,
+            activity,
+            lastSeenMsg: flatHistory.length > 0 && flatHistory[0].messages?.length > 0 && flatHistory[0].messages[0].time ? flatHistory[0].messages[0].time : null,
+          };
+        } catch (error) {
+          return {
+            ...thing,
+            isConnected: false,
+            activity: "inactive",
+            lastSeenMsg: null,
+          };
+        }
+      })
+    );
+    setActiveDevices(things.filter((thing: any) => thing.activity === "active"));
+    setInactiveDevices(things.filter((thing: any) => thing.activity === "inactive"));
+    setIsLoading(false);
+  };
+
   return (
     <>
-      {/* begin::Row */}
-      {/* <div className="row g-5 g-xl-8">
-        <div className="col-xl-3">
-          <StatisticsWidget color="primary" svgIcon="user" iconColor="white" title="5" titleColor="white" description="Users" descriptionColor="white" />
-        </div>
-        <div className="col-xl-3">
-          <StatisticsWidget color="success" svgIcon="technology" iconColor="white" title="0" titleColor="white" description="Devices" descriptionColor="white" />
-        </div>
-        <div className="col-xl-3">
-          <StatisticsWidget color="warning" svgIcon="abstract-26" iconColor="white" title="2" titleColor="white" description="Asset Groups" descriptionColor="white" />
-        </div>
-        <div className="col-xl-3">
-          <StatisticsWidget color="danger" svgIcon="arrow-right-left" iconColor="white" title="0" titleColor="white" description="Assets" descriptionColor="white" />
-        </div>
-      </div> */}
-      {/* end::Row */}
+      {isLoading && <HomeLoading />}
       {/* begin::Row */}
       <div className="row g-5 g-xl-8">
         <div className="col-xl-8">
@@ -195,33 +297,75 @@ const HomePage: React.FC = () => {
             <div className="col-xl-4">
               <div className="card hoverable mb-xl-4">
                 <div className="card-body d-flex align-items-center pt-3 pb-5">
-                  <div className="d-flex flex-column flex-grow-1 py-7 me-2">
-                    <div className="fs-2hx fw-bold text-gray-900 mb-2 mt-5">{inactiveDevices.length}</div>
-                    <div className="fw-semibold text-gray-700">Inactive Devices</div>
+                  <div className="accordion accordion-icon-toggle w-100" id="kt_accordion_2">
+                    <div className="mb-0">
+                      <div className="accordion-header py-3 d-flex collapsed" data-bs-toggle="collapse" data-bs-target="#kt_accordion_2_item_1" onClick={handleDisplayDevice}>
+                        <span className="accordion-icon">
+                          <i className="ki-duotone ki-arrow-right fs-4">
+                            <span className="path1"></span>
+                            <span className="path2"></span>
+                          </i>
+                        </span>
+                        <h3 className="fw-semibold text-gray-700 mb-0 ms-4">Inactive Devices</h3>
+                      </div>
+                      <div id="kt_accordion_2_item_1" className="fs-6 collapse" data-bs-parent="#kt_accordion_2">
+                        <div className="d-flex justify-content-between">
+                          <div className="fs-2hx fw-bold text-gray-900 mb-2 mt-5">{inactiveDevices.length}</div>
+                          <KTIcon iconName="technology" className="text-warning fs-7x ms-n1" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <KTIcon iconName="technology" className="text-warning fs-7x ms-n1" />
                 </div>
               </div>
             </div>
             <div className="col-xl-4">
               <div className="card hoverable mb-xl-4">
                 <div className="card-body d-flex align-items-center pt-3 pb-5">
-                  <div className="d-flex flex-column flex-grow-1 py-7 me-2">
-                    <div className="fs-2hx fw-bold text-gray-900 mb-2 mt-5">{activeDevices.length}</div>
-                    <div className="fw-semibold text-gray-700">Active Devices</div>
+                  <div className="accordion accordion-icon-toggle w-100" id="kt_accordion_2">
+                    <div className="mb-0">
+                      <div className="accordion-header py-3 d-flex collapsed" data-bs-toggle="collapse" data-bs-target="#kt_accordion_2_item_1" onClick={handleDisplayDevice}>
+                        <span className="accordion-icon">
+                          <i className="ki-duotone ki-arrow-right fs-4">
+                            <span className="path1"></span>
+                            <span className="path2"></span>
+                          </i>
+                        </span>
+                        <h3 className="fw-semibold text-gray-700 mb-0 ms-4">Active Devices</h3>
+                      </div>
+                      <div id="kt_accordion_2_item_1" className="fs-6 collapse" data-bs-parent="#kt_accordion_2">
+                        <div className="d-flex justify-content-between">
+                          <div className="fs-2hx fw-bold text-gray-900 mb-2 mt-5">{activeDevices.length}</div>
+                          <KTIcon iconName="technology" className="text-warning fs-7x ms-n1" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <KTIcon iconName="technology" className="text-warning fs-7x ms-n1" />
                 </div>
               </div>
             </div>
             <div className="col-xl-4">
               <div className="card hoverable mb-xl-4">
                 <div className="card-body d-flex align-items-center pt-3 pb-5">
-                  <div className="d-flex flex-column flex-grow-1 py-7 me-2">
-                    <div className="fs-2hx fw-bold text-gray-900 mb-2 mt-5">{inactiveDevices.length + activeDevices.length}</div>
-                    <div className="fw-semibold text-gray-700">Total Devices</div>
+                  <div className="accordion accordion-icon-toggle w-100" id="kt_accordion_2">
+                    <div className="mb-0">
+                      <div className="accordion-header py-3 d-flex collapsed" data-bs-toggle="collapse" data-bs-target="#kt_accordion_2_item_1" onClick={handleDisplayDevice}>
+                        <span className="accordion-icon">
+                          <i className="ki-duotone ki-arrow-right fs-4">
+                            <span className="path1"></span>
+                            <span className="path2"></span>
+                          </i>
+                        </span>
+                        <h3 className="fw-semibold text-gray-700 mb-0 ms-4">Total Devices</h3>
+                      </div>
+                      <div id="kt_accordion_2_item_1" className="fs-6 collapse" data-bs-parent="#kt_accordion_2">
+                        <div className="d-flex justify-content-between">
+                          <div className="fs-2hx fw-bold text-gray-900 mb-2 mt-5">{inactiveDevices.length + activeDevices.length}</div>
+                          <KTIcon iconName="technology" className="text-warning fs-7x ms-n1" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <KTIcon iconName="technology" className="text-warning fs-7x ms-n1" />
                 </div>
               </div>
             </div>
@@ -255,7 +399,7 @@ const HomePage: React.FC = () => {
               <div className="card hoverable mb-xl-4">
                 <div className="card-body d-flex align-items-center pt-3 pb-5">
                   <div className="d-flex flex-column flex-grow-1 py-5 me-2">
-                    <div className="fs-2hx fw-bold text-gray-900 mb-2 mt-5">1</div>
+                    <div className="fs-2hx fw-bold text-gray-900 mb-2 mt-5">{newNotificationCount}</div>
                     <div className="fw-semibold text-gray-700">New Notifications</div>
                   </div>
                   <KTIcon iconName="notification" className="text-warning fs-5x ms-n1" />
@@ -266,7 +410,7 @@ const HomePage: React.FC = () => {
               <div className="card hoverable mb-xl-4">
                 <div className="card-body d-flex align-items-center pt-3 pb-5">
                   <div className="d-flex flex-column flex-grow-1 py-5 me-2">
-                    <div className="fs-2hx fw-bold text-gray-900 mb-2 mt-5">3</div>
+                    <div className="fs-2hx fw-bold text-gray-900 mb-2 mt-5">{processedNotificationCount}</div>
                     <div className="fw-semibold text-gray-700">Processed Notifications</div>
                   </div>
                   <KTIcon iconName="notification" className="text-warning fs-5x ms-n1" />
@@ -277,7 +421,7 @@ const HomePage: React.FC = () => {
               <div className="card hoverable mb-xl-4">
                 <div className="card-body d-flex align-items-center pt-3 pb-5">
                   <div className="d-flex flex-column flex-grow-1 py-5 me-2">
-                    <div className="fs-2hx fw-bold text-gray-900 mb-2 mt-5">2</div>
+                    <div className="fs-2hx fw-bold text-gray-900 mb-2 mt-5">{escalatedNotificationCount}</div>
                     <div className="fw-semibold text-gray-700">Escalated Notifications</div>
                   </div>
                   <KTIcon iconName="notification" className="text-warning fs-5x ms-n1" />
@@ -288,7 +432,7 @@ const HomePage: React.FC = () => {
               <div className="card hoverable mb-xl-4">
                 <div className="card-body d-flex align-items-center pt-3 pb-5">
                   <div className="d-flex flex-column flex-grow-1 py-5 me-2">
-                    <div className="fs-2hx fw-bold text-gray-900 mb-2 mt-5">6</div>
+                    <div className="fs-2hx fw-bold text-gray-900 mb-2 mt-5">{newNotificationCount + processedNotificationCount + escalatedNotificationCount}</div>
                     <div className="fw-semibold text-gray-700">Total Notifications</div>
                   </div>
                   <KTIcon iconName="notification" className="text-warning fs-5x ms-n1" />

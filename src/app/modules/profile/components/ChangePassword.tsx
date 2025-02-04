@@ -7,6 +7,7 @@ import { updateProfilePassword } from "../api/ProfileAPI";
 import * as credHelper from "../../auth/core/CredentialHelpers";
 
 const changePasswordSchema = Yup.object().shape({
+  oldPassword: Yup.string().required("Old Password is required."),
   password: Yup.string().required("Password is required."),
   confirmPassword: Yup.string()
     .required("Confirm Password is required.")
@@ -16,12 +17,18 @@ const changePasswordSchema = Yup.object().shape({
 const ChangePassword: FC = () => {
   const formik = useFormik({
     initialValues: {
+      oldPassword: "",
       password: "",
       confirmPassword: "",
     },
     validationSchema: changePasswordSchema,
     onSubmit: async (values, { setSubmitting }) => {
       const { secret } = credHelper.getCred() || {};
+      if (values.oldPassword !== secret) {
+        toast.error("Old Password is incorrect");
+        setSubmitting(false);
+        return;
+      }
       const data = {
         old_secret: secret,
         new_secret: values.password,
@@ -41,6 +48,30 @@ const ChangePassword: FC = () => {
       <form id="kt_modal_add_user_form" className="form" onSubmit={formik.handleSubmit} noValidate>
         <div className="card-body p-9">
           <div className="row">
+            {/* old password */}
+            <div className="col-md-12">
+              <div className="fv-row mb-6">
+                <label className="required fw-bold fs-6 mb-2">Old Password</label>
+                <input
+                  {...formik.getFieldProps("oldPassword")}
+                  type="password"
+                  name="oldPassword"
+                  className={clsx(
+                    "form-control mb-3 mb-lg-0",
+                    { "is-invalid": formik.touched.oldPassword && formik.errors.oldPassword },
+                    { "is-valid": formik.touched.oldPassword && !formik.errors.oldPassword }
+                  )}
+                  autoComplete="off"
+                />
+                {formik.touched.oldPassword && formik.errors.oldPassword && (
+                  <div className="fv-plugins-message-container">
+                    <div className="fv-help-block">
+                      <span role="alert">{formik.errors.oldPassword}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
             {/* password */}
             <div className="col-md-12">
               <div className="fv-row mb-6">

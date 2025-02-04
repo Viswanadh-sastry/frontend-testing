@@ -39,7 +39,7 @@ export async function updateSubscription(data: any) {
     return response.data;
 }
 
-export async function getSubscriptionList(data: any) {
+export async function getSubscriptionList(data: any = null) {
     const query = searchSubscription(data);
     const response = await axios.get(`${API_URL}/subscription/all${query}`, {
         headers: {
@@ -69,10 +69,10 @@ export async function getSubscriptionByReceiver(receiver: string) {
 
 const searchSubscription = (data: any) => {
     let query = "";
-    if (data.limit) {
+    if (data?.limit) {
         query += `?limit=${data.limit}`;
     }
-    if (data.offset) {
+    if (data?.offset) {
         query += `&offset=${data.offset}`;
     }
     return query;

@@ -50,6 +50,11 @@ export async function enableThing(id: string) {
     return response.data;
 }
 
+export async function deleteThing(id: string) {
+    const response = await axios.delete(`${API_URL}/things/${id}`);
+    return response.data;
+}
+
 export async function updateThingIdentity(id: string, identity: string) {
     const response = await axios.patch(`${API_URL}/things/${id}/identity`, { identity });
     return response.data;

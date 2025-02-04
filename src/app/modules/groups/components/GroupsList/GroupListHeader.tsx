@@ -314,7 +314,6 @@ const GroupListHeader = ({
 
     return groups.filter(filterGroup);
   };
-  console.log("groupList", groupList);
 
   return (
     <>

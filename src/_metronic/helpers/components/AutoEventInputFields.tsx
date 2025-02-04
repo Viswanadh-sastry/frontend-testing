@@ -9,7 +9,7 @@ const AutoEventInputFields = ({ autoEvents, setAutoEvents }: IAutoEventInputFiel
   const [inputs, setInputs] = useState(convertObjectToArray(autoEvents));
 
   const handleAddInput = () => {
-    setInputs([...inputs, { interval: "", unit: "milliseconds", onchange: "false", resource: "json" }]);
+    setInputs([...inputs, { interval: "", unit: "ms", onchange: "false", resource: "json" }]);
   };
 
   const handleChange = (event: any, index: number) => {
@@ -35,10 +35,10 @@ const AutoEventInputFields = ({ autoEvents, setAutoEvents }: IAutoEventInputFiel
             <div className="input-group">
               <input name="interval" type="number" placeholder="Interval" className="form-control" value={item.interval} onChange={(event) => handleChange(event, index)} />
               <select name="unit" className="form-control" value={item.unit} onChange={(event) => handleChange(event, index)}>
-                <option value="milliseconds">Milliseconds</option>
-                <option value="seconds">Seconds</option>
-                <option value="minutes">Minutes</option>
-                <option value="hours">Hours</option>
+                <option value="ms">Milliseconds</option>
+                <option value="s">Seconds</option>
+                <option value="m">Minutes</option>
+                <option value="h">Hours</option>
               </select>
             </div>
           </div>

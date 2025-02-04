@@ -8,8 +8,12 @@ export async function getVaultToken(data: any) {
     return response.data;
 }
 
-export async function getJWTToken(username: string) {
-    const response = await axios.get(`${API_URL}/identity/oidc/token/${username}`);
+export async function getJWTToken(username: string, token: string) {
+    const response = await axios.get(`${API_URL}/identity/oidc/token/${username}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        }
+    });
     return response.data;
 }
 

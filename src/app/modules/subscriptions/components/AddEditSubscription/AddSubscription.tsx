@@ -49,6 +49,7 @@ const AddSubscription = ({ onCloseAddSubscription, onGetSubscriptionList }: IAdd
         port: Number(restChannel.port),
         path: restChannel.path,
       }));
+      const channels = [...emailChannels, ...restChannels];
       const data = [
         {
           apiVersion: "v3",
@@ -60,7 +61,7 @@ const AddSubscription = ({ onCloseAddSubscription, onGetSubscriptionList }: IAdd
             resendInterval: values.resendInterval,
             resendLimit: values.resendLimit,
             adminState: values.adminState,
-            channels: values.emailChannels.length ? emailChannels : restChannels,
+            channels: channels,
           },
         },
       ];

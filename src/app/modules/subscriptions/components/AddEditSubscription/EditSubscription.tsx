@@ -12,7 +12,6 @@ interface IEditSubscriptionProps {
 }
 
 const EditSubscription = ({ row, onCloseEditSubscription }: IEditSubscriptionProps) => {
-  console.log("row", row);
   const filterSubscription = {
     limit: 10,
     offset: 0,
@@ -55,7 +54,7 @@ const EditSubscription = ({ row, onCloseEditSubscription }: IEditSubscriptionPro
         toast.error("Please add at least one email or rest channel.");
         return;
       }
-      const emailChannels = values.emailChannels.map((emailChannel: any) => ({ type: "EMAIL", recipients: [emailChannel.emailRecipient] }));
+      const emailChannels = values.emailChannels.map((emailChannel: any) => ({ type: "EMAIL", host: "", port: 0, recipients: [emailChannel.emailRecipient] }));
       const restChannels = values.restChannels.map((restChannel: any) => ({
         type: "REST",
         httpMethod: restChannel.httpMethod,
@@ -63,6 +62,7 @@ const EditSubscription = ({ row, onCloseEditSubscription }: IEditSubscriptionPro
         port: Number(restChannel.port),
         path: restChannel.path,
       }));
+      const channels = [...emailChannels, ...restChannels];
       const data = [
         {
           apiVersion: "v3",
@@ -75,7 +75,7 @@ const EditSubscription = ({ row, onCloseEditSubscription }: IEditSubscriptionPro
             resendInterval: values.resendInterval,
             resendLimit: values.resendLimit,
             adminState: values.adminState,
-            channels: values.emailChannels.length ? emailChannels : restChannels,
+            channels: channels,
             created: values.created,
             modified: values.modified,
           },
@@ -136,6 +136,7 @@ const EditSubscription = ({ row, onCloseEditSubscription }: IEditSubscriptionPro
                             { "is-valid": formik.touched.name && !formik.errors.name }
                           )}
                           autoComplete="off"
+                          readOnly={true}
                         />
                         {formik.touched.name && formik.errors.name && (
                           <div className="fv-plugins-message-container">
