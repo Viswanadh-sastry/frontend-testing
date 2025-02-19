@@ -1,6 +1,9 @@
+import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
-import { useEffect, useMemo } from "react";
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
 import { PaginationState } from "../../../../../../_metronic/helpers";
+import { getChannelList } from "../../../api/ChannelsAPI";
 
 const mappedLabel = (label: string): string => {
   if (label === "&laquo; Previous") {
@@ -15,40 +18,55 @@ const mappedLabel = (label: string): string => {
 };
 
 interface IChannelsListPaginationProps {
-  channelList: any[];
-  itemsPerPage: any;
-  pagination: PaginationState;
-  data: any;
-  setCurrentPage: (page: number) => void;
-  setItemsPerPage: (itemsPerPage: any) => void;
-  setPagination: (pagination: PaginationState) => void;
-  setData: (data: any) => void;
+  filterChannel: any;
+  setFilterChannel: Dispatch<
+    SetStateAction<{
+      limit: number;
+      offset: number;
+      name: string;
+      metadata: string;
+      status: string;
+    }>
+  >;
 }
 
-const ChannelsListPagination = ({ channelList, itemsPerPage, pagination, data, setCurrentPage, setItemsPerPage, setPagination, setData }: IChannelsListPaginationProps) => {
-  useEffect(() => {
-    getLinks();
-  }, [data]);
+const ChannelsListPagination = ({ filterChannel, setFilterChannel }: IChannelsListPaginationProps) => {
+  const [pagination, setPagination] = useState<PaginationState>({
+    page: 1,
+    items_per_page: filterChannel.limit,
+    links: [],
+  });
+  const channelListQuery = useQuery({
+    queryKey: [`channelList`, filterChannel],
+    queryFn: async () => getChannelList(filterChannel).catch((error) => toast.error(error.message)),
+    enabled: false,
+  });
+  const isLoading = channelListQuery.isLoading;
 
-  const getLinks = () => {
-    const noOfLinks = channelList.length;
-    const noOfPages = Math.ceil(noOfLinks / itemsPerPage);
-    const links = [];
-    links.push({ label: "&laquo; Previous", active: false, url: null, page: pagination.page === 1 ? null : pagination.page - 1 });
-    for (let i = 1; i <= noOfPages; i++) {
-      links.push({ label: i.toString(), active: false, url: null, page: i });
+  useEffect(() => {
+    if (channelListQuery.data) {
+      const noOfLinks = channelListQuery.data.total;
+      // const noOfPages = Math.ceil(noOfLinks / channelListQuery.data.limit);
+      const noOfPages = Math.ceil(noOfLinks / filterChannel.limit);
+      const links = [];
+      links.push({ label: "&laquo; Previous", active: false, url: null, page: pagination.page === 1 ? null : pagination.page - 1 });
+      for (let i = 1; i <= noOfPages; i++) {
+        links.push({ label: i.toString(), active: false, url: null, page: i });
+      }
+      links.push({ label: "Next &raquo;", active: false, url: null, page: pagination.page === noOfPages ? null : pagination.page + 1 });
+      setPagination({
+        ...pagination,
+        links,
+      });
     }
-    links.push({ label: "Next &raquo;", active: false, url: null, page: pagination.page === noOfPages ? null : pagination.page + 1 });
-    setPagination({
-      ...pagination,
-      links,
-    });
-  };
+  }, [channelListQuery.data]);
 
   const onChangePageSize = (e: any) => {
-    setItemsPerPage(e.target.value);
-    setCurrentPage(1);
-    setPagination({ ...pagination, page: 1, items_per_page: e.target.value });
+    setFilterChannel((prevState: any) => ({
+      ...prevState,
+      limit: parseInt(e.target.value),
+      offset: 0,
+    }));
   };
 
   const updateState = (state: any) => {
@@ -57,21 +75,21 @@ const ChannelsListPagination = ({ channelList, itemsPerPage, pagination, data, s
       page: state.page,
       items_per_page: state.items_per_page,
     });
-    const historyData = channelList.filter((_: any, index: number) => {
-      return index >= (state.page - 1) * state.items_per_page && index < state.page * state.items_per_page;
-    });
-    setItemsPerPage(state.items_per_page);
-    setData(historyData);
+    setFilterChannel((prevState: any) => ({
+      ...prevState,
+      offset: state.items_per_page * (state.page - 1),
+      limit: state.items_per_page,
+    }));
   };
 
   const updatePage = (page: number | undefined | null) => {
-    if (!page || pagination.page === page) {
+    if (!page || isLoading || pagination.page === page) {
       return;
     }
-    updateState({ page, items_per_page: itemsPerPage });
+    updateState({ page, items_per_page: pagination.items_per_page });
   };
 
-  const PAGINATION_PAGES_COUNT = 10;
+  const PAGINATION_PAGES_COUNT = filterChannel.limit;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];
@@ -116,7 +134,7 @@ const ChannelsListPagination = ({ channelList, itemsPerPage, pagination, data, s
 
   return (
     <div className="row">
-      <div className="col-sm-12 col-md-4 d-flex align-items-center justify-content-center justify-content-md-start">
+      <div className="col-sm-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start">
         <select className="form-select form-select-solid w-90px ps-8 me-2" onChange={onChangePageSize}>
           <option value="10">10</option>
           <option value="20">20</option>
@@ -125,15 +143,15 @@ const ChannelsListPagination = ({ channelList, itemsPerPage, pagination, data, s
           <option value="50">50</option>
         </select>
         <div id="kt_table_channels_info" className="dataTables_info">
-          Total {channelList.length || 0} assets
+          {isLoading ? "Loading..." : `Total ${channelListQuery.data?.total || 0} assets`}
         </div>
       </div>
-      <div className="col-sm-12 col-md-8 d-flex align-items-center justify-content-center justify-content-md-end">
+      <div className="col-sm-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end">
         <div id="kt_table_channels_paginate">
           <ul className="pagination">
             <li
               className={clsx("page-item", {
-                disabled: pagination.page === 1,
+                disabled: isLoading || pagination.page === 1,
               })}
             >
               <a onClick={() => updatePage(1)} style={{ cursor: "pointer" }} className="page-link">
@@ -149,6 +167,7 @@ const ChannelsListPagination = ({ channelList, itemsPerPage, pagination, data, s
                   key={link.label}
                   className={clsx("page-item", {
                     active: pagination.page === link.page,
+                    disabled: isLoading,
                     previous: link.label === "Previous",
                     next: link.label === "Next",
                   })}
@@ -167,7 +186,7 @@ const ChannelsListPagination = ({ channelList, itemsPerPage, pagination, data, s
               ))}
             <li
               className={clsx("page-item", {
-                disabled: pagination.page === (pagination.links?.length || 3) - 2,
+                disabled: isLoading || pagination.page === (pagination.links?.length || 3) - 2,
               })}
             >
               <a onClick={() => updatePage((pagination.links?.length || 3) - 2)} style={{ cursor: "pointer" }} className="page-link">

@@ -30,7 +30,7 @@ const GroupActionsCell: FC<Props> = ({ id }) => {
   });
 
   const openEditGroupPage = () => {
-    navigate(`/groups/edit/${id}`);
+    navigate(`/groups/${id}`);
   };
 
   const unAssignChannelGroupData = () => {

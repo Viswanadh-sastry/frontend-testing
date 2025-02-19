@@ -1,1 +1,0 @@
-import{G as o}from"./index-594000cb.js";const n="http://localhost";async function f(s,t){const e=r(t);return(await o.get(`${n}/groups/${s}/channels${e}`)).data}const r=s=>{let t="";return s.limit&&(t+=`?limit=${s.limit}`),s.offset&&(t+=`&offset=${s.offset}`),t?t+=`&status=${s.status}`:t+=`?status=${s.status}`,t};export{f as g};

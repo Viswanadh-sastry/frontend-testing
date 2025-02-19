@@ -101,9 +101,12 @@ const removeUser = () => {
 export function setupAxios(axios: any) {
   axios.defaults.headers.Accept = 'application/json';
   axios.interceptors.request.use(
-    (config: { headers: { Authorization: string } }) => {
+    (config: any) => {
       const auth = getAuth();
       const dAuth = getDAuth();
+      if (config.url.includes('chirp.meridiandatalabs.com')) {
+        return config;
+      }
       if (dAuth && dAuth.access_token) {
         if (!config.headers.Authorization) {
           config.headers.Authorization = `Bearer ${dAuth.access_token}`
@@ -113,7 +116,6 @@ export function setupAxios(axios: any) {
           config.headers.Authorization = `Bearer ${auth.access_token}`
         }
       }
-
       return config
     },
     (err: any) => Promise.reject(err)

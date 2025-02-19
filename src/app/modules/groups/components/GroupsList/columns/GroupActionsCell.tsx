@@ -9,7 +9,7 @@ const GroupActionsCell: FC<Props> = ({ id }) => {
   const navigate = useNavigate();
 
   const openEditGroupPage = () => {
-    navigate(`/groups/edit/${id}`);
+    navigate(`/groups/${id}`);
   };
 
   return (

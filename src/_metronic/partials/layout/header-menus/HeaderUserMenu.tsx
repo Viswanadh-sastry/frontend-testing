@@ -7,6 +7,8 @@ import { toAbsoluteUrl } from "../../../helpers";
 import { removeRole } from "../../../../app/modules/auth/core/RoleHelpers";
 import * as domainHelper from "../../../../app/modules/auth/core/DomainHelpers";
 import * as credHelper from "../../../../app/modules/auth/core/CredentialHelpers";
+import * as vaultHelper from "../../../../app/modules/auth/core/VaultHelpers";
+import * as loraHelper from "../../../../app/modules/auth/core/LORAHelpers";
 import { getProfile } from "../../../../app/modules/profile/api/ProfileAPI";
 import { setUser } from "../../../../app/modules/auth/core/AuthHelpers";
 
@@ -33,6 +35,8 @@ const HeaderUserMenu: FC = () => {
     domainHelper.removeDomain();
     removeRole();
     credHelper.removeCred();
+    vaultHelper.removeVaultToken();
+    loraHelper.removeLORAAuth();
     navigate("/auth/login");
   };
 

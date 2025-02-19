@@ -5,6 +5,7 @@ import { KTIcon } from "../../../_metronic/helpers";
 import { getChannelListAll } from "../channels/api/ChannelsAPI";
 import { getGroupListAll } from "../groups/api/GroupAPI";
 import { getHistoryListAll } from "../histories/api/HistoryAPI";
+import { getNotification } from "../notifications/api/NotificationAPI";
 import { getThingListAll } from "../things/api/ThingAPI";
 import { getThingChannelList } from "../things/api/ThingChannelAPI";
 import { getUserListAll } from "../users/api/UserAPI";
@@ -13,7 +14,6 @@ import { DonutWidget } from "./DonutWidget";
 import { HomeLoading } from "./HomeLoading";
 import "./HomePage.css";
 import { LineWidget } from "./LineWidget";
-import { getNotification } from "../notifications/api/NotificationAPI";
 
 const HomePage: React.FC = () => {
   const [button, setButton] = useState<{ index: any; active: boolean }>({ index: null, active: false });

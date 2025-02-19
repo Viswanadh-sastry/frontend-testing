@@ -1,8 +1,9 @@
+import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
-import { useEffect, useMemo } from "react";
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
 import { PaginationState } from "../../../../../../_metronic/helpers";
-import { getHistoryList } from "../../../../histories/api/HistoryAPI";
-import { getThingChannelList } from "../../../api/ThingChannelAPI";
+import { getThingList } from "../../../api/ThingAPI";
 
 const mappedLabel = (label: string): string => {
   if (label === "&laquo; Previous") {
@@ -17,135 +18,78 @@ const mappedLabel = (label: string): string => {
 };
 
 interface IThingsListPaginationProps {
-  thingList: any[];
-  itemsPerPage: any;
-  pagination: PaginationState;
-  data: any;
-  setCurrentPage: (page: number) => void;
-  setItemsPerPage: (itemsPerPage: any) => void;
-  setPagination: (pagination: PaginationState) => void;
-  setData: (data: any) => void;
+  filterThing: any;
+  setFilterThing: Dispatch<
+    SetStateAction<{
+      limit: number;
+      offset: number;
+      name: string;
+      metadata: string;
+      tags: string;
+      status: string;
+    }>
+  >;
 }
 
-const ThingsListPagination = ({ thingList, itemsPerPage, pagination, data, setCurrentPage, setItemsPerPage, setPagination, setData }: IThingsListPaginationProps) => {
+const ThingsListPagination = ({ filterThing, setFilterThing }: IThingsListPaginationProps) => {
+  const [pagination, setPagination] = useState<PaginationState>({
+    page: 1,
+    items_per_page: filterThing.limit,
+    links: [],
+  });
+  const thingListQuery = useQuery({
+    queryKey: [`thingList`, filterThing],
+    queryFn: async () => getThingList(filterThing).catch((error) => toast.error(error.message)),
+    enabled: false,
+  });
+  const isLoading = thingListQuery.isLoading;
+
   useEffect(() => {
-    getLinks();
-  }, [data]);
-
-  const getLinks = () => {
-    const noOfLinks = thingList.length;
-    const noOfPages = Math.ceil(noOfLinks / itemsPerPage);
-    const links = [];
-    links.push({ label: "&laquo; Previous", active: false, url: null, page: pagination.page === 1 ? null : pagination.page - 1 });
-    for (let i = 1; i <= noOfPages; i++) {
-      links.push({ label: i.toString(), active: false, url: null, page: i });
+    if (thingListQuery.data) {
+      const noOfLinks = thingListQuery.data.total;
+      const noOfPages = Math.ceil(noOfLinks / thingListQuery.data.limit);
+      const links = [];
+      links.push({ label: "&laquo; Previous", active: false, url: null, page: pagination.page === 1 ? null : pagination.page - 1 });
+      for (let i = 1; i <= noOfPages; i++) {
+        links.push({ label: i.toString(), active: false, url: null, page: i });
+      }
+      links.push({ label: "Next &raquo;", active: false, url: null, page: pagination.page === noOfPages ? null : pagination.page + 1 });
+      setPagination({
+        ...pagination,
+        links,
+      });
     }
-    links.push({ label: "Next &raquo;", active: false, url: null, page: pagination.page === noOfPages ? null : pagination.page + 1 });
-    setPagination({
-      ...pagination,
-      links,
-    });
-  };
-
-  const getUpdatedThingList = async (currentPage: number, itemsPerPage: number) => {
-    const filterChannel = {
-      limit: 10,
-      offset: 0,
-      name: "",
-      metadata: "",
-      status: "enabled",
-    };
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = currentPage * itemsPerPage;
-    const things = thingList.filter((_: any, index: any) => index >= startIndex && index < endIndex);
-
-    const updatedThings = await Promise.all(
-      things.map(async (thing: any) => {
-        try {
-          const channel = await getThingChannelList(thing.id, filterChannel);
-          const historyData = await Promise.all(
-            channel.groups.map(async (group: any) => {
-              try {
-                const filterHistory = {
-                  offset: 0,
-                  limit: 10,
-                  name: "",
-                  publisher: thing.id,
-                  status: "enabled",
-                };
-                const history = await getHistoryList(group.id, filterHistory);
-                return history;
-              } catch (error) {
-                return [];
-              }
-            })
-          );
-
-          const flatHistory: any = historyData.flat().sort((a: any, b: any) => a.time - b.time);
-
-          // Convert current time to Unix timestamp
-          const now = Number(String(new Date().getTime()).slice(0, 10));
-
-          // Calculate activity status
-          let activity = "inactive";
-
-          if (thing.metadata?.Update_Frequency) {
-            const updateFrequency = parseInt(thing.metadata.Update_Frequency);
-
-            if (flatHistory.length > 0 && flatHistory[0].messages?.length > 0) {
-              const firstRecordTime = Number(String(flatHistory[0].messages[0].time).slice(0, 10));
-              const timeDifference = now - firstRecordTime;
-              if (timeDifference >= 0 && timeDifference <= updateFrequency) {
-                activity = "active";
-              }
-            }
-          }
-
-          return {
-            ...thing,
-            isConnected: channel.total > 0,
-            activity,
-            lastSeenMsg: flatHistory.length > 0 && flatHistory[0].messages?.length > 0 && flatHistory[0].messages[0].time ? flatHistory[0].messages[0].time : null,
-          };
-        } catch (error) {
-          return {
-            ...thing,
-            isConnected: false,
-            activity: "inactive",
-            lastSeenMsg: null,
-          };
-        }
-      })
-    );
-    return updatedThings;
-  };
+  }, [thingListQuery.data]);
 
   const onChangePageSize = (e: any) => {
-    setItemsPerPage(e.target.value);
-    setCurrentPage(1);
-    setPagination({ ...pagination, page: 1, items_per_page: e.target.value });
+    setFilterThing((prevState: any) => ({
+      ...prevState,
+      limit: parseInt(e.target.value),
+      offset: 0,
+    }));
   };
 
-  const updateState = async (state: any) => {
+  const updateState = (state: any) => {
     setPagination({
       ...pagination,
       page: state.page,
       items_per_page: state.items_per_page,
     });
-    setCurrentPage(state.page);
-    setItemsPerPage(state.items_per_page);
-    const historyData = await getUpdatedThingList(state.page, state.items_per_page);
-    setData(historyData);
+    setFilterThing((prevState: any) => ({
+      ...prevState,
+      offset: state.items_per_page * (state.page - 1),
+      limit: state.items_per_page,
+    }));
   };
 
-  const updatePage = async (page: number | undefined | null) => {
-    if (!page || pagination.page === page) {
+  const updatePage = (page: number | undefined | null) => {
+    if (!page || isLoading || pagination.page === page) {
       return;
     }
-    await updateState({ page, items_per_page: itemsPerPage });
+    updateState({ page, items_per_page: pagination.items_per_page });
   };
 
-  const PAGINATION_PAGES_COUNT = 10;
+  const PAGINATION_PAGES_COUNT = filterThing.limit;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];
@@ -190,7 +134,7 @@ const ThingsListPagination = ({ thingList, itemsPerPage, pagination, data, setCu
 
   return (
     <div className="row">
-      <div className="col-sm-12 col-md-4 d-flex align-items-center justify-content-center justify-content-md-start">
+      <div className="col-sm-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start">
         <select className="form-select form-select-solid w-90px ps-8 me-2" onChange={onChangePageSize}>
           <option value="10">10</option>
           <option value="20">20</option>
@@ -199,18 +143,18 @@ const ThingsListPagination = ({ thingList, itemsPerPage, pagination, data, setCu
           <option value="50">50</option>
         </select>
         <div id="kt_table_things_info" className="dataTables_info">
-          Total {thingList.length || 0} devices
+          {isLoading ? "Loading..." : `Total ${thingListQuery.data?.total || 0} devices`}
         </div>
       </div>
-      <div className="col-sm-12 col-md-8 d-flex align-items-center justify-content-center justify-content-md-end">
+      <div className="col-sm-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end">
         <div id="kt_table_things_paginate">
           <ul className="pagination">
             <li
               className={clsx("page-item", {
-                disabled: pagination.page === 1,
+                disabled: isLoading || pagination.page === 1,
               })}
             >
-              <a onClick={async () => await updatePage(1)} style={{ cursor: "pointer" }} className="page-link">
+              <a onClick={() => updatePage(1)} style={{ cursor: "pointer" }} className="page-link">
                 First
               </a>
             </li>
@@ -223,6 +167,7 @@ const ThingsListPagination = ({ thingList, itemsPerPage, pagination, data, setCu
                   key={link.label}
                   className={clsx("page-item", {
                     active: pagination.page === link.page,
+                    disabled: isLoading,
                     previous: link.label === "Previous",
                     next: link.label === "Next",
                   })}
@@ -232,7 +177,7 @@ const ThingsListPagination = ({ thingList, itemsPerPage, pagination, data, setCu
                       "page-text": link.label === "Previous" || link.label === "Next",
                       "me-5": link.label === "Previous",
                     })}
-                    onClick={async () => await updatePage(link.page)}
+                    onClick={() => updatePage(link.page)}
                     style={{ cursor: "pointer" }}
                   >
                     {mappedLabel(link.label)}
@@ -241,10 +186,10 @@ const ThingsListPagination = ({ thingList, itemsPerPage, pagination, data, setCu
               ))}
             <li
               className={clsx("page-item", {
-                disabled: pagination.page === (pagination.links?.length || 3) - 2,
+                disabled: isLoading || pagination.page === (pagination.links?.length || 3) - 2,
               })}
             >
-              <a onClick={async () => await updatePage((pagination.links?.length || 3) - 2)} style={{ cursor: "pointer" }} className="page-link">
+              <a onClick={() => updatePage((pagination.links?.length || 3) - 2)} style={{ cursor: "pointer" }} className="page-link">
                 Last
               </a>
             </li>

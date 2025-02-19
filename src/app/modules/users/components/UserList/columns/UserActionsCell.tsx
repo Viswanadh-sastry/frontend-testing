@@ -19,7 +19,7 @@ const UserActionsCell: FC<Props> = ({ id }) => {
   }, []);
 
   const openEditUserPage = () => {
-    navigate(`/users/edit/${id}`);
+    navigate(`/users/${id}`);
   };
 
   return (

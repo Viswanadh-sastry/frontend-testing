@@ -9,7 +9,7 @@ const ChannelsActionsCell: FC<Props> = ({ id }) => {
   const navigate = useNavigate();
 
   const openEditChannelPage = () => {
-    navigate(`/channels/edit/${id}`);
+    navigate(`/channels/${id}`);
   };
 
   return (

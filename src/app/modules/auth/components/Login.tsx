@@ -7,6 +7,7 @@ import { login } from "../core/_requests";
 import * as domainHelper from "../core/DomainHelpers";
 import * as credHelper from "../core/CredentialHelpers";
 import * as vaultHelper from "../core/VaultHelpers";
+import * as loraHelper from "../core/LORAHelpers";
 import { toAbsoluteUrl } from "../../../../_metronic/helpers";
 import { ThemeModeComponent } from "../../../../_metronic/assets/ts/layout";
 import { getJWTToken, getVaultToken } from "../../users/api/VaultAPI";
@@ -49,6 +50,11 @@ export function Login() {
           throw new Error("No token found");
         }
         vaultHelper.setVaultToken(vaultToken.data.token);
+        loraHelper.setLORAAuth({
+          access_token:
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjaGlycHN0YWNrIiwiaXNzIjoiY2hpcnBzdGFjayIsInN1YiI6IjBkZmZiYmY3LTYyYzctNDQxZS04YTVmLWU4ZDEwMGI3YWM3NCIsInR5cCI6ImtleSJ9.KD4MMkuz9qEMyw6yW4sJxOndj_a02SBJJ_PH1ZnegQs",
+          tenant_id: "52f14cd4-c6f1-4fbd-8f87-4025e1d49242",
+        });
         // vaultHelper.setVaultToken(
         //   "eyJhbGciOiJFUzM4NCIsImtpZCI6ImJkMjJjZTlmLTY2MjAtNjQ3Ny03ZjFmLTBmZWE2YjNlMzI1MyJ9.eyJhdWQiOiJlZGdleCIsImV4cCI6MTczODEzMTQzNywiaWF0IjoxNzM4MTI0Mjk3LCJpc3MiOiIvdjEvaWRlbnRpdHkvb2lkYyIsIm5hbWUiOiJleDEiLCJuYW1lc3BhY2UiOiJyb290Iiwic3ViIjoiYTg3MTA5MjAtNjEwZS02MTllLWEzNTQtYWU5M2Y3ZGY0NDEwIn0.EYzEHdPwd-o5QHsGYYnwC-iHUARUSIWeQ-Ohyn118NUykXPAxYF3pXde_XZKR33Ewlu6-wiIQg2Q7ByikY9RfOGqvloAlJVaWG-EhU7g_pylXxfn4aeTVeP8Q7krhL92"
         // );

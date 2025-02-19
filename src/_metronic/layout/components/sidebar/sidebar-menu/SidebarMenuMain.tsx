@@ -73,6 +73,14 @@ const SidebarMenuMain = () => {
       </SidebarMenuItemWithSub>
       <SidebarMenuItem to="/notifications" title="Notifications" icon="notification" />
       <SidebarMenuItem to="/subscriptions" title="Subscriptions" icon="tablet-text-up" />
+      <div className="menu-item">
+        <div className="menu-content pt-8 pb-2">
+          <span className="menu-section text-muted text-uppercase fs-8 ls-1">LORA</span>
+        </div>
+      </div>
+      <SidebarMenuItem to="/device-profiles" title="Device Profiles" icon="abstract-9" />
+      <SidebarMenuItem to="/gateways" title="Gateways" icon="devices" />
+      <SidebarMenuItem to="/applications" title="Applications" icon="file" />
     </>
   );
 };

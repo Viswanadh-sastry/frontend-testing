@@ -3,6 +3,11 @@ export interface AuthModel {
   refresh_token: string
 }
 
+export interface LORAAuthModel {
+  access_token: string
+  tenant_id: string
+}
+
 export interface UserAddressModel {
   addressLine: string
   city: string

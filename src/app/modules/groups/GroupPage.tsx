@@ -28,7 +28,7 @@ const GroupPage = () => {
     <Routes>
       <Route element={<Outlet />}>
         <Route
-          path="edit/:id"
+          path=":id"
           element={
             <>
               <PageTitle breadcrumbs={groupBreadCrumbs}>Edit Asset Group</PageTitle>

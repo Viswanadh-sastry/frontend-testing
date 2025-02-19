@@ -24,6 +24,9 @@ const PrivateRoutes = () => {
   const RulePage = lazy(() => import("../modules/rules/RulePage"));
   const NotificationPage = lazy(() => import("../modules/notifications/NotificationPage"));
   const SubscriptionPage = lazy(() => import("../modules/subscriptions/SubscriptionPage"));
+  const DeviceProfilePage = lazy(() => import("../modules/device-profiles/DeviceProfilePage"));
+  const GatewayPage = lazy(() => import("../modules/gateways/GatewayPage"));
+  const ApplicationPage = lazy(() => import("../modules/applications/ApplicationPage"));
 
   return (
     <Routes>
@@ -159,6 +162,30 @@ const PrivateRoutes = () => {
           element={
             <SuspensedView>
               <SubscriptionPage />
+            </SuspensedView>
+          }
+        />
+        <Route
+          path="device-profiles/*"
+          element={
+            <SuspensedView>
+              <DeviceProfilePage />
+            </SuspensedView>
+          }
+        />
+        <Route
+          path="gateways/*"
+          element={
+            <SuspensedView>
+              <GatewayPage />
+            </SuspensedView>
+          }
+        />
+        <Route
+          path="applications/*"
+          element={
+            <SuspensedView>
+              <ApplicationPage />
             </SuspensedView>
           }
         />

@@ -9,7 +9,7 @@ const NotificationActionsCell: FC<Props> = ({ id }) => {
   const navigate = useNavigate();
 
   const openEditNotificationPage = () => {
-    navigate(`/notification/edit/${id}`);
+    navigate(`/notification/${id}`);
   };
 
   return (

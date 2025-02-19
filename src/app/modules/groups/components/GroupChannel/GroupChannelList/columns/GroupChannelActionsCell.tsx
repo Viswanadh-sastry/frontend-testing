@@ -28,7 +28,7 @@ const GroupChannelActionsCell: FC<Props> = ({ id }) => {
   });
 
   const openChannelPage = () => {
-    navigate(`/channels/edit/${id}`);
+    navigate(`/channels/${id}`);
   };
 
   const unAssignGroupChannelData = () => {

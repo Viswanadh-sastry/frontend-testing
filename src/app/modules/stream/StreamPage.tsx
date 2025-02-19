@@ -23,7 +23,7 @@ const StreamPage = () => {
     <Routes>
       <Route element={<Outlet />}>
         <Route
-          path="edit/:id"
+          path=":id"
           element={
             <>
               <PageTitle breadcrumbs={streamBreadCrumbs}>Edit Stream</PageTitle>

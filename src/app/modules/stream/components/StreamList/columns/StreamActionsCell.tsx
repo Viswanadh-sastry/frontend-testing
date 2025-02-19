@@ -9,7 +9,7 @@ const StreamActionsCell: FC<Props> = ({ id }) => {
   const navigate = useNavigate();
 
   const openEditStreamPage = () => {
-    navigate(`/stream/edit/${id}`);
+    navigate(`/stream/${id}`);
   };
 
   return (

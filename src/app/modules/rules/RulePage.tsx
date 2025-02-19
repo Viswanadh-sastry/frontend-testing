@@ -23,7 +23,7 @@ const RulePage = () => {
     <Routes>
       <Route element={<Outlet />}>
         <Route
-          path="edit/:id"
+          path=":id"
           element={
             <>
               <PageTitle breadcrumbs={ruleBreadCrumbs}>Edit Rule</PageTitle>

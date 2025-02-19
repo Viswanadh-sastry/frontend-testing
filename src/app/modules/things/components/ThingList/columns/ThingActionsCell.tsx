@@ -9,7 +9,7 @@ const ThingActionsCell: FC<Props> = ({ id }) => {
   const navigate = useNavigate();
 
   const openEditThingPage = () => {
-    navigate(`/things/edit/${id}`);
+    navigate(`/things/${id}`);
   };
 
   return (

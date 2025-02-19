@@ -26,7 +26,7 @@ const ThingPage = () => {
     <Routes>
       <Route element={<Outlet />}>
         <Route
-          path="edit/:id"
+          path=":id"
           element={
             <>
               <PageTitle breadcrumbs={thingBreadCrumbs}>Edit Device</PageTitle>

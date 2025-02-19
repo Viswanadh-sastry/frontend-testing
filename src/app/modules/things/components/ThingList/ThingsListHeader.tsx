@@ -5,12 +5,12 @@ import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { KTIcon } from "../../../../../_metronic/helpers";
 import { getRolePermission, MODULENAME } from "../../../auth/core/RoleHelpers";
+import { getThingListAll } from "../../api/ThingAPI";
+import { getThingChannelList } from "../../api/ThingChannelAPI";
 
 interface IThingsListHeaderProps {
   onShowAddThing: () => void;
   onShowImportThing: () => void;
-  setCurrentPage: Dispatch<SetStateAction<number>>;
-  setPagination: Dispatch<SetStateAction<any>>;
   setFilterThing: Dispatch<
     SetStateAction<{
       limit: number;
@@ -21,25 +21,18 @@ interface IThingsListHeaderProps {
       status: string;
     }>
   >;
-  setThingList: Dispatch<SetStateAction<any[]>>;
-  thingList: any[];
-  thingListQuery: any;
-  pagination: any;
+  filterThing: {
+    limit: number;
+    offset: number;
+    name: string;
+    metadata: string;
+    tags: string;
+    status: string;
+  };
 }
 
-const ThingsListHeader = ({
-  onShowAddThing,
-  onShowImportThing,
-  setCurrentPage,
-  setPagination,
-  setFilterThing,
-  setThingList,
-  thingList,
-  thingListQuery,
-  pagination,
-}: IThingsListHeaderProps) => {
+const ThingsListHeader = ({ onShowAddThing, setFilterThing, onShowImportThing, filterThing }: IThingsListHeaderProps) => {
   const [rolePermission, setRolePermission] = useState<any>(null);
-  const [searchText, setSearchText] = useState<string>("");
 
   useEffect(() => {
     const fetchRolePermission = async () => {
@@ -50,13 +43,49 @@ const ThingsListHeader = ({
   }, []);
 
   const onChangeStatus = (e: any) => {
-    setCurrentPage(1);
-    setPagination({ ...pagination, page: 1 });
-    setSearchText("");
     setFilterThing((prevState: any) => ({
       ...prevState,
       status: e.target.value,
     }));
+  };
+
+  const getThingData = async () => {
+    const filterThings = {
+      limit: 100,
+      offset: 0,
+      name: filterThing.name,
+      metadata: "",
+      tags: "",
+      status: filterThing.status,
+    };
+    const filterChannel = {
+      limit: 10,
+      offset: 0,
+      name: "",
+      metadata: "",
+      status: "all",
+    };
+    return await getThingListAll(filterThings)
+      .then(async (response) => {
+        const things = await Promise.all(
+          response.things.map(async (thing: any) => {
+            try {
+              const channel = await getThingChannelList(thing.id, filterChannel);
+              return {
+                ...thing,
+                isConnected: channel.total > 0,
+              };
+            } catch (error) {
+              return {
+                ...thing,
+                isConnected: false,
+              };
+            }
+          })
+        );
+        return { ...response, things };
+      })
+      .catch((error) => toast.error(error.message));
   };
 
   const convertToCSV = (data: any[], headerOrder: string[]) => {
@@ -106,6 +135,8 @@ const ThingsListHeader = ({
 
   // Convert data to CSV and download
   const downloadCSV = async () => {
+    const { things: thingList } = await getThingData();
+
     if (thingList.length === 0) {
       toast.error("No data found to download!");
       return;
@@ -127,6 +158,8 @@ const ThingsListHeader = ({
   };
 
   const downloadXlsx = async () => {
+    const { things: thingList } = await getThingData();
+
     // Define the order of columns for the XLSX
     const headerOrder = ["id", "name", "tags", "metadata", "created_at", "isConnected", "status"];
     const headerLabels = headerOrder.map((header) => header.toUpperCase());
@@ -210,6 +243,8 @@ const ThingsListHeader = ({
 
   // download pdf
   const downloadPDF = async () => {
+    const { things: thingList } = await getThingData();
+
     if (thingList.length === 0) {
       toast.error("No data found to download!");
       return;
@@ -287,17 +322,12 @@ const ThingsListHeader = ({
               type="text"
               className="form-control form-control form-control-lg mx-2"
               placeholder="Search"
-              value={searchText}
-              onChange={(e) => {
-                setCurrentPage(1);
-                setPagination({ ...pagination, page: 1 });
-                setSearchText(e.target.value);
-                setThingList(
-                  thingListQuery.data?.things.filter((thing: any) => {
-                    return thing.name.toLowerCase().includes(e.target.value.toLowerCase());
-                  })
-                );
-              }}
+              onChange={(e) =>
+                setFilterThing((prevState: any) => ({
+                  ...prevState,
+                  name: e.target.value,
+                }))
+              }
             />
             <select className="form-select form-select-solid w-200px ps-8" onChange={onChangeStatus} defaultValue={"enabled"}>
               <option value="all">Status: all</option>

@@ -26,7 +26,7 @@ const DashboardIcon = () => {
     enabled: !!userId,
   });
   const isLoading = dashboardListQuery.isLoading;
-  const data = useMemo(() => dashboardListQuery.data?.dashboards.filter((row: Dashboard) => "id" in row && row.id !== "") || [], [dashboardListQuery.data]);
+  const data = useMemo(() => dashboardListQuery.data?.dashboards?.filter((row: Dashboard) => "id" in row && row.id !== "") || [], [dashboardListQuery.data]);
 
   useEffect(() => {
     if (data) {

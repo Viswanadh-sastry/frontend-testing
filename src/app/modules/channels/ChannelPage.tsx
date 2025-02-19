@@ -29,7 +29,7 @@ const ChannelPage = () => {
     <Routes>
       <Route element={<Outlet />}>
         <Route
-          path="edit/:id"
+          path=":id"
           element={
             <>
               <PageTitle breadcrumbs={channelBreadCrumbs}>Edit Asset</PageTitle>

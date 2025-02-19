@@ -56,7 +56,7 @@ type ChildRowProps = {
 };
 
 const ChildRow: FC<ChildRowProps> = ({ child, parentCells, onRowClick, level }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const hasChildren = child.children && child.children.length > 0;
 
   return (

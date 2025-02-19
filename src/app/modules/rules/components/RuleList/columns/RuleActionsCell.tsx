@@ -9,7 +9,7 @@ const RuleActionsCell: FC<Props> = ({ id }) => {
   const navigate = useNavigate();
 
   const openEditRulePage = () => {
-    navigate(`/rule/edit/${id}`);
+    navigate(`/rule/${id}`);
   };
 
   return (

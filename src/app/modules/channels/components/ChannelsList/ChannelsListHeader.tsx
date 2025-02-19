@@ -5,12 +5,13 @@ import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { KTIcon } from "../../../../../_metronic/helpers";
 import { getRolePermission, MODULENAME } from "../../../auth/core/RoleHelpers";
+import { getChannelGroupList } from "../../api/ChannelGroupAPI";
+import { getChannelListAll } from "../../api/ChannelsAPI";
+import { getChannelThingList } from "../../api/ChannelThingAPI";
 
 interface IChannelsListHeaderProps {
   onShowAddChannel: () => void;
   onShowImportChannel: () => void;
-  setCurrentPage: Dispatch<SetStateAction<number>>;
-  setPagination: Dispatch<SetStateAction<any>>;
   setFilterChannel: Dispatch<
     SetStateAction<{
       limit: number;
@@ -20,25 +21,17 @@ interface IChannelsListHeaderProps {
       status: string;
     }>
   >;
-  setChannelList: Dispatch<SetStateAction<any[]>>;
-  channelList: any[];
-  channelListQuery: any;
-  pagination: any;
+  filterChannel: {
+    limit: number;
+    offset: number;
+    name: string;
+    metadata: string;
+    status: string;
+  };
 }
 
-const ChannelsListHeader = ({
-  onShowAddChannel,
-  onShowImportChannel,
-  setCurrentPage,
-  setPagination,
-  setFilterChannel,
-  setChannelList,
-  channelList,
-  channelListQuery,
-  pagination,
-}: IChannelsListHeaderProps) => {
+const ChannelsListHeader = ({ onShowAddChannel, setFilterChannel, onShowImportChannel, filterChannel }: IChannelsListHeaderProps) => {
   const [rolePermission, setRolePermission] = useState<any>(null);
-  const [searchText, setSearchText] = useState<string>("");
 
   useEffect(() => {
     const fetchRolePermission = async () => {
@@ -49,13 +42,60 @@ const ChannelsListHeader = ({
   }, []);
 
   const onChangeStatus = (e: any) => {
-    setCurrentPage(1);
-    setPagination({ ...pagination, page: 1 });
-    setSearchText("");
     setFilterChannel((prevState: any) => ({
       ...prevState,
       status: e.target.value,
     }));
+  };
+
+  const getChannelData = async () => {
+    const filterChannels = {
+      limit: 100,
+      offset: 0,
+      name: filterChannel.name,
+      metadata: "",
+      status: filterChannel.status,
+    };
+    const filterThing = {
+      limit: 10,
+      offset: 0,
+      name: "",
+      metadata: "",
+      tags: "",
+      status: "all",
+    };
+    const filterGroup = {
+      limit: 10,
+      offset: 0,
+      name: "",
+      metadata: "",
+      parentID: "",
+      status: "all",
+    };
+    return await getChannelListAll(filterChannels)
+      .then(async (response) => {
+        const groups = await Promise.all(
+          response.groups.map(async (group: any) => {
+            try {
+              const thing = await getChannelThingList(group.id, filterThing);
+              const location = await getChannelGroupList(group.id, filterGroup);
+              return {
+                ...group,
+                isConnected: thing.total > 0,
+                isLocated: location.total > 0,
+              };
+            } catch (error) {
+              return {
+                ...group,
+                isConnected: false,
+                isLocated: false,
+              };
+            }
+          })
+        );
+        return { ...response, groups };
+      })
+      .catch((error) => toast.error(error.message));
   };
 
   const convertToCSV = (data: any[], headerOrder: string[]) => {
@@ -109,6 +149,8 @@ const ChannelsListHeader = ({
 
   // Convert data to CSV and download
   const downloadCSV = async () => {
+    const { groups: channelList } = await getChannelData();
+
     if (channelList.length === 0) {
       toast.error("No data found to download!");
       return;
@@ -130,6 +172,8 @@ const ChannelsListHeader = ({
 
   // convert data to xlsx
   const downloadXlsx = async () => {
+    const { groups: channelList } = await getChannelData();
+
     if (channelList.length === 0) {
       toast.error("No data found to download!");
       return;
@@ -212,6 +256,8 @@ const ChannelsListHeader = ({
 
   // download pdf
   const downloadPDF = async () => {
+    const { groups: channelList } = await getChannelData();
+
     if (channelList.length === 0) {
       toast.error("No data found to download!");
       return;
@@ -292,17 +338,12 @@ const ChannelsListHeader = ({
               type="text"
               className="form-control form-control form-control-lg mx-2"
               placeholder="Search"
-              value={searchText}
-              onChange={(e) => {
-                setCurrentPage(1);
-                setPagination({ ...pagination, page: 1 });
-                setSearchText(e.target.value);
-                setChannelList(
-                  channelListQuery.data?.groups.filter((user: any) => {
-                    return user.name.toLowerCase().includes(e.target.value.toLowerCase());
-                  })
-                );
-              }}
+              onChange={(e) =>
+                setFilterChannel((prevState: any) => ({
+                  ...prevState,
+                  name: e.target.value,
+                }))
+              }
             />
             <select className="form-select form-select-solid w-200px ps-8" onChange={onChangeStatus} defaultValue={"enabled"}>
               <option value="all">Status: all</option>
