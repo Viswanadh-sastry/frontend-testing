@@ -32,10 +32,10 @@ const RuleTable = () => {
   const isLoading = ruleListQuery.isLoading;
 
   useEffect(() => {
-    if (ruleListQuery.data?.rules) {
-      setRuleList(ruleListQuery.data.rules || []);
+    if (ruleListQuery.data) {
+      setRuleList(ruleListQuery.data || []);
     }
-  }, [ruleListQuery.data?.rules]);
+  }, [ruleListQuery.data]);
   useEffect(() => {
     setData(
       ruleList.filter((_: any, index: number) => {
@@ -64,15 +64,7 @@ const RuleTable = () => {
 
   return (
     <KTCard>
-      <RuleListHeader
-        onShowAddRule={onShowAddRule}
-        setCurrentPage={setCurrentPage}
-        setPagination={setPagination}
-        setRuleList={setRuleList}
-        ruleList={ruleList}
-        ruleListQuery={ruleListQuery}
-        pagination={pagination}
-      />
+      <RuleListHeader onShowAddRule={onShowAddRule} setCurrentPage={setCurrentPage} setPagination={setPagination} ruleListQuery={ruleListQuery} pagination={pagination} />
       <KTCardBody className="py-4">
         <div className="table-responsive">
           <table id="kt_table_rules" className="table align-middle table-row-dashed fs-6 dataTable no-footer" {...getTableProps()}>

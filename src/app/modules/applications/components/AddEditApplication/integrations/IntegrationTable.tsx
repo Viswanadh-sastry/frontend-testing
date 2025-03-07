@@ -22,7 +22,7 @@ const IntegrationTable = () => {
   });
   const integrationListQuery = useQuery({
     queryKey: [`integrationList`, filterIntegration],
-    queryFn: async () => getIntegrationList(filterIntegration),
+    queryFn: async () => getIntegrationList(filterIntegration.applicationId),
     enabled: true,
   });
 

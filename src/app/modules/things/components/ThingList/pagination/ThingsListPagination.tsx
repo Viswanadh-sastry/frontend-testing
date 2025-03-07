@@ -48,6 +48,7 @@ const ThingsListPagination = ({ filterThing, setFilterThing }: IThingsListPagina
     if (thingListQuery.data) {
       const noOfLinks = thingListQuery.data.total;
       const noOfPages = Math.ceil(noOfLinks / thingListQuery.data.limit);
+      // const noOfPages = Math.ceil(noOfLinks / filterThing.limit);
       const links = [];
       links.push({ label: "&laquo; Previous", active: false, url: null, page: pagination.page === 1 ? null : pagination.page - 1 });
       for (let i = 1; i <= noOfPages; i++) {
@@ -86,10 +87,10 @@ const ThingsListPagination = ({ filterThing, setFilterThing }: IThingsListPagina
     if (!page || isLoading || pagination.page === page) {
       return;
     }
-    updateState({ page, items_per_page: pagination.items_per_page });
+    updateState({ page, items_per_page: filterThing.limit });
   };
 
-  const PAGINATION_PAGES_COUNT = filterThing.limit;
+  const PAGINATION_PAGES_COUNT = 10;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];

@@ -5,6 +5,7 @@ import { KTCard, KTCardBody } from "../../../../../_metronic/helpers";
 import { getLORAAuth } from "../../../auth/core/LORAHelpers";
 import { getGateway } from "../../api/GatewayAPI";
 import { Gateway } from "../../api/_models";
+import { ImportGateways } from "../AddEditGateway/ImportGateways/ImportGateways";
 import { GatewayListHeader } from "./GatewayListHeader";
 import { CustomHeaderColumn } from "./columns/CustomHeaderColumn";
 import { CustomRow } from "./columns/CustomRow";
@@ -13,6 +14,7 @@ import { GatewayListLoading } from "./pagination/GatewayListLoading";
 import { GatewayListPagination } from "./pagination/GatewayListPagination";
 
 const GatewayTable = () => {
+  const [importModal, setImportModal] = useState(false);
   const [filterGateway, setFilterGateway] = useState({
     limit: 10,
     offset: 0,
@@ -32,9 +34,13 @@ const GatewayTable = () => {
     data,
   });
 
+  const onShowImportGateway = () => setImportModal(true);
+  const onCloseImportGateway = () => setImportModal(false);
+  const onGetGatewayList = () => gatewayListQuery.refetch();
+
   return (
     <KTCard>
-      <GatewayListHeader filterGateway={filterGateway} />
+      <GatewayListHeader onShowImportGateway={onShowImportGateway} />
       <KTCardBody className="py-4">
         <div className="table-responsive">
           <table id="kt_table_gateways" className="table align-middle table-row-dashed fs-6 dataTable no-footer" {...getTableProps()}>
@@ -62,6 +68,7 @@ const GatewayTable = () => {
           </table>
         </div>
         <GatewayListPagination filterGateway={filterGateway} setFilterGateway={setFilterGateway} />
+        {importModal && <ImportGateways onShowImportGateway={importModal} onCloseImportGateway={onCloseImportGateway} onGetGatewayList={onGetGatewayList} />}
         {isLoading && <GatewayListLoading />}
       </KTCardBody>
     </KTCard>

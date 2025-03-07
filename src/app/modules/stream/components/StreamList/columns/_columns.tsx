@@ -6,12 +6,12 @@ import { Stream } from "../../../api/_models";
 const streamsColumns: ReadonlyArray<Column<Stream>> = [
   {
     Header: (props) => <StreamCustomHeader tableProps={props} title="Stream Name" className="min-w-125px" />,
-    accessor: "sql",
+    accessor: "name",
   },
   {
-    Header: (props) => <StreamCustomHeader tableProps={props} title="Actions" className="text-end w-20px" />,
+    Header: (props) => <StreamCustomHeader tableProps={props} title="Actions" className="text-end w-120px" />,
     id: "actions",
-    Cell: ({ ...props }) => <StreamActionsCell id={props.data[props.row.index].id} />,
+    Cell: ({ ...props }) => <StreamActionsCell row={props.row} />,
   },
 ];
 

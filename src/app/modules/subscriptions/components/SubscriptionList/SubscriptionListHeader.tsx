@@ -117,7 +117,7 @@ const SubscriptionListHeader = ({ onShowAddSubscription, subscriptionListQuery }
     // Generate a binary string representation of the workbook
     const workbookBinary = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
     // Create a Blob from the binary string
-    const blob = new Blob([workbookBinary], { type: "application/octet-subscription" });
+    const blob = new Blob([workbookBinary], { type: "application/octet-stream" });
     // Create a download link for the blob
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

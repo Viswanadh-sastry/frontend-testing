@@ -86,7 +86,7 @@ const DeviceProfileListPagination = ({ filterDeviceProfile, setFilterDeviceProfi
     updateState({ page, items_per_page: filterDeviceProfile.limit });
   };
 
-  const PAGINATION_PAGES_COUNT = filterDeviceProfile.limit;
+  const PAGINATION_PAGES_COUNT = 10;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];

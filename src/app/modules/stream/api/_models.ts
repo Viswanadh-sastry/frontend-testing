@@ -1,5 +1,4 @@
 export type Stream = {
-    id?: string
+    name?: string
     sql?: string
-    created_at: string
 }

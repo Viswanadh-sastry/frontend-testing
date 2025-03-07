@@ -9,7 +9,7 @@ import { KTCardBody, TagInputFields, VariableInputFields } from "../../../../../
 import { getLORAAuth } from "../../../../auth/core/LORAHelpers";
 import { getDeviceProfile } from "../../../../device-profiles/api/DeviceProfileAPI";
 import { Device } from "../../../api/_models";
-import { getDeviceById, getKeysById, updateDevice } from "../../../api/DeviceAPI";
+import { createKeysById, deleteKeysById, getDeviceById, getKeysById, updateDevice } from "../../../api/DeviceAPI";
 
 const EditDevice = () => {
   const navigate = useNavigate();
@@ -48,6 +48,7 @@ const EditDevice = () => {
     isDisabled: Yup.boolean(),
     tags: Yup.object(),
     variables: Yup.object(),
+    nwkKey: Yup.string(),
   });
 
   const formik = useFormik({
@@ -62,9 +63,40 @@ const EditDevice = () => {
       isDisabled: device?.isDisabled || false,
       tags: device?.tags || null,
       variables: device?.variables || null,
+      nwkKey: keys.nwkKey || "",
     } as Device,
     validationSchema: deviceSchema,
     onSubmit: async (values, { setSubmitting }) => {
+      // if keys tab is active
+      if ((document.querySelector("#lnkKeys.nav-link.active")?.textContent?.trim() ?? "") === "OTAA Keys") {
+        if (!values.nwkKey) {
+          toast.warn("Network key is required");
+          setSubmitting(false);
+          return;
+        }
+        const data = {
+          deviceKeys: {
+            nwkKey: values.nwkKey,
+          },
+        };
+        if (!keys.nwkKey) {
+          createKeysById(String(values.devEui), data)
+            .then(() => {
+              toast.success("Keys created successfully");
+            })
+            .catch((error) => toast.error(error.message))
+            .finally(() => setSubmitting(false));
+        } else {
+          deleteKeysById(String(values.devEui));
+          createKeysById(String(values.devEui), data)
+            .then(() => {
+              toast.success("Keys updated successfully");
+            })
+            .catch((error) => toast.error(error.message))
+            .finally(() => setSubmitting(false));
+        }
+        return;
+      }
       const data = {
         device: {
           applicationId: values.applicationId,
@@ -112,7 +144,7 @@ const EditDevice = () => {
             </a>
           </li>
           <li className="nav-item">
-            <a className="nav-link" data-bs-toggle="tab" href="#kt_tab_otaa_keys">
+            <a id="lnkKeys" className="nav-link" data-bs-toggle="tab" href="#kt_tab_otaa_keys">
               OTAA Keys
             </a>
           </li>
@@ -193,10 +225,10 @@ const EditDevice = () => {
                     )}
                   </div>
                 </div>
-                {/* Region */}
+                {/* Device Profile */}
                 <div className="col-md-6">
                   <div className="fv-row mb-6">
-                    <label className="required fw-bold fs-6 mb-2">Region</label>
+                    <label className="required fw-bold fs-6 mb-2">Device Profile</label>
                     <select
                       {...formik.getFieldProps("deviceProfileId")}
                       className={clsx(
@@ -279,18 +311,21 @@ const EditDevice = () => {
           <div className="tab-pane fade" id="kt_tab_otaa_keys" role="tabpanel">
             <div className="d-flex flex-column me-n7 pe-7">
               <div className="row">
-                {/* AppKey */}
-                <div className="col-md-6">
-                  <div className="fv-row mb-6">
-                    <label className="required fw-bold fs-6 mb-2">AppKey</label>
-                    <input type="text" value={keys.appKey || ""} className="form-control mb-3 mb-lg-0" placeholder="Enter AppKey" autoComplete="off" readOnly={true} />
-                  </div>
-                </div>
                 {/* NwkKey */}
                 <div className="col-md-6">
                   <div className="fv-row mb-6">
-                    <label className="required fw-bold fs-6 mb-2">NwkKey</label>
-                    <input type="text" value={keys.nwkKey || ""} className="form-control mb-3 mb-lg-0" placeholder="Enter NwkKey" autoComplete="off" readOnly={true} />
+                    <label className="required fw-bold fs-6 mb-2">Network key</label>
+                    <input
+                      type="text"
+                      {...formik.getFieldProps("nwkKey")}
+                      className={clsx(
+                        "form-control mb-3 mb-lg-0",
+                        { "is-invalid": formik.touched.nwkKey && formik.errors.nwkKey },
+                        { "is-valid": formik.touched.nwkKey && !formik.errors.nwkKey }
+                      )}
+                      placeholder="Enter network key"
+                      autoComplete="off"
+                    />
                   </div>
                 </div>
               </div>

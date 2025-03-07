@@ -75,17 +75,18 @@ const AddIntegration = () => {
                 <div className="col-md-12">
                   <div className="fv-row mb-6">
                     <label className="required fw-bold fs-6 mb-2">Kind</label>
-                    <input
+                    <select
                       {...formik.getFieldProps("kind")}
-                      type="text"
                       className={clsx(
-                        "form-control mb-3 mb-lg-0",
+                        "form-select form-select-lg",
                         { "is-invalid": formik.touched.kind && formik.errors.kind },
                         { "is-valid": formik.touched.kind && !formik.errors.kind }
                       )}
-                      placeholder="Enter kind"
-                      autoComplete="off"
-                    />
+                    >
+                      <option value="">Select Kind</option>
+                      <option value="http">HTTP</option>
+                      <option value="mqtt_global">MQTT_GLOBAL</option>
+                    </select>
                     {formik.touched.kind && formik.errors.kind && (
                       <div className="fv-plugins-message-container">
                         <div className="fv-help-block">{formik.errors.kind}</div>
@@ -99,17 +100,18 @@ const AddIntegration = () => {
                 <div className="col-md-12">
                   <div className="fv-row mb-6">
                     <label className="required fw-bold fs-6 mb-2">Encoding</label>
-                    <input
+                    <select
                       {...formik.getFieldProps("encoding")}
-                      type="text"
                       className={clsx(
-                        "form-control mb-3 mb-lg-0",
+                        "form-select form-select-lg",
                         { "is-invalid": formik.touched.encoding && formik.errors.encoding },
                         { "is-valid": formik.touched.encoding && !formik.errors.encoding }
                       )}
-                      placeholder="Enter encoding"
-                      autoComplete="off"
-                    />
+                    >
+                      <option value="">Select Encoding</option>
+                      <option value="JSON">JSON</option>
+                      <option value="Protobuf (binary)">Protobuf (binary)</option>
+                    </select>
                     {formik.touched.encoding && formik.errors.encoding && (
                       <div className="fv-plugins-message-container">
                         <div className="fv-help-block">{formik.errors.encoding}</div>

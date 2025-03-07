@@ -48,16 +48,16 @@ const AddDevice = () => {
       deviceProfileId: "",
       skipFcntCheck: false,
       isDisabled: false,
-      tags: null,
-      variables: null,
+      tags: {},
+      variables: {},
     } as Device,
     validationSchema: deviceSchema,
     onSubmit: async (values, { setSubmitting }) => {
-      if (!values.variables || Object.keys(values.variables).length === 0) {
-        toast.error("Variables is required");
-        setSubmitting(false);
-        return;
-      }
+      // if (!values.variables || Object.keys(values.variables).length === 0) {
+      //   toast.error("Variables is required");
+      //   setSubmitting(false);
+      //   return;
+      // }
       const data = {
         device: {
           applicationId: values.applicationId,
@@ -181,10 +181,10 @@ const AddDevice = () => {
                     )}
                   </div>
                 </div>
-                {/* Region */}
+                {/* Device Profile */}
                 <div className="col-md-6">
                   <div className="fv-row mb-6">
-                    <label className="required fw-bold fs-6 mb-2">Region</label>
+                    <label className="required fw-bold fs-6 mb-2">Device Profile</label>
                     <select
                       {...formik.getFieldProps("deviceProfileId")}
                       className={clsx(

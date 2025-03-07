@@ -92,7 +92,7 @@ const UserListPagination = ({ filterUser, setFilterUser }: IUserListPaginationPr
     updateState({ page, items_per_page: filterUser.limit });
   };
 
-  const PAGINATION_PAGES_COUNT = filterUser.limit;
+  const PAGINATION_PAGES_COUNT = 10;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];

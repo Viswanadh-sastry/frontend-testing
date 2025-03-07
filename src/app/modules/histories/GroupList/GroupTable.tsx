@@ -30,14 +30,14 @@ const GroupTable = () => {
 
   const filterChannel = {
     offset: 0,
-    limit: 100,
+    limit: 10,
     name: "",
     status: "enabled",
   };
 
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState<any>(10); // Dynamic items per page
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10); // Dynamic items per page
 
   interface LocationState {
     selectedValues: [];
@@ -125,7 +125,7 @@ const GroupTable = () => {
         })
       );
       if (currentPage * itemsPerPage >= historyList.length && historyList.length > 0) {
-        setFilterGroup({ ...filterGroup, offset: historyList.length });
+        setFilterGroup({ ...filterGroup, offset: Math.ceil(historyList.length / itemsPerPage) });
       }
     }
   }, [historyList, currentPage, itemsPerPage]);

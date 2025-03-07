@@ -12,14 +12,12 @@ interface IAddStreamProps {
 
 const AddStream = ({ onCloseAddStream, onGetStreamList }: IAddStreamProps) => {
   const streamSchema = Yup.object().shape({
-    name: Yup.string(),
     sql: Yup.string().required("Query is required"),
   });
 
   const formik = useFormik({
     initialValues: {
-      name: "Stream 1",
-      sql: "",
+      sql: `CREATE STREAM EdgeXStream () WITH ( FORMAT = "JSON", TYPE = "edgex" )`,
     },
     validationSchema: streamSchema,
     onSubmit: async (values, { setSubmitting }) => {
@@ -57,17 +55,6 @@ const AddStream = ({ onCloseAddStream, onGetStreamList }: IAddStreamProps) => {
               <form id="kt_modal_add_stream_form" className="form" onSubmit={formik.handleSubmit} noValidate>
                 {/* begin::Scroll */}
                 <div className="d-flex flex-column me-n7 pe-7">
-                  <div className="row">
-                    {/* Name */}
-                    <div className="col-md-12">
-                      <div className="fv-row mb-6">
-                        <label className="fw-bold fs-6 mb-2">Name</label>
-                        <label className="form-control form-control-solid" id="name">
-                          <span>{formik.values.name}</span>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
                   <div className="row">
                     {/* SQL */}
                     <div className="col-md-12">

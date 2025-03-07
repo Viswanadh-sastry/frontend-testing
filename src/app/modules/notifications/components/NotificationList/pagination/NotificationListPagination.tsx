@@ -88,7 +88,7 @@ const NotificationListPagination = ({ filterNotification, setFilterNotification 
     updateState({ page, items_per_page: filterNotification.limit });
   };
 
-  const PAGINATION_PAGES_COUNT = filterNotification.limit;
+  const PAGINATION_PAGES_COUNT = 10;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];

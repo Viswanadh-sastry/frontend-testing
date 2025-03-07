@@ -91,7 +91,7 @@ const GroupsListPagination = ({ filterGroup, setFilterGroup }: IGroupsListPagina
     updateState({ page, items_per_page: filterGroup.limit });
   };
 
-  const PAGINATION_PAGES_COUNT = filterGroup.limit;
+  const PAGINATION_PAGES_COUNT = 10;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];

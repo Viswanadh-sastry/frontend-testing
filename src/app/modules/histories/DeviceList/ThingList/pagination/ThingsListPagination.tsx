@@ -89,7 +89,7 @@ const ThingsListPagination = ({ filterThing, setFilterThing }: IThingsListPagina
     updateState({ page, items_per_page: filterThing.limit });
   };
 
-  const PAGINATION_PAGES_COUNT = filterThing.limit;
+  const PAGINATION_PAGES_COUNT = 10;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];

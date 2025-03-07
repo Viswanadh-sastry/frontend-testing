@@ -86,7 +86,7 @@ const ApplicationListPagination = ({ filterApplication, setFilterApplication }: 
     updateState({ page, items_per_page: filterApplication.limit });
   };
 
-  const PAGINATION_PAGES_COUNT = filterApplication.limit;
+  const PAGINATION_PAGES_COUNT = 10;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];

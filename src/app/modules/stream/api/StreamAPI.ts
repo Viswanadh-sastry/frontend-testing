@@ -12,6 +12,15 @@ export async function addStream(data: any) {
     return response.data;
 }
 
+export async function updateStream(name: string, data: any) {
+    const response = await axios.put(`${API_URL}/streams/${name}`, data, {
+        headers: {
+            'Authorization': `Bearer ${getVaultToken()}`,
+        }
+    });
+    return response.data;
+}
+
 export async function getStreamList() {
     const response = await axios.get(`${API_URL}/streams`, {
         headers: {

@@ -89,7 +89,7 @@ const ChannelsListPagination = ({ filterChannel, setFilterChannel }: IChannelsLi
     updateState({ page, items_per_page: filterChannel.limit });
   };
 
-  const PAGINATION_PAGES_COUNT = filterChannel.limit;
+  const PAGINATION_PAGES_COUNT = 10;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];

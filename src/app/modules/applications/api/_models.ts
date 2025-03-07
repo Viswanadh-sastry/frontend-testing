@@ -22,6 +22,7 @@ export type Device = {
     createdAt?: string
     updatedAt?: string
     lastSeenAt?: string
+    nwkKey?: string
 }
 
 export type Integration = {

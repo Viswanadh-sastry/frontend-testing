@@ -49,6 +49,15 @@ export async function deleteDeviceById(id: string) {
     return response.data;
 }
 
+export async function createKeysById(id: string, data: any) {
+    const response = await axios.post(`${API_URL}/devices/${id}/keys`, data, {
+        headers: {
+            'Grpc-Metadata-Authorization': `Bearer ${getLORAAuth()?.access_token}`,
+        }
+    });
+    return response.data;
+}
+
 export async function getKeysById(id: string) {
     const response = await axios.get(`${API_URL}/devices/${id}/keys`, {
         headers: {

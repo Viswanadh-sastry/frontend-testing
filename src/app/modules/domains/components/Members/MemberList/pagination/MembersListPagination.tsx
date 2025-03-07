@@ -90,7 +90,7 @@ const MembersListPagination = ({ filterMember, setFilterMember }: IMembersListPa
     updateState({ page, items_per_page: filterMember.limit });
   };
 
-  const PAGINATION_PAGES_COUNT = filterMember.limit;
+  const PAGINATION_PAGES_COUNT = 10;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];

@@ -5,6 +5,7 @@ import { KTCard, KTCardBody } from "../../../../../_metronic/helpers";
 import { getLORAAuth } from "../../../auth/core/LORAHelpers";
 import { getApplication } from "../../api/ApplicationAPI";
 import { Application } from "../../api/_models";
+import { ImportApplications } from "../AddEditApplication/ImportApplications/ImportApplications";
 import { ApplicationListHeader } from "./ApplicationListHeader";
 import { CustomHeaderColumn } from "./columns/CustomHeaderColumn";
 import { CustomRow } from "./columns/CustomRow";
@@ -13,6 +14,7 @@ import { ApplicationListLoading } from "./pagination/ApplicationListLoading";
 import { ApplicationListPagination } from "./pagination/ApplicationListPagination";
 
 const ApplicationTable = () => {
+  const [importModal, setImportModal] = useState(false);
   const [filterApplication, setFilterApplication] = useState({
     limit: 10,
     offset: 0,
@@ -32,9 +34,13 @@ const ApplicationTable = () => {
     data,
   });
 
+  const onShowImportApplication = () => setImportModal(true);
+  const onCloseImportApplication = () => setImportModal(false);
+  const onGetApplicationList = () => applicationListQuery.refetch();
+
   return (
     <KTCard>
-      <ApplicationListHeader filterApplication={filterApplication} />
+      <ApplicationListHeader onShowImportApplication={onShowImportApplication} />
       <KTCardBody className="py-4">
         <div className="table-responsive">
           <table id="kt_table_applications" className="table align-middle table-row-dashed fs-6 dataTable no-footer" {...getTableProps()}>
@@ -62,6 +68,9 @@ const ApplicationTable = () => {
           </table>
         </div>
         <ApplicationListPagination filterApplication={filterApplication} setFilterApplication={setFilterApplication} />
+        {importModal && (
+          <ImportApplications onShowImportApplication={importModal} onCloseImportApplication={onCloseImportApplication} onGetApplicationList={onGetApplicationList} />
+        )}
         {isLoading && <ApplicationListLoading />}
       </KTCardBody>
     </KTCard>

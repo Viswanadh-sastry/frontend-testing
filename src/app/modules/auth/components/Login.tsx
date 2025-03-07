@@ -52,7 +52,7 @@ export function Login() {
         vaultHelper.setVaultToken(vaultToken.data.token);
         loraHelper.setLORAAuth({
           access_token:
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjaGlycHN0YWNrIiwiaXNzIjoiY2hpcnBzdGFjayIsInN1YiI6IjBkZmZiYmY3LTYyYzctNDQxZS04YTVmLWU4ZDEwMGI3YWM3NCIsInR5cCI6ImtleSJ9.KD4MMkuz9qEMyw6yW4sJxOndj_a02SBJJ_PH1ZnegQs",
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjaGlycHN0YWNrIiwiaXNzIjoiY2hpcnBzdGFjayIsInN1YiI6IjZiNmFkNGY1LTZlOWQtNDZjZS1iNDc2LTg4Mjc4MzZhYTA3YSIsInR5cCI6ImtleSJ9.8OBIcUbqivJmJm_a2BbmRorqu6D5KQByN-tWC0PZoE0",
           tenant_id: "52f14cd4-c6f1-4fbd-8f87-4025e1d49242",
         });
         // vaultHelper.setVaultToken(

@@ -33,7 +33,7 @@ const AssetTable = () => {
 
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState<any>(10); // Dynamic items per page
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10); // Dynamic items per page
   const params = useParams();
   const channelId = params.id;
 
@@ -130,7 +130,7 @@ const AssetTable = () => {
         })
       );
       if (currentPage * itemsPerPage >= historyList.length && historyList.length > 0) {
-        setFilterAsset({ ...filterAsset, offset: historyList.length });
+        setFilterAsset({ ...filterAsset, offset: Math.ceil(historyList.length / itemsPerPage) });
       }
     }
   }, [historyList, currentPage, itemsPerPage]);

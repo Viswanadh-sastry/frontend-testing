@@ -92,7 +92,7 @@ const DashboardListPagination = ({ filterDashboard, setFilterDashboard }: IDashb
     updateState({ page, items_per_page: filterDashboard.limit });
   };
 
-  const PAGINATION_PAGES_COUNT = filterDashboard.limit;
+  const PAGINATION_PAGES_COUNT = 10;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];

@@ -58,7 +58,7 @@ export async function getRuleStatus(name: string) {
 }
 
 export async function startRule(name: string) {
-    const response = await axios.post(`${API_URL}/rules/${name}/start`, {
+    const response = await axios.post(`${API_URL}/rules/${name}/start`, null, {
         headers: {
             'Authorization': `Bearer ${getVaultToken()}`,
         }
@@ -67,7 +67,7 @@ export async function startRule(name: string) {
 }
 
 export async function stopRule(name: string) {
-    const response = await axios.post(`${API_URL}/rules/${name}/stop`, {
+    const response = await axios.post(`${API_URL}/rules/${name}/stop`, null, {
         headers: {
             'Authorization': `Bearer ${getVaultToken()}`,
         }

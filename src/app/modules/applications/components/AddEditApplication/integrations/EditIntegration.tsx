@@ -7,16 +7,16 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { HeaderInputFields, KTCardBody } from "../../../../../../_metronic/helpers";
 import { Integration } from "../../../api/_models";
-import { addIntegration, getIntegration } from "../../../api/IntegrationAPI";
+import { getIntegration, updateIntegration } from "../../../api/IntegrationAPI";
 
 const EditIntegration = () => {
   const navigate = useNavigate();
   const params = useParams();
   const id = params.id as string;
-  const kind = params.kind as string;
+  const kind = (params.kind as string).toLowerCase();
   const integrationQuery = useQuery({
     queryKey: [`integration`, id],
-    queryFn: async () => getIntegration({ applicationId: id, kind }).catch((error) => toast.error(error.message)),
+    queryFn: async () => getIntegration({ applicationId: id, kind: kind }).catch((error) => toast.error(error.message)),
     enabled: true,
   });
   const integration = useMemo(() => integrationQuery.data?.integration || {}, [integrationQuery.data]);
@@ -31,7 +31,7 @@ const EditIntegration = () => {
     enableReinitialize: true,
     initialValues: {
       applicationId: integration.applicationId || "",
-      kind: integration.kind || "",
+      kind: kind || "",
       encoding: integration.encoding || "",
       eventEndpointUrl: integration.eventEndpointUrl || "",
       headers: integration.headers || null,
@@ -47,7 +47,7 @@ const EditIntegration = () => {
           headers: values.headers,
         },
       };
-      addIntegration(data)
+      updateIntegration(data)
         .then(() => {
           toast.success("Integration updated successfully");
           navigate(`/applications/${values.applicationId}/integrations`);
@@ -84,17 +84,19 @@ const EditIntegration = () => {
                 <div className="col-md-12">
                   <div className="fv-row mb-6">
                     <label className="required fw-bold fs-6 mb-2">Kind</label>
-                    <input
+                    <select
                       {...formik.getFieldProps("kind")}
-                      type="text"
                       className={clsx(
-                        "form-control mb-3 mb-lg-0",
+                        "form-select form-select-lg",
                         { "is-invalid": formik.touched.kind && formik.errors.kind },
                         { "is-valid": formik.touched.kind && !formik.errors.kind }
                       )}
-                      placeholder="Enter kind"
-                      autoComplete="off"
-                    />
+                      disabled
+                    >
+                      <option value="">Select Kind</option>
+                      <option value="http">HTTP</option>
+                      <option value="mqtt_global">MQTT_GLOBAL</option>
+                    </select>
                     {formik.touched.kind && formik.errors.kind && (
                       <div className="fv-plugins-message-container">
                         <div className="fv-help-block">{formik.errors.kind}</div>
@@ -108,17 +110,18 @@ const EditIntegration = () => {
                 <div className="col-md-12">
                   <div className="fv-row mb-6">
                     <label className="required fw-bold fs-6 mb-2">Encoding</label>
-                    <input
+                    <select
                       {...formik.getFieldProps("encoding")}
-                      type="text"
                       className={clsx(
-                        "form-control mb-3 mb-lg-0",
+                        "form-select form-select-lg",
                         { "is-invalid": formik.touched.encoding && formik.errors.encoding },
                         { "is-valid": formik.touched.encoding && !formik.errors.encoding }
                       )}
-                      placeholder="Enter encoding"
-                      autoComplete="off"
-                    />
+                    >
+                      <option value="">Select Encoding</option>
+                      <option value="JSON">JSON</option>
+                      <option value="Protobuf (binary)">Protobuf (binary)</option>
+                    </select>
                     {formik.touched.encoding && formik.errors.encoding && (
                       <div className="fv-plugins-message-container">
                         <div className="fv-help-block">{formik.errors.encoding}</div>

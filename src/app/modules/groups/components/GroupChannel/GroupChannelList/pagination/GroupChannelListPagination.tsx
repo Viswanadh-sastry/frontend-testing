@@ -92,7 +92,7 @@ const GroupChannelListPagination = ({ filterGroupChannel, setFilterGroupChannel 
     updateState({ page, items_per_page: filterGroupChannel.limit });
   };
 
-  const PAGINATION_PAGES_COUNT = filterGroupChannel.limit;
+  const PAGINATION_PAGES_COUNT = 10;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];

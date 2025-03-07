@@ -86,7 +86,7 @@ const IntegrationListPagination = ({ filterIntegration, setFilterIntegration }: 
     updateState({ page, items_per_page: filterIntegration.limit });
   };
 
-  const PAGINATION_PAGES_COUNT = filterIntegration.limit;
+  const PAGINATION_PAGES_COUNT = 10;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];

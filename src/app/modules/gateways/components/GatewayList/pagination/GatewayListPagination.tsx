@@ -86,7 +86,7 @@ const GatewayListPagination = ({ filterGateway, setFilterGateway }: IGatewayList
     updateState({ page, items_per_page: filterGateway.limit });
   };
 
-  const PAGINATION_PAGES_COUNT = filterGateway.limit;
+  const PAGINATION_PAGES_COUNT = 10;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];

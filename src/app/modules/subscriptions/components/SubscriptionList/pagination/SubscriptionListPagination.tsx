@@ -85,7 +85,7 @@ const SubscriptionListPagination = ({ filterSubscription, setFilterSubscription 
     updateState({ page, items_per_page: filterSubscription.limit });
   };
 
-  const PAGINATION_PAGES_COUNT = filterSubscription.limit;
+  const PAGINATION_PAGES_COUNT = 10;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];

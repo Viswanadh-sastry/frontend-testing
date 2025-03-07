@@ -32,10 +32,10 @@ const StreamTable = () => {
   const isLoading = streamListQuery.isLoading;
 
   useEffect(() => {
-    if (streamListQuery.data?.streams) {
-      setStreamList(streamListQuery.data.streams || []);
+    if (streamListQuery.data?.length > 0) {
+      setStreamList(streamListQuery.data.map((name: string) => ({ name })));
     }
-  }, [streamListQuery.data?.streams]);
+  }, [streamListQuery.data?.length]);
   useEffect(() => {
     setData(
       streamList.filter((_: any, index: number) => {
@@ -64,15 +64,7 @@ const StreamTable = () => {
 
   return (
     <KTCard>
-      <StreamListHeader
-        onShowAddStream={onShowAddStream}
-        setCurrentPage={setCurrentPage}
-        setPagination={setPagination}
-        setStreamList={setStreamList}
-        streamList={streamList}
-        streamListQuery={streamListQuery}
-        pagination={pagination}
-      />
+      <StreamListHeader onShowAddStream={onShowAddStream} setCurrentPage={setCurrentPage} setPagination={setPagination} streamListQuery={streamListQuery} pagination={pagination} />
       <KTCardBody className="py-4">
         <div className="table-responsive">
           <table id="kt_table_streams" className="table align-middle table-row-dashed fs-6 dataTable no-footer" {...getTableProps()}>

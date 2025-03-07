@@ -90,7 +90,7 @@ const InvitationsListPagination = ({ filterInvitation, setFilterInvitation }: II
     updateState({ page, items_per_page: filterInvitation.limit });
   };
 
-  const PAGINATION_PAGES_COUNT = filterInvitation.limit;
+  const PAGINATION_PAGES_COUNT = 10;
   const sliceLinks = (pagination?: PaginationState) => {
     if (!pagination?.links?.length) {
       return [];

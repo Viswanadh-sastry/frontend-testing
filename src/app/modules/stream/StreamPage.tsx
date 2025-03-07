@@ -1,7 +1,6 @@
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { PageLink, PageTitle } from "../../../_metronic/layout/core";
 import { StreamTable } from "./components/StreamList/StreamTable";
-import { EditStream } from "./components/AddEditStream/EditStream";
 
 const streamBreadCrumbs: Array<PageLink> = [
   {
@@ -22,15 +21,6 @@ const StreamPage = () => {
   return (
     <Routes>
       <Route element={<Outlet />}>
-        <Route
-          path=":id"
-          element={
-            <>
-              <PageTitle breadcrumbs={streamBreadCrumbs}>Edit Stream</PageTitle>
-              <EditStream />
-            </>
-          }
-        />
         <Route
           path="list"
           element={
