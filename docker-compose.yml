@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+honeycomb-fe:
+    image: mdatalabdev/honeycomb-fe  # Change this if you push to a registry
+    build: .
+    ports:
+      - "3080:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=production
+    command: ["serve", "-s", "dist"]
+    networks:
+      - magistrala-base-net
+
+networks:
+  magistrala-base-net:
+    name: magistrala-base-net
+    driver: bridge
+    external: true
