@@ -22,7 +22,7 @@ const ThingActionsCell: FC<Props> = ({ id }) => {
   };
   const thingListQuery = useQuery({
     queryKey: [`thingList`, filterThing],
-    queryFn: async () => getChannelThingList(channelID, filterThing).catch((error) => toast.error(error.message)),
+    queryFn: async () => getChannelThingList(channelID, filterThing).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: false,
   });
 
@@ -45,7 +45,7 @@ const ThingActionsCell: FC<Props> = ({ id }) => {
             toast.success("Device disconnected successfully");
             thingListQuery.refetch();
           })
-          .catch((error) => toast.error(error.message));
+          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
       }
     });
   };

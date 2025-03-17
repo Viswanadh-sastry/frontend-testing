@@ -9,7 +9,7 @@ const DisplayUserData = () => {
 
   const thingUserQuery = useQuery({
     queryKey: [`thingUser`, id],
-    queryFn: async () => getUser(id).catch((error) => toast.error(error.message)),
+    queryFn: async () => getUser(id).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const thingUser = thingUserQuery.data;

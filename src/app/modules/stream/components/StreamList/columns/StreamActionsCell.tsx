@@ -44,7 +44,7 @@ const StreamActionsCell: FC<Props> = ({ row }) => {
             toast.success("Stream deleted successfully");
             streamListQuery.refetch();
           })
-          .catch((error) => toast.error(error.message));
+          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
       }
     });
   };

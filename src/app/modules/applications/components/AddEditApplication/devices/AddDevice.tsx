@@ -76,7 +76,7 @@ const AddDevice = () => {
           toast.success("Device created successfully");
           navigate(`/applications/${values.applicationId}/devices`);
         })
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -267,7 +267,7 @@ const AddDevice = () => {
           <button type="reset" onClick={onCloseBackAddDevice} className="btn btn-light me-3" data-kt-subscription-modal-action="cancel" disabled={formik.isSubmitting}>
             Back
           </button>
-          <button type="submit" className="btn btn-primary">
+          <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
             <span className="indicator-label">Submit</span>
           </button>
         </div>

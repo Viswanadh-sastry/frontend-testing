@@ -30,7 +30,7 @@ const GroupTable: FC = () => {
 
   const groupListQuery = useQuery({
     queryKey: [`groupList`, filterGroup],
-    queryFn: async () => getGroupList(filterGroup).catch((error) => toast.error(error.message)),
+    queryFn: async () => getGroupList(filterGroup).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
 

@@ -44,12 +44,12 @@ const AssignUser = ({ onCloseAddMember, onGetMemberList }: IAssignUserProps) => 
             metadata: "",
             status: "enabled",
           };
-          const memberList = await getMemberListAll(domainId, filterMember).catch((error) => toast.error(error.message));
+          const memberList = await getMemberListAll(domainId, filterMember).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
           const memberListIds = memberList.users.map((member: any) => member.id);
           response.users = response.users.filter((user: any) => !memberListIds.includes(user.id));
           return response;
         })
-        .catch((error) => toast.error(error.message)),
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const userList = useMemo(() => userListQuery.data?.users || [], [userListQuery.data]);
@@ -71,7 +71,7 @@ const AssignUser = ({ onCloseAddMember, onGetMemberList }: IAssignUserProps) => 
           onCloseAddMember();
           onGetMemberList();
         })
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -168,7 +168,7 @@ const AssignUser = ({ onCloseAddMember, onGetMemberList }: IAssignUserProps) => 
                   <button type="reset" onClick={onCloseAddMember} className="btn btn-light me-3" data-kt-invitations-modal-action="cancel" disabled={formik.isSubmitting}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
                     <span className="indicator-label">Submit</span>
                   </button>
                 </div>

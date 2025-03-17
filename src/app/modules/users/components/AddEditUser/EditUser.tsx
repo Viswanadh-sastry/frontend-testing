@@ -23,7 +23,7 @@ const EditUser = () => {
   });
   const userQuery = useQuery({
     queryKey: [`user`, id],
-    queryFn: async () => getUser(id).catch((error) => toast.error(error.message)),
+    queryFn: async () => getUser(id).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const user = userQuery.data;
@@ -67,7 +67,7 @@ const EditUser = () => {
           userQuery.refetch();
           setEnabled(false);
         })
-        .catch((error) => toast.error(error.message));
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
     } else {
       enableUser(user?.id)
         .then(() => {
@@ -75,7 +75,7 @@ const EditUser = () => {
           userQuery.refetch();
           setEnabled(true);
         })
-        .catch((error) => toast.error(error.message));
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
     }
   };
 

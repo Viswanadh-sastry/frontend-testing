@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@formatjs/intl-pluralrules": "5.2.4",
     "@formatjs/intl-relativetimeformat": "11.2.4",
     "@fortawesome/fontawesome-free": "6.1.1",
     "@popperjs/core": "^2.11.6",

@@ -6,6 +6,7 @@ import { Typeahead } from "react-bootstrap-typeahead";
 import { createUser } from "../../api/UserAPI";
 import { KTIcon, MetadataInputFields } from "../../../../../_metronic/helpers";
 import "react-bootstrap-typeahead/css/Typeahead.css";
+// import { addUpdateUser } from "../../api/VaultAPI";
 
 interface IAddUserProps {
   onCloseAddUser: () => void;
@@ -51,8 +52,21 @@ const AddUser = ({ onCloseAddUser, onGetUserList }: IAddUserProps) => {
           toast.success("User created successfully");
           onCloseAddUser();
           onGetUserList();
+          // const username = values.identity.split("@")[0];
+          // const userData = {
+          //   password: values.secret,
+          //   token_policies: ["default"],
+          // };
+          // // Create user in vault
+          // addUpdateUser(username, userData)
+          //   .then(() => {
+          //     toast.success("User created successfully");
+          //     onCloseAddUser();
+          //     onGetUserList();
+          //   })
+          //   .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
         })
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -233,7 +247,7 @@ const AddUser = ({ onCloseAddUser, onGetUserList }: IAddUserProps) => {
                   <button type="reset" onClick={onCloseAddUser} className="btn btn-light me-3" data-kt-users-modal-action="cancel" disabled={formik.isSubmitting}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
                     <span className="indicator-label">Submit</span>
                   </button>
                 </div>

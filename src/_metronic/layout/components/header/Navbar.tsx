@@ -31,7 +31,7 @@ const Navbar = () => {
   };
   const domainListQuery = useQuery({
     queryKey: [`domainListQuery`, filterDomain],
-    queryFn: async () => getDomainListAll(filterDomain).catch((error) => toast.error(error.message)),
+    queryFn: async () => getDomainListAll(filterDomain).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   // const isLoading = domainListQuery.isLoading;
@@ -79,7 +79,7 @@ const Navbar = () => {
             window.location.reload();
           })
           .catch((error) => {
-            toast.error(error.message);
+            toast.error(error?.response?.data?.error || "Something went wrong");
             saveAuth(undefined);
           });
       }

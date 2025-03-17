@@ -67,7 +67,7 @@ const AssetTable = () => {
               }
               totalCount += historyData.total;
             } catch (error: any) {
-              toast.error(error.message);
+              toast.error(error?.response?.data?.error || "Something went wrong");
             }
           }
           setHistoryList([...historyList, ...channelList]);
@@ -96,7 +96,7 @@ const AssetTable = () => {
                   }
                   totalCount += historyData.total;
                 } catch (error: any) {
-                  toast.error(error.message);
+                  toast.error(error?.response?.data?.error || "Something went wrong");
                 }
               }
             } else {
@@ -129,7 +129,7 @@ const AssetTable = () => {
           return index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage;
         })
       );
-      if (currentPage * itemsPerPage >= historyList.length && historyList.length > 0) {
+      if (currentPage * itemsPerPage >= historyList.length && historyList.length > 0 && total > historyList.length) {
         setFilterAsset({ ...filterAsset, offset: Math.ceil(historyList.length / itemsPerPage) });
       }
     }

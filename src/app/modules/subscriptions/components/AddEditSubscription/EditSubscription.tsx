@@ -18,7 +18,7 @@ const EditSubscription = ({ row, onCloseEditSubscription }: IEditSubscriptionPro
   };
   const subscriptionListQuery = useQuery({
     queryKey: [`subscriptionList`, filterSubscription],
-    queryFn: async () => getSubscriptionList(filterSubscription).catch((error) => toast.error(error.message)),
+    queryFn: async () => getSubscriptionList(filterSubscription).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: false,
   });
   const subscriptionSchema = Yup.object().shape({
@@ -87,7 +87,7 @@ const EditSubscription = ({ row, onCloseEditSubscription }: IEditSubscriptionPro
           onCloseEditSubscription();
           subscriptionListQuery.refetch();
         })
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -293,7 +293,7 @@ const EditSubscription = ({ row, onCloseEditSubscription }: IEditSubscriptionPro
                   <button type="reset" onClick={onCloseEditSubscription} className="btn btn-light me-3" data-kt-subscription-modal-action="cancel" disabled={formik.isSubmitting}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
                     <span className="indicator-label">Submit</span>
                   </button>
                 </div>

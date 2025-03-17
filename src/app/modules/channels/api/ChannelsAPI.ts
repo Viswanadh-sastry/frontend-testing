@@ -5,8 +5,6 @@ const API_URL = import.meta.env.VITE_APP_API_URL;
 export async function getChannelList(data: any) {
     const query = searchChannel(data);
     const response = await axios.get(`${API_URL}/channels${query}`);
-    // sort channels by name
-    response.data.groups?.sort((a: any, b: any) => a.name.localeCompare(b.name));
     return response.data;
 }
 

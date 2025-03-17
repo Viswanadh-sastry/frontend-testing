@@ -43,7 +43,7 @@ const EditDashboard = ({ id, onCloseEditDashboard, onGetDashboardList }: IEditDa
           onCloseEditDashboard();
           onGetDashboardList();
         })
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -119,7 +119,7 @@ const EditDashboard = ({ id, onCloseEditDashboard, onGetDashboardList }: IEditDa
                   <button type="reset" onClick={onCloseEditDashboard} className="btn btn-light me-3" data-kt-dashboard-modal-action="cancel" disabled={formik.isSubmitting}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
                     <span className="indicator-label">Submit</span>
                   </button>
                 </div>

@@ -48,7 +48,7 @@ const DeviceActionsCell: FC<Props> = ({ id }) => {
             toast.success("Device deleted successfully");
             deviceListQuery.refetch();
           })
-          .catch((error) => toast.error(error.message));
+          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
       }
     });
   };

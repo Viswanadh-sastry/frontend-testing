@@ -76,6 +76,16 @@ export async function deleteKeysById(id: string) {
     return response.data;
 }
 
+export async function getLinkMetrics(id: string, data: any) {
+    const query = searchMetrics(data);
+    const response = await axios.get(`${API_URL}/devices/${id}/link-metrics${query}`, {
+        headers: {
+            'Grpc-Metadata-Authorization': `Bearer ${getLORAAuth()?.access_token}`,
+        }
+    });
+    return response.data;
+}
+
 const searchDevice = (data: any) => {
     let query = "";
     if (data.limit) {
@@ -86,6 +96,20 @@ const searchDevice = (data: any) => {
     }
     if (data.applicationId) {
         query += `&applicationId=${data.applicationId}`;
+    }
+    return query;
+}
+
+const searchMetrics = (data: any) => {
+    let query = "";
+    if (data.start) {
+        query += `?start=${data.start}`;
+    }
+    if (data.end) {
+        query += `&end=${data.end}`;
+    }
+    if (data.aggregation) {
+        query += `&aggregation=${data.aggregation}`;
     }
     return query;
 }

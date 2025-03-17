@@ -6,8 +6,6 @@ const API_URL = import.meta.env.VITE_APP_API_URL;
 export async function getGroupList(data: any) {
     const query = searchGroup(data);
     const response = await axios.get(`${API_URL}/groups${query}`);
-    // sort groups by name
-    response.data.groups?.sort((a: any, b: any) => a.name.localeCompare(b.name));
     return response.data;
 }
 

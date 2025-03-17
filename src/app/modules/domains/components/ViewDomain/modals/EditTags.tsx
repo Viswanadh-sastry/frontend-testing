@@ -28,13 +28,20 @@ const EditTags = ({ data, onClose, onDisplay }: IEditTagsProps) => {
       const domain = {
         tags: values.tags.map((tag: any) => (tag.label ? tag.label : tag)),
       };
+      // Validate the duplicate tags
+      const uniqueTags = new Set(domain.tags);
+      if (uniqueTags.size !== domain.tags.length) {
+        toast.warn("Duplicate tags are not allowed");
+        setSubmitting(false);
+        return;
+      }
       updateDomain(data.id, domain)
         .then(() => {
           toast.success("Tags updated successfully");
           onClose();
           onDisplay();
         })
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -109,7 +116,7 @@ const EditTags = ({ data, onClose, onDisplay }: IEditTagsProps) => {
                   <button type="reset" onClick={onClose} className="btn btn-light me-3" data-kt-domains-modal-action="cancel" disabled={formik.isSubmitting}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
                     <span className="indicator-label">Submit</span>
                   </button>
                 </div>

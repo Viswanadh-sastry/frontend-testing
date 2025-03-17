@@ -25,7 +25,7 @@ const EditGroup = () => {
 
   const groupQuery = useQuery({
     queryKey: [`group`, id],
-    queryFn: async () => getGroup(id).catch((error) => toast.error(error.message)),
+    queryFn: async () => getGroup(id).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const group = groupQuery.data;
@@ -93,7 +93,7 @@ const EditGroup = () => {
           groupQuery.refetch();
           setEnabled(false);
         })
-        .catch((error) => toast.error(error.message));
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
     } else {
       enableGroup(group?.id)
         .then(() => {
@@ -101,7 +101,7 @@ const EditGroup = () => {
           groupQuery.refetch();
           setEnabled(true);
         })
-        .catch((error) => toast.error(error.message));
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
     }
   };
 
@@ -122,7 +122,7 @@ const EditGroup = () => {
             toast.success("Asset Group deleted successfully");
             navigate("/groups");
           })
-          .catch((error) => toast.error(error.message));
+          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
       }
     });
   };

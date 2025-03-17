@@ -355,7 +355,7 @@ const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetSensorWidgetList }: 
                   <button type="reset" onClick={onCloseAddSensor} className="btn btn-light me-3" data-kt-chart-modal-action="cancel" disabled={formik.isSubmitting}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
                     <span className="indicator-label">Submit</span>
                   </button>
                 </div>

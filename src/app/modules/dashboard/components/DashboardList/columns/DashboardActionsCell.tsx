@@ -20,7 +20,7 @@ const DashboardActionsCell: FC<Props> = ({ id }) => {
   });
   const dashboardListQuery = useQuery({
     queryKey: [`dashboardList`, userId],
-    queryFn: async () => getDashboardList(userId).catch((error) => toast.error(error.message)),
+    queryFn: async () => getDashboardList(userId).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: false,
   });
 
@@ -44,7 +44,7 @@ const DashboardActionsCell: FC<Props> = ({ id }) => {
             toast.success("Dashboard deleted successfully");
             onGetDashboardList();
           })
-          .catch((error) => toast.error(error.message));
+          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
       }
     });
   };

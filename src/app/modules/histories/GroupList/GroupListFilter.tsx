@@ -42,7 +42,7 @@ const GroupListFilter = ({ setFilterGroup, setHistoryList }: IGroupListHeaderPro
 
   const deviceListQuery = useQuery({
     queryKey: [`deviceList`, filterDevice],
-    queryFn: async () => getThingListAll(filterDevice).catch((error) => toast.error(error.message)),
+    queryFn: async () => getThingListAll(filterDevice).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
 

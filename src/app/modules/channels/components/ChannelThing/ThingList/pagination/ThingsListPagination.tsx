@@ -42,7 +42,7 @@ const ThingsListPagination = ({ filterThing, setFilterThing }: IThingsListPagina
   });
   const thingListQuery = useQuery({
     queryKey: [`thingList`, filterThing],
-    queryFn: async () => getChannelThingList(id, filterThing).catch((error) => toast.error(error.message)),
+    queryFn: async () => getChannelThingList(id, filterThing).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: false,
   });
   const isLoading = thingListQuery.isLoading;

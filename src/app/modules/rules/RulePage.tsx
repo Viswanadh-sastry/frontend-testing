@@ -1,6 +1,8 @@
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { PageLink, PageTitle } from "../../../_metronic/layout/core";
 import { RuleTable } from "./components/RuleList/RuleTable";
+import { AddRule } from "./components/AddEditRule/AddRule";
+import { EditRule } from "./components/AddEditRule/EditRule";
 
 const ruleBreadCrumbs: Array<PageLink> = [
   {
@@ -27,6 +29,24 @@ const RulePage = () => {
             <>
               <PageTitle breadcrumbs={ruleBreadCrumbs}>Rule List</PageTitle>
               <RuleTable />
+            </>
+          }
+        />
+        <Route
+          path="add"
+          element={
+            <>
+              <PageTitle breadcrumbs={ruleBreadCrumbs}>Add Rule</PageTitle>
+              <AddRule />
+            </>
+          }
+        />
+        <Route
+          path=":name/*"
+          element={
+            <>
+              <PageTitle breadcrumbs={ruleBreadCrumbs}>Edit Rule</PageTitle>
+              <EditRule />
             </>
           }
         />

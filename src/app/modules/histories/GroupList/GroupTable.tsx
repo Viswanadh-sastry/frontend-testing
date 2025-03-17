@@ -89,7 +89,7 @@ const GroupTable = () => {
               }
               totalCount += historyData.total;
             } catch (error: any) {
-              toast.error(error.message);
+              toast.error(error?.response?.data?.error || "Something went wrong");
             }
           }
         } else {
@@ -100,7 +100,7 @@ const GroupTable = () => {
             }
             totalCount += historyData.total;
           } catch (error: any) {
-            toast.error(error.message);
+            toast.error(error?.response?.data?.error || "Something went wrong");
           }
         }
       }
@@ -124,7 +124,7 @@ const GroupTable = () => {
           return index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage;
         })
       );
-      if (currentPage * itemsPerPage >= historyList.length && historyList.length > 0) {
+      if (currentPage * itemsPerPage >= historyList.length && historyList.length > 0 && total > historyList.length) {
         setFilterGroup({ ...filterGroup, offset: Math.ceil(historyList.length / itemsPerPage) });
       }
     }

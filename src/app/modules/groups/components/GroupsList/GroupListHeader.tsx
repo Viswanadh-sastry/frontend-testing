@@ -60,7 +60,7 @@ const GroupListHeader = ({ onShowAddGroup, setFilterGroup, onShowImportGroup, fi
       status: filterGroup.status,
       tree: true,
     };
-    return await getGroupListAll(filterGroups).catch((error) => toast.error(error.message));
+    return await getGroupListAll(filterGroups).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
   };
 
   const convertToCSV = (data: any[], headerOrder: string[]): string => {

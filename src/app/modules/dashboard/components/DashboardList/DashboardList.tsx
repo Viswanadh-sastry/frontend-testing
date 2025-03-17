@@ -23,7 +23,7 @@ const DashboardList = () => {
 
   const dashboardListQuery = useQuery({
     queryKey: [`dashboardList`, userId],
-    queryFn: async () => getDashboardList(userId).catch((error) => toast.error(error.message)),
+    queryFn: async () => getDashboardList(userId).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: !!userId,
   });
   const isLoading = dashboardListQuery.isLoading;

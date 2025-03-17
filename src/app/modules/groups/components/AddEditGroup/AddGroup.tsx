@@ -29,7 +29,7 @@ const AddGroup = ({ onCloseAddGroup, onGetGroupList }: IAddGroupProps) => {
 
   const groupListQuery = useQuery({
     queryKey: [`groupList`, filterGroup],
-    queryFn: async () => getGroupListAll(filterGroup).catch((error) => toast.error(error.message)),
+    queryFn: async () => getGroupListAll(filterGroup).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
 
@@ -81,7 +81,7 @@ const AddGroup = ({ onCloseAddGroup, onGetGroupList }: IAddGroupProps) => {
           onCloseAddGroup();
           onGetGroupList();
         })
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -180,7 +180,7 @@ const AddGroup = ({ onCloseAddGroup, onGetGroupList }: IAddGroupProps) => {
                   <button type="reset" onClick={onCloseAddGroup} className="btn btn-light me-3" data-kt-group-modal-action="cancel" disabled={formik.isSubmitting}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
                     <span className="indicator-label">Submit</span>
                   </button>
                 </div>

@@ -16,7 +16,7 @@ const EditIntegration = () => {
   const kind = (params.kind as string).toLowerCase();
   const integrationQuery = useQuery({
     queryKey: [`integration`, id],
-    queryFn: async () => getIntegration({ applicationId: id, kind: kind }).catch((error) => toast.error(error.message)),
+    queryFn: async () => getIntegration({ applicationId: id, kind: kind }).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const integration = useMemo(() => integrationQuery.data?.integration || {}, [integrationQuery.data]);
@@ -52,7 +52,7 @@ const EditIntegration = () => {
           toast.success("Integration updated successfully");
           navigate(`/applications/${values.applicationId}/integrations`);
         })
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -178,7 +178,7 @@ const EditIntegration = () => {
           <button type="reset" onClick={onCloseBackEditIntegration} className="btn btn-light me-3" data-kt-subscription-modal-action="cancel" disabled={formik.isSubmitting}>
             Back
           </button>
-          <button type="submit" className="btn btn-primary">
+          <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
             <span className="indicator-label">Submit</span>
           </button>
         </div>

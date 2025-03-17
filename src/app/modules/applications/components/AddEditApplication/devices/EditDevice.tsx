@@ -9,7 +9,8 @@ import { KTCardBody, TagInputFields, VariableInputFields } from "../../../../../
 import { getLORAAuth } from "../../../../auth/core/LORAHelpers";
 import { getDeviceProfile } from "../../../../device-profiles/api/DeviceProfileAPI";
 import { Device } from "../../../api/_models";
-import { createKeysById, deleteKeysById, getDeviceById, getKeysById, updateDevice } from "../../../api/DeviceAPI";
+import { createKeysById, deleteKeysById, getDeviceById, getKeysById, getLinkMetrics, updateDevice } from "../../../api/DeviceAPI";
+import moment from "moment";
 
 const EditDevice = () => {
   const navigate = useNavigate();
@@ -34,10 +35,22 @@ const EditDevice = () => {
   const keys = useMemo(() => keyDeviceQuery.data?.deviceKeys || {}, [keyDeviceQuery.data]);
   const deviceQuery = useQuery({
     queryKey: [`device`, id],
-    queryFn: async () => getDeviceById(id).catch((error) => toast.error(error.message)),
+    queryFn: async () => getDeviceById(id).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const device = useMemo(() => deviceQuery.data?.device || {}, [deviceQuery.data]);
+  const filterLinkMetrics = {
+    start: moment().subtract(1, "days").toISOString(),
+    end: moment().toISOString(),
+    aggregation: "HOUR",
+  };
+  const linkMetrics = useQuery({
+    queryKey: [`linkMetrics`, id],
+    queryFn: async () => getLinkMetrics(id, filterLinkMetrics).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    enabled: true,
+  });
+  const metrics = useMemo(() => linkMetrics || {}, [linkMetrics]);
+  console.log("metrics", metrics);
   const eui64Regex = /^(?:[0-9A-Fa-f]{2}([-:])?){7}[0-9A-Fa-f]{2}$/;
   const deviceSchema = Yup.object().shape({
     devEui: Yup.string().required("Device EUI is required").matches(eui64Regex, "Invalid EUI64 format"),
@@ -84,7 +97,7 @@ const EditDevice = () => {
             .then(() => {
               toast.success("Keys created successfully");
             })
-            .catch((error) => toast.error(error.message))
+            .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
             .finally(() => setSubmitting(false));
         } else {
           deleteKeysById(String(values.devEui));
@@ -92,7 +105,7 @@ const EditDevice = () => {
             .then(() => {
               toast.success("Keys updated successfully");
             })
-            .catch((error) => toast.error(error.message))
+            .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
             .finally(() => setSubmitting(false));
         }
         return;
@@ -115,7 +128,7 @@ const EditDevice = () => {
           toast.success("Device updated successfully");
           navigate(`/applications/${values.applicationId}/devices`);
         })
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -129,7 +142,12 @@ const EditDevice = () => {
       <form className="form" onSubmit={formik.handleSubmit} noValidate>
         <ul className="nav nav-tabs nav-line-tabs mb-5 fs-6">
           <li className="nav-item">
-            <a className="nav-link active" data-bs-toggle="tab" href="#kt_tab_general">
+            <a className="nav-link active" data-bs-toggle="tab" href="#kt_tab_dashboard">
+              Dashboard
+            </a>
+          </li>
+          <li className="nav-item">
+            <a className="nav-link" data-bs-toggle="tab" href="#kt_tab_general">
               General
             </a>
           </li>
@@ -150,7 +168,29 @@ const EditDevice = () => {
           </li>
         </ul>
         <div className="tab-content" id="myTabContent">
-          <div className="tab-pane fade show active" id="kt_tab_general" role="tabpanel">
+          <div className="tab-pane fade show active" id="kt_tab_dashboard" role="tabpanel">
+            <div className="d-flex flex-column me-n7 pe-7">
+              <div className="row">
+                {/* Link chart */}
+                <div className="col-md-6">
+                  <div className="card card-custom card-stretch gutter-b">
+                    <div className="card-body">
+                      <div id="kt_mixed_widget_1_chart" style={{ height: "150px" }}></div>
+                    </div>
+                  </div>
+                </div>
+                {/* Chart */}
+                <div className="col-md-6">
+                  <div className="card card-custom card-stretch gutter-b">
+                    <div className="card-body">
+                      <div id="kt_mixed_widget_2_chart" style={{ height: "150px" }}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="tab-pane fade" id="kt_tab_general" role="tabpanel">
             <div className="d-flex flex-column me-n7 pe-7">
               <div className="row">
                 {/* Name */}
@@ -338,7 +378,7 @@ const EditDevice = () => {
           <button type="reset" onClick={onCloseBackEditDevice} className="btn btn-light me-3" data-kt-subscription-modal-action="cancel" disabled={formik.isSubmitting}>
             Back
           </button>
-          <button type="submit" className="btn btn-primary">
+          <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
             <span className="indicator-label">Submit</span>
           </button>
         </div>

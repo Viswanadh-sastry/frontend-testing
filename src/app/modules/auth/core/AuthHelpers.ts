@@ -104,6 +104,10 @@ export function setupAxios(axios: any) {
     (config: any) => {
       const auth = getAuth();
       const dAuth = getDAuth();
+
+      // // Set Referrer-Policy
+      // config.headers["Referrer-Policy"] = "no-referrer";
+
       if (config.url.includes('chirp.meridiandatalabs.com')) {
         return config;
       }
@@ -126,10 +130,14 @@ export function setupAxios(axios: any) {
     (response: any) => response,
     async (error: any) => {
       const originalRequest = error.config;
-      console.log('error interceptors', error, originalRequest, JSON.stringify(error));
+      // console.log('error interceptors', error, originalRequest, JSON.stringify(error));
       if (error && error.response && error.response.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
         try {
+          if (isLORAUnauthorized(error)) {
+            // reload the current page
+            window.location.reload();
+          }
           const { id } = getDomain();
           const { refresh_token = '' } = getAuth() || {};
           const newAuth = await refresh(refresh_token, id);
@@ -156,6 +164,15 @@ export function setupAxios(axios: any) {
       return Promise.reject(error);
     }
   );
+}
+
+const isLORAUnauthorized = (error: any) => {
+  // Check url for LORA API
+  if (error && error.config && error.config.url && error.config.url.includes('chirp.meridiandatalabs.com') && (!localStorage.getItem("lora_unauthorized") || localStorage.getItem("lora_unauthorized") === "false")) {
+    localStorage.setItem("lora_unauthorized", "true");
+    return true;
+  }
+  return false;
 }
 
 export { AUTH_LOCAL_STORAGE_KEY, getAuth, getUser, removeAuth, removeUser, setAuth, setUser };

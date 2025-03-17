@@ -31,7 +31,7 @@ const InviteUser = ({ onCloseInviteUser, onGetInvitationList }: IInviteUserProps
   });
   const domainsQuery = useQuery({
     queryKey: [`domains`, filterDomain],
-    queryFn: async () => getDomainList(filterDomain).catch((error) => toast.error(error.message)),
+    queryFn: async () => getDomainList(filterDomain).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const domainList = useMemo(() => domainsQuery.data?.domains || [], [domainsQuery.data]);
@@ -46,7 +46,7 @@ const InviteUser = ({ onCloseInviteUser, onGetInvitationList }: IInviteUserProps
   });
   const userListQuery = useQuery({
     queryKey: [`userList`, filterUser],
-    queryFn: async () => getUserListAll(filterUser).catch((error) => toast.error(error.message)),
+    queryFn: async () => getUserListAll(filterUser).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const userList = useMemo(() => userListQuery.data?.users || [], [userListQuery.data]);
@@ -72,7 +72,7 @@ const InviteUser = ({ onCloseInviteUser, onGetInvitationList }: IInviteUserProps
           onCloseInviteUser();
           onGetInvitationList();
         })
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -228,7 +228,7 @@ const InviteUser = ({ onCloseInviteUser, onGetInvitationList }: IInviteUserProps
                   <button type="reset" onClick={onCloseInviteUser} className="btn btn-light me-3" data-kt-invitations-modal-action="cancel" disabled={formik.isSubmitting}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
                     <span className="indicator-label">Submit</span>
                   </button>
                 </div>

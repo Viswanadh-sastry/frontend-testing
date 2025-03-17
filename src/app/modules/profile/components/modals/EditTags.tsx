@@ -25,16 +25,21 @@ const EditTags = ({ data, onClose, onDisplay }: IEditTagsProps) => {
       tags: Yup.array().min(1, "Tags is required"),
     }),
     onSubmit: async (values, { setSubmitting }) => {
-      updateProfileTags(
-        data.id,
-        values.tags.map((tag: any) => (tag.label ? tag.label : tag))
-      )
+      const profileTags = values.tags.map((tag: any) => (tag.label ? tag.label : tag));
+      // Validate the duplicate tags
+      const uniqueTags = new Set(profileTags);
+      if (uniqueTags.size !== profileTags.length) {
+        toast.warn("Duplicate tags are not allowed");
+        setSubmitting(false);
+        return;
+      }
+      updateProfileTags(data.id, profileTags)
         .then(() => {
           toast.success("Tags updated successfully");
           onClose();
           onDisplay();
         })
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -109,7 +114,7 @@ const EditTags = ({ data, onClose, onDisplay }: IEditTagsProps) => {
                   <button type="reset" onClick={onClose} className="btn btn-light me-3" data-kt-users-modal-action="cancel" disabled={formik.isSubmitting}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
                     <span className="indicator-label">Submit</span>
                   </button>
                 </div>

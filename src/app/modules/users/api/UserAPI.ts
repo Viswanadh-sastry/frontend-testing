@@ -5,8 +5,6 @@ const API_URL = import.meta.env.VITE_APP_API_URL;
 export async function getUserList(data?: any) {
     const query = searchUser(data);
     const response = await axios.get(`${API_URL}/users${query}`);
-    // sort users by name
-    response.data.users?.sort((a: any, b: any) => a.name.localeCompare(b.name));
     return response.data;
 }
 

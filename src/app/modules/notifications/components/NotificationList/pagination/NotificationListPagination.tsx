@@ -38,7 +38,7 @@ const NotificationListPagination = ({ filterNotification, setFilterNotification 
   });
   const notificationListQuery = useQuery({
     queryKey: [`notificationList`, filterNotification],
-    queryFn: async () => getNotification(filterNotification).catch((error) => toast.error(error.message)),
+    queryFn: async () => getNotification(filterNotification).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: false,
   });
   const isLoading = notificationListQuery.isLoading;

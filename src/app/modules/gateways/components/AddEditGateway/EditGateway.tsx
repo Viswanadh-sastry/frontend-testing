@@ -19,7 +19,7 @@ const EditGateway = () => {
   const id = params.id as string;
   const gatewayQuery = useQuery({
     queryKey: [`gateway`, id],
-    queryFn: async () => getGatewayById(id).catch((error) => toast.error(error.message)),
+    queryFn: async () => getGatewayById(id).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const gateway = useMemo(() => gatewayQuery.data?.gateway || {}, [gatewayQuery.data]);
@@ -65,7 +65,7 @@ const EditGateway = () => {
           toast.success("Gateway updated successfully");
           navigate("/gateways");
         })
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -274,7 +274,7 @@ const EditGateway = () => {
             <button type="reset" onClick={onCloseBackEditGateway} className="btn btn-light me-3" data-kt-subscription-modal-action="cancel" disabled={formik.isSubmitting}>
               Back
             </button>
-            <button type="submit" className="btn btn-primary">
+            <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
               <span className="indicator-label">Submit</span>
             </button>
           </div>

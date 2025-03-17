@@ -103,7 +103,7 @@ const ThingsTable = () => {
           );
           return { ...response, things };
         })
-        .catch((error) => toast.error(error.message)),
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
 

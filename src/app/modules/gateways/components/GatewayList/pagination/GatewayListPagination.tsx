@@ -36,7 +36,7 @@ const GatewayListPagination = ({ filterGateway, setFilterGateway }: IGatewayList
   });
   const gatewayListQuery = useQuery({
     queryKey: [`gatewayList`, filterGateway],
-    queryFn: async () => getGateway(filterGateway).catch((error) => toast.error(error.message)),
+    queryFn: async () => getGateway(filterGateway).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: false,
   });
   const isLoading = gatewayListQuery.isLoading;

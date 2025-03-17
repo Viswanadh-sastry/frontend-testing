@@ -52,7 +52,7 @@ const DomainInvitationsTable = () => {
           );
           return { ...response, invitations };
         })
-        .catch((error) => toast.error(error.message)),
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const isLoading = invitationListQuery.isLoading;

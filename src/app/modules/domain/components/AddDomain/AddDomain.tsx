@@ -39,7 +39,7 @@ const AddDomain = ({ onCloseAddDomain, onGetDomainList }: IAddDomainProps) => {
           onCloseAddDomain();
           onGetDomainList();
         })
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -137,7 +137,7 @@ const AddDomain = ({ onCloseAddDomain, onGetDomainList }: IAddDomainProps) => {
                   <button type="reset" onClick={onCloseAddDomain} className="btn btn-light me-3" data-kt-domains-modal-action="cancel" disabled={formik.isSubmitting}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
                     <span className="indicator-label">Submit</span>
                   </button>
                 </div>

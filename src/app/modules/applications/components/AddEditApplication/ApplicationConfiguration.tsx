@@ -15,7 +15,7 @@ const ApplicationConfiguration = () => {
   const id = params.id as string;
   const applicationQuery = useQuery({
     queryKey: [`application`, id],
-    queryFn: async () => getApplicationById(id).catch((error) => toast.error(error.message)),
+    queryFn: async () => getApplicationById(id).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const application = useMemo(() => applicationQuery.data?.application || {}, [applicationQuery.data]);
@@ -49,7 +49,7 @@ const ApplicationConfiguration = () => {
           toast.success("Application updated successfully");
           navigate("/applications");
         })
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -146,7 +146,7 @@ const ApplicationConfiguration = () => {
           <button type="reset" onClick={onCloseBackEditApplication} className="btn btn-light me-3" data-kt-subscription-modal-action="cancel" disabled={formik.isSubmitting}>
             Back
           </button>
-          <button type="submit" className="btn btn-primary">
+          <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
             <span className="indicator-label">Submit</span>
           </button>
         </div>

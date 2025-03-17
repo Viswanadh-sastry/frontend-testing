@@ -162,15 +162,12 @@ const DeviceProfileListHeader = ({ onShowImportDeviceProfile }: IDeviceProfileLi
     doc.text(title, textX, 10);
     // Define column widths
     const columnWidths = {
-      0: { cellWidth: 30 }, // ID
-      1: { cellWidth: 30 }, // MAC Version
-      2: { cellWidth: 30 }, // Name
-      3: { cellWidth: 30 }, // Reg Params Revision
-      4: { cellWidth: 30 }, // Region
-      5: { cellWidth: 30 }, // Supports Class B
-      6: { cellWidth: 30 }, // Supports Class C
-      7: { cellWidth: 30 }, // Supports OTAA
-      8: { cellWidth: 30 }, // Created At
+      0: { cellWidth: 40 }, // ID
+      1: { cellWidth: 40 }, // MAC Version
+      2: { cellWidth: 40 }, // Name
+      3: { cellWidth: 20 }, // Reg Params Revision
+      4: { cellWidth: 20 }, // Region
+      5: { cellWidth: 20 }, // Supports OTAA
     };
     (doc as any).autoTable({
       head: [displayHeader],

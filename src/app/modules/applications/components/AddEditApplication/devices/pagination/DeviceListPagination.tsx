@@ -36,7 +36,7 @@ const DeviceListPagination = ({ filterDevice, setFilterDevice }: IDeviceListPagi
   });
   const deviceListQuery = useQuery({
     queryKey: [`deviceList`, filterDevice],
-    queryFn: async () => getDevice(filterDevice).catch((error) => toast.error(error.message)),
+    queryFn: async () => getDevice(filterDevice).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: false,
   });
   const isLoading = deviceListQuery.isLoading;

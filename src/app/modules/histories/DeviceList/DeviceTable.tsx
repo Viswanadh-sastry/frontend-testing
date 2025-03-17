@@ -106,7 +106,7 @@ const DeviceTable = () => {
               }
               totalCount += historyData.total;
             } catch (error: any) {
-              toast.error(error.message);
+              toast.error(error?.response?.data?.error || "Something went wrong");
             }
           }
         } else {
@@ -118,7 +118,7 @@ const DeviceTable = () => {
             }
             totalCount += historyData.total;
           } catch (error: any) {
-            toast.error(error.message);
+            toast.error(error?.response?.data?.error || "Something went wrong");
           }
         }
       }
@@ -141,7 +141,7 @@ const DeviceTable = () => {
           return index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage;
         })
       );
-      if (currentPage * itemsPerPage >= historyList.length && historyList.length > 0) {
+      if (currentPage * itemsPerPage >= historyList.length && historyList.length > 0 && total > historyList.length) {
         setFilterDevice({ ...filterDevice, offset: Math.ceil(historyList.length / itemsPerPage) });
       }
     }

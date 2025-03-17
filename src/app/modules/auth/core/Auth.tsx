@@ -5,6 +5,7 @@ import { AuthModel, UserModel } from "./_models";
 import * as authHelper from "./AuthHelpers";
 import { getUserDetails } from "./_requests";
 import { WithChildren } from "../../../../_metronic/helpers";
+import { UnauthorizedLORAModal } from "../components/UnauthorizedLORAModal";
 
 type AuthContextProps = {
   auth: AuthModel | undefined;
@@ -29,8 +30,18 @@ const useAuth = () => {
 };
 
 const AuthProvider: FC<WithChildren> = ({ children }) => {
+  const [isLORAUnauthorized, setIsLORAUnauthorized] = useState(false);
   const [auth, setAuth] = useState<AuthModel | undefined>(authHelper.getAuth());
   const [currentUser, setCurrentUser] = useState<UserModel | undefined>();
+
+  useEffect(() => {
+    if (localStorage.getItem("lora_unauthorized") === "true") {
+      setIsLORAUnauthorized(true);
+    } else {
+      setIsLORAUnauthorized(false);
+    }
+  }, [localStorage.getItem("lora_unauthorized") === "true" || localStorage.getItem("lora_unauthorized") === "false"]);
+
   const saveAuth = (auth: AuthModel | undefined) => {
     setAuth(auth);
     if (auth) {
@@ -46,7 +57,12 @@ const AuthProvider: FC<WithChildren> = ({ children }) => {
     setCurrentUser(undefined);
   };
 
-  return <AuthContext.Provider value={{ auth, saveAuth, currentUser, setCurrentUser, logout }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ auth, saveAuth, currentUser, setCurrentUser, logout }}>
+      {children}
+      {isLORAUnauthorized && <UnauthorizedLORAModal />}
+    </AuthContext.Provider>
+  );
 };
 
 const AuthInit: FC<WithChildren> = ({ children }) => {

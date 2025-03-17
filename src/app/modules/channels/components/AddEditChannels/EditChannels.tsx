@@ -23,7 +23,7 @@ const EditChannel = () => {
   });
   const channelQuery = useQuery({
     queryKey: [`channel`, id],
-    queryFn: async () => getChannel(id).catch((error) => toast.error(error.message)),
+    queryFn: async () => getChannel(id).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const channel = channelQuery.data;
@@ -74,7 +74,7 @@ const EditChannel = () => {
           channelQuery.refetch();
           setEnabled(false);
         })
-        .catch((error) => toast.error(error.message));
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
     } else {
       enableChannel(channel?.id)
         .then(() => {
@@ -82,7 +82,7 @@ const EditChannel = () => {
           channelQuery.refetch();
           setEnabled(true);
         })
-        .catch((error) => toast.error(error.message));
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
     }
   };
 
@@ -103,7 +103,7 @@ const EditChannel = () => {
             toast.success("Asset deleted successfully");
             navigate("/channels");
           })
-          .catch((error) => toast.error(error.message));
+          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
       }
     });
   };

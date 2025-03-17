@@ -33,7 +33,7 @@ const AddChannel = ({ onCloseAddChannel, onGetChannelList }: IAddChannelProps) =
 
   const channelListQuery = useQuery({
     queryKey: [`channelList`, filterChannel],
-    queryFn: async () => getChannelListAll(filterChannel).catch((error) => toast.error(error.message)),
+    queryFn: async () => getChannelListAll(filterChannel).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
 
@@ -55,7 +55,7 @@ const AddChannel = ({ onCloseAddChannel, onGetChannelList }: IAddChannelProps) =
           onCloseAddChannel();
           onGetChannelList();
         })
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -140,7 +140,7 @@ const AddChannel = ({ onCloseAddChannel, onGetChannelList }: IAddChannelProps) =
                   <button type="reset" onClick={onCloseAddChannel} className="btn btn-light me-3" data-kt-group-modal-action="cancel" disabled={formik.isSubmitting}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
                     <span className="indicator-label">Submit</span>
                   </button>
                 </div>

@@ -160,10 +160,10 @@ const ApplicationListHeader = ({ onShowImportApplication }: IDeviceProfileListHe
     doc.text(title, textX, 10);
     // Define column widths
     const columnWidths = {
-      0: { cellWidth: 30 }, // Dev EUI
+      0: { cellWidth: 40 }, // ID
       1: { cellWidth: 40 }, // Name
       2: { cellWidth: 40 }, // Description
-      3: { cellWidth: 40 }, // Created At
+      3: { cellWidth: 50 }, // Created At
     };
     (doc as any).autoTable({
       head: [displayHeader],

@@ -36,7 +36,7 @@ const AddThing = ({ onCloseAddThing, onGetThingList }: IAddThingProps) => {
 
   const thingListQuery = useQuery({
     queryKey: [`thingList`, filterThing],
-    queryFn: async () => getThingListAll(filterThing).catch((error) => toast.error(error.message)),
+    queryFn: async () => getThingListAll(filterThing).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
 
@@ -54,7 +54,7 @@ const AddThing = ({ onCloseAddThing, onGetThingList }: IAddThingProps) => {
           onCloseAddThing();
           onGetThingList();
         })
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -139,7 +139,7 @@ const AddThing = ({ onCloseAddThing, onGetThingList }: IAddThingProps) => {
                   <button type="reset" onClick={onCloseAddThing} className="btn btn-light me-3" data-kt-group-modal-action="cancel" disabled={formik.isSubmitting}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
                     <span className="indicator-label">Submit</span>
                   </button>
                 </div>

@@ -9,7 +9,7 @@ const ViewMember = () => {
   const userId = params.userId as string;
   const memberQuery = useQuery({
     queryKey: [`user`, userId],
-    queryFn: async () => getUser(userId).catch((error) => toast.error(error.message)),
+    queryFn: async () => getUser(userId).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const member = memberQuery.data;

@@ -17,8 +17,8 @@ export async function getJWTToken(username: string, token: string) {
     return response.data;
 }
 
-export async function addUpdateUser(data: any) {
-    const response = await axios.post(`${API_URL}/auth/userpass/users/${data.username}`, data, {
+export async function addUpdateUser(username: string, data: any) {
+    const response = await axios.post(`${API_URL}/auth/userpass/users/${username}`, data, {
         headers: {
             'Authorization': `Bearer ${vaultHelper.getVaultToken()}`,
         }

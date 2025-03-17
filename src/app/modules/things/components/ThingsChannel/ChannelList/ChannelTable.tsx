@@ -28,7 +28,7 @@ const ChannelTable = () => {
   });
   const channelListQuery = useQuery({
     queryKey: [`channelThingList`, filterChannel],
-    queryFn: async () => getThingChannelList(id, filterChannel).catch((error) => toast.error(error.message)),
+    queryFn: async () => getThingChannelList(id, filterChannel).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const isLoading = channelListQuery.isLoading;

@@ -33,7 +33,7 @@ const AddGroupChannel = ({ onCloseAddGroupChannel, onGetGroupChannelList }: IAdd
 
   const channelListQuery = useQuery({
     queryKey: [`ChannelList`, filterGroupChannel],
-    queryFn: async () => getChannelListAll(filterGroupChannel).catch((error) => toast.error(error.message)),
+    queryFn: async () => getChannelListAll(filterGroupChannel).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
 
@@ -58,7 +58,7 @@ const AddGroupChannel = ({ onCloseAddGroupChannel, onGetGroupChannelList }: IAdd
           onCloseAddGroupChannel();
           onGetGroupChannelList();
         })
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -143,7 +143,7 @@ const AddGroupChannel = ({ onCloseAddGroupChannel, onGetGroupChannelList }: IAdd
                   <button type="reset" onClick={onCloseAddGroupChannel} className="btn btn-light me-3" data-kt-group-modal-action="cancel" disabled={formik.isSubmitting}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
                     <span className="indicator-label">Submit</span>
                   </button>
                 </div>

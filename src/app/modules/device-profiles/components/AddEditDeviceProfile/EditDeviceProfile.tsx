@@ -15,7 +15,7 @@ const EditDeviceProfile = () => {
   const id = params.id as string;
   const deviceProfileQuery = useQuery({
     queryKey: [`deviceProfile`, id],
-    queryFn: async () => getDeviceProfileById(id).catch((error) => toast.error(error.message)),
+    queryFn: async () => getDeviceProfileById(id).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const deviceProfile = useMemo(() => deviceProfileQuery.data?.deviceProfile || {}, [deviceProfileQuery.data]);
@@ -79,7 +79,7 @@ const EditDeviceProfile = () => {
           toast.success("Device Profile updated successfully");
           navigate("/device-profiles");
         })
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -430,7 +430,7 @@ const EditDeviceProfile = () => {
             <button type="reset" onClick={onCloseBackEditDeviceProfile} className="btn btn-light me-3" data-kt-subscription-modal-action="cancel" disabled={formik.isSubmitting}>
               Back
             </button>
-            <button type="submit" className="btn btn-primary">
+            <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
               <span className="indicator-label">Submit</span>
             </button>
           </div>

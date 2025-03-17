@@ -163,7 +163,7 @@ const WidgetPreviewItem = ({ widgetData }: IWidgetPreviewItemProps) => {
           });
         }
       } catch (error: any) {
-        toast.error(error.message);
+        toast.error(error?.response?.data?.error || "Something went wrong");
       }
     }
 
@@ -226,7 +226,7 @@ const WidgetPreviewItem = ({ widgetData }: IWidgetPreviewItemProps) => {
           });
         }
       } catch (error: any) {
-        toast.error(error.message);
+        toast.error(error?.response?.data?.error || "Something went wrong");
       }
     }
 

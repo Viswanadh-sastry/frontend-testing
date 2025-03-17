@@ -35,7 +35,7 @@ const ViewDomain = () => {
             created_at: convertGMTToLocalDateTime(response.created_at),
           };
         })
-        .catch((error) => toast.error(error.message)),
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const domain = domainQuery.data;
@@ -86,7 +86,7 @@ const ViewDomain = () => {
           domainQuery.refetch();
           setEnabled(false);
         })
-        .catch((error) => toast.error(error.message));
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
     } else {
       enableDomain(domain?.id)
         .then(() => {
@@ -94,7 +94,7 @@ const ViewDomain = () => {
           domainQuery.refetch();
           setEnabled(true);
         })
-        .catch((error) => toast.error(error.message));
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
     }
   };
 

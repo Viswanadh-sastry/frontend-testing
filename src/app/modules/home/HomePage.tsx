@@ -33,7 +33,7 @@ const HomePage: React.FC = () => {
   };
   const userListQuery = useQuery({
     queryKey: [`userList`, filterUser],
-    queryFn: async () => getUserListAll(filterUser).catch((error) => toast.error(error.message)),
+    queryFn: async () => getUserListAll(filterUser).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const userData = useMemo(() => userListQuery.data?.users || [], [userListQuery.data]);
@@ -48,7 +48,7 @@ const HomePage: React.FC = () => {
   };
   const disabledUserListQuery = useQuery({
     queryKey: [`disabledUserList`, disabledFilterUser],
-    queryFn: async () => getUserListAll(disabledFilterUser).catch((error) => toast.error(error.message)),
+    queryFn: async () => getUserListAll(disabledFilterUser).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const disabledUserData = useMemo(() => disabledUserListQuery.data?.users || [], [disabledUserListQuery.data]);
@@ -63,7 +63,7 @@ const HomePage: React.FC = () => {
   };
   const groupListQuery = useQuery({
     queryKey: [`groupList`, filterGroup],
-    queryFn: async () => getGroupListAll(filterGroup).catch((error) => toast.error(error.message)),
+    queryFn: async () => getGroupListAll(filterGroup).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const groupData = useMemo(() => groupListQuery.data?.groups || [], [groupListQuery.data]);
@@ -77,7 +77,7 @@ const HomePage: React.FC = () => {
   };
   const disabledGroupListQuery = useQuery({
     queryKey: [`disabledGroupList`, disabledFilterGroup],
-    queryFn: async () => getGroupListAll(disabledFilterGroup).catch((error) => toast.error(error.message)),
+    queryFn: async () => getGroupListAll(disabledFilterGroup).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const disabledGroupData = useMemo(() => disabledGroupListQuery.data?.groups || [], [disabledGroupListQuery.data]);
@@ -91,7 +91,7 @@ const HomePage: React.FC = () => {
   };
   const channelListQuery = useQuery({
     queryKey: [`channelList`, filterChannel],
-    queryFn: async () => getChannelListAll(filterChannel).catch((error) => toast.error(error.message)),
+    queryFn: async () => getChannelListAll(filterChannel).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const assetData = useMemo(() => channelListQuery.data?.groups || [], [channelListQuery.data]);
@@ -104,7 +104,7 @@ const HomePage: React.FC = () => {
   };
   const disabledChannelListQuery = useQuery({
     queryKey: [`disabledChannelList`, disabledFilterChannel],
-    queryFn: async () => getChannelListAll(disabledFilterChannel).catch((error) => toast.error(error.message)),
+    queryFn: async () => getChannelListAll(disabledFilterChannel).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const disabledAssetData = useMemo(() => disabledChannelListQuery.data?.groups || [], [disabledChannelListQuery.data]);
@@ -120,7 +120,7 @@ const HomePage: React.FC = () => {
   const thingListQuery = useQuery({
     queryKey: [`thingList`, filterThing],
     queryFn: async () => {
-      const response = await getThingListAll(filterThing).catch((error) => toast.error(error.message));
+      const response = await getThingListAll(filterThing).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
       return {
         ...response,
         things: [
@@ -143,7 +143,7 @@ const HomePage: React.FC = () => {
   };
   const disabledThingListQuery = useQuery({
     queryKey: [`disabledThingList`, disabledFilterThing],
-    queryFn: async () => getThingListAll(disabledFilterThing).catch((error) => toast.error(error.message)),
+    queryFn: async () => getThingListAll(disabledFilterThing).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const disabledDeviceData = useMemo(() => disabledThingListQuery.data?.things || [], [disabledThingListQuery.data]);

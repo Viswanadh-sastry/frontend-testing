@@ -92,7 +92,7 @@ export function ForgotPassword() {
 
       {/* begin::Form group */}
       <div className="d-flex flex-wrap justify-content-center pb-lg-0">
-        <button type="submit" id="kt_password_reset_submit" className="btn btn-primary me-4">
+        <button type="submit" id="kt_password_reset_submit" className="btn btn-primary me-4" disabled={formik.isSubmitting || !formik.isValid}>
           <span className="indicator-label">Submit</span>
           {loading && (
             <span className="indicator-progress">
@@ -102,7 +102,7 @@ export function ForgotPassword() {
           )}
         </button>
         <Link to="/auth/login">
-          <button type="button" id="kt_login_password_reset_form_cancel_button" className="btn btn-light" disabled={formik.isSubmitting || !formik.isValid}>
+          <button type="button" id="kt_login_password_reset_form_cancel_button" className="btn btn-light">
             Cancel
           </button>
         </Link>{" "}

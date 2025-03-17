@@ -5,8 +5,6 @@ const API_URL = import.meta.env.VITE_APP_API_URL;
 export async function getDomainList(data: any) {
     const query = searchDomain(data);
     const response = await axios.get(`${API_URL}/domains?limit=${data.limit}&offset=${data.offset}${query}`);
-    // sort domains by name
-    response.data.domains?.sort((a: any, b: any) => a.name.localeCompare(b.name));
     return response.data;
 }
 

@@ -21,7 +21,7 @@ const SubscriptionTable = () => {
   });
   const subscriptionListQuery = useQuery({
     queryKey: [`subscriptionList`, filterSubscription],
-    queryFn: async () => getSubscriptionList(filterSubscription).catch((error) => toast.error(error.message)),
+    queryFn: async () => getSubscriptionList(filterSubscription).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
 

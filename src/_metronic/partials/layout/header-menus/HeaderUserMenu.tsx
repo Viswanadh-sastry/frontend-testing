@@ -8,7 +8,6 @@ import { removeRole } from "../../../../app/modules/auth/core/RoleHelpers";
 import * as domainHelper from "../../../../app/modules/auth/core/DomainHelpers";
 import * as credHelper from "../../../../app/modules/auth/core/CredentialHelpers";
 import * as vaultHelper from "../../../../app/modules/auth/core/VaultHelpers";
-import * as loraHelper from "../../../../app/modules/auth/core/LORAHelpers";
 import { getProfile } from "../../../../app/modules/profile/api/ProfileAPI";
 import { setUser } from "../../../../app/modules/auth/core/AuthHelpers";
 
@@ -17,7 +16,7 @@ const HeaderUserMenu: FC = () => {
   const navigate = useNavigate();
   const profileQuery = useQuery({
     queryKey: [`profile`],
-    queryFn: async () => getProfile().catch((error) => toast.error(error.message)),
+    queryFn: async () => getProfile().catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const profile = profileQuery.data;
@@ -36,7 +35,7 @@ const HeaderUserMenu: FC = () => {
     removeRole();
     credHelper.removeCred();
     vaultHelper.removeVaultToken();
-    loraHelper.removeLORAAuth();
+    // loraHelper.removeLORAAuth();
     navigate("/auth/login");
   };
 

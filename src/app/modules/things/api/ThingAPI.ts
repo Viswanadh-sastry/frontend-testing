@@ -6,8 +6,6 @@ const API_URL = import.meta.env.VITE_APP_API_URL;
 export async function getThingList(data: any) {
     const query = searchThing(data);
     const response = await axios.get(`${API_URL}/things${query}`);
-    // sort things by name
-    response.data.things?.sort((a: any, b: any) => a.name.localeCompare(b.name));
     return response.data;
 }
 

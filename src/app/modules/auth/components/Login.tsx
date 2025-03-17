@@ -50,11 +50,14 @@ export function Login() {
           throw new Error("No token found");
         }
         vaultHelper.setVaultToken(vaultToken.data.token);
-        loraHelper.setLORAAuth({
-          access_token:
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjaGlycHN0YWNrIiwiaXNzIjoiY2hpcnBzdGFjayIsInN1YiI6IjZiNmFkNGY1LTZlOWQtNDZjZS1iNDc2LTg4Mjc4MzZhYTA3YSIsInR5cCI6ImtleSJ9.8OBIcUbqivJmJm_a2BbmRorqu6D5KQByN-tWC0PZoE0",
-          tenant_id: "52f14cd4-c6f1-4fbd-8f87-4025e1d49242",
-        });
+        const loraAuth = loraHelper.getLORAAuth();
+        if (!loraAuth) {
+          loraHelper.setLORAAuth({
+            access_token:
+              "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjaGlycHN0YWNrIiwiaXNzIjoiY2hpcnBzdGFjayIsInN1YiI6IjZiNmFkNGY1LTZlOWQtNDZjZS1iNDc2LTg4Mjc4MzZhYTA3YSIsInR5cCI6ImtleSJ9.8OBIcUbqivJmJm_a2BbmRorqu6D5KQByN-tWC0PZoE0",
+            tenant_id: "52f14cd4-c6f1-4fbd-8f87-4025e1d49242",
+          });
+        }
         // vaultHelper.setVaultToken(
         //   "eyJhbGciOiJFUzM4NCIsImtpZCI6ImJkMjJjZTlmLTY2MjAtNjQ3Ny03ZjFmLTBmZWE2YjNlMzI1MyJ9.eyJhdWQiOiJlZGdleCIsImV4cCI6MTczODEzMTQzNywiaWF0IjoxNzM4MTI0Mjk3LCJpc3MiOiIvdjEvaWRlbnRpdHkvb2lkYyIsIm5hbWUiOiJleDEiLCJuYW1lc3BhY2UiOiJyb290Iiwic3ViIjoiYTg3MTA5MjAtNjEwZS02MTllLWEzNTQtYWU5M2Y3ZGY0NDEwIn0.EYzEHdPwd-o5QHsGYYnwC-iHUARUSIWeQ-Ohyn118NUykXPAxYF3pXde_XZKR33Ewlu6-wiIQg2Q7ByikY9RfOGqvloAlJVaWG-EhU7g_pylXxfn4aeTVeP8Q7krhL92"
         // );

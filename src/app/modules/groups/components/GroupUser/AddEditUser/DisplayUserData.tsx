@@ -10,7 +10,7 @@ const DisplayUserData = () => {
 
   const groupUserQuery = useQuery({
     queryKey: [`groupUser`, id],
-    queryFn: async () => getUser(id).catch((error) => toast.error(error.message)),
+    queryFn: async () => getUser(id).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const groupUser = groupUserQuery.data;

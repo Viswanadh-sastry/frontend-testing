@@ -36,7 +36,7 @@ const IntegrationListPagination = ({ filterIntegration, setFilterIntegration }: 
   });
   const integrationListQuery = useQuery({
     queryKey: [`integrationList`, filterIntegration],
-    queryFn: async () => getIntegration(filterIntegration).catch((error) => toast.error(error.message)),
+    queryFn: async () => getIntegration(filterIntegration).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: false,
   });
   const isLoading = integrationListQuery.isLoading;

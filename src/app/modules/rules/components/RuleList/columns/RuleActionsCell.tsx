@@ -1,29 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
-import { FC, useState } from "react";
+import { FC } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { deleteRule, getRuleList, startRule, stopRule } from "../../../api/RuleAPI";
-import { EditRule } from "../../AddEditRule/EditRule";
 
 type Props = {
   row: any;
 };
 
 const RuleActionsCell: FC<Props> = ({ row }) => {
-  const [showEditRule, setShowEditRule] = useState(false);
+  const navigate = useNavigate();
   const ruleListQuery = useQuery({
     queryKey: [`ruleList`],
     queryFn: async () => getRuleList(),
     enabled: true,
   });
-
-  const openEditRulePage = () => {
-    setShowEditRule(true);
-  };
-
-  const onCloseEditRule = () => {
-    setShowEditRule(false);
-  };
 
   const openDeleteRulePage = () => {
     Swal.fire({
@@ -44,7 +36,7 @@ const RuleActionsCell: FC<Props> = ({ row }) => {
             toast.success("Rule deleted successfully");
             ruleListQuery.refetch();
           })
-          .catch((error) => toast.error(error.message));
+          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
       }
     });
   };
@@ -68,7 +60,7 @@ const RuleActionsCell: FC<Props> = ({ row }) => {
             toast.success("Rule started successfully");
             ruleListQuery.refetch();
           })
-          .catch((error) => toast.error(error.message));
+          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
       }
     });
   };
@@ -92,9 +84,13 @@ const RuleActionsCell: FC<Props> = ({ row }) => {
             toast.success("Rule stopped successfully");
             ruleListQuery.refetch();
           })
-          .catch((error) => toast.error(error.message));
+          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
       }
     });
+  };
+
+  const openEditRulePage = () => {
+    navigate(`/rule/${row.original.name}`);
   };
 
   return (
@@ -111,7 +107,6 @@ const RuleActionsCell: FC<Props> = ({ row }) => {
       <button type="button" className="btn btn-light btn-danger btn-sm" onClick={openDeleteRulePage}>
         Delete
       </button>
-      {showEditRule && <EditRule row={row} onCloseEditRule={onCloseEditRule} />}
     </>
   );
 };

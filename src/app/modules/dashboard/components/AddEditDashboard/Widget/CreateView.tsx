@@ -340,7 +340,7 @@ const CreateView = ({ selectedLayout, onCloseAddChart, onGetChartWidgetList }: I
                   <button type="reset" onClick={onCloseAddChart} className="btn btn-light me-3" data-kt-chart-modal-action="cancel" disabled={formik.isSubmitting}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
                     <span className="indicator-label">Submit</span>
                   </button>
                 </div>

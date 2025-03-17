@@ -40,7 +40,7 @@ const GroupsListPagination = ({ filterGroup, setFilterGroup }: IGroupsListPagina
   });
   const groupListQuery = useQuery({
     queryKey: [`groupList`, filterGroup],
-    queryFn: async () => getGroupList(filterGroup).catch((error) => toast.error(error.message)),
+    queryFn: async () => getGroupList(filterGroup).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: false,
   });
   const isLoading = groupListQuery.isLoading;

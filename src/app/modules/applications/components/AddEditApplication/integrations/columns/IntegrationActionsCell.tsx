@@ -47,7 +47,7 @@ const IntegrationActionsCell: FC<Props> = ({ kind }) => {
             toast.success("Integration deleted successfully");
             integrationListQuery.refetch();
           })
-          .catch((error) => toast.error(error.message));
+          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
       }
     });
   };

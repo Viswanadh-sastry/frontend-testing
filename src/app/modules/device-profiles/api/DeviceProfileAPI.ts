@@ -49,6 +49,16 @@ export async function deleteDeviceProfileById(id: string) {
     return response.data;
 }
 
+export async function getTenantList(data: any) {
+    const query = searchTenant(data);
+    const response = await axios.get(`${API_URL}/tenants${query}`, {
+        headers: {
+            'Grpc-Metadata-Authorization': `Bearer ${getLORAAuth()?.access_token}`,
+        }
+    });
+    return response.data;
+}
+
 const searchDeviceProfile = (data: any) => {
     let query = "";
     if (data.limit) {
@@ -59,6 +69,17 @@ const searchDeviceProfile = (data: any) => {
     }
     if (data.tenantId) {
         query += `&tenantId=${data.tenantId}`;
+    }
+    return query;
+}
+
+const searchTenant = (data: any) => {
+    let query = "";
+    if (data.limit) {
+        query += `?limit=${data.limit}`;
+    }
+    if (data.offset) {
+        query += `&offset=${data.offset}`;
     }
     return query;
 }

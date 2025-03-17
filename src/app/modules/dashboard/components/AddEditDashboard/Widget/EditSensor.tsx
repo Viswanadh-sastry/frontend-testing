@@ -389,7 +389,7 @@ const EditSensor = ({ inputData, onClose, onEditView }: IEditViewProps) => {
                   <button type="reset" onClick={onClose} className="btn btn-light me-3" data-kt-chart-modal-action="cancel" disabled={formik.isSubmitting}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
                     <span className="indicator-label">Submit</span>
                   </button>
                 </div>

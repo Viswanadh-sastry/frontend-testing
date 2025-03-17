@@ -20,7 +20,7 @@ const EditStream = ({ row, onCloseEditStream }: IEditStreamProps) => {
   });
   const streamQuery = useQuery({
     queryKey: [`stream`, row.original.name],
-    queryFn: async () => getStream(row.original.name).catch((error) => toast.error(error.message)),
+    queryFn: async () => getStream(row.original.name).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
     enabled: true,
   });
   const stream = useMemo(() => streamQuery.data || {}, [streamQuery.data]);
@@ -42,7 +42,7 @@ const EditStream = ({ row, onCloseEditStream }: IEditStreamProps) => {
           onCloseEditStream();
           streamListQuery.refetch();
         })
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -104,7 +104,7 @@ const EditStream = ({ row, onCloseEditStream }: IEditStreamProps) => {
                   <button type="reset" onClick={onCloseEditStream} className="btn btn-light me-3" data-kt-stream-modal-action="cancel" disabled={formik.isSubmitting}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
                     <span className="indicator-label">Submit</span>
                   </button>
                 </div>

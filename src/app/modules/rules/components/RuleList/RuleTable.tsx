@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ColumnInstance, Row, useTable } from "react-table";
 import { KTCard, KTCardBody, PaginationState } from "../../../../../_metronic/helpers";
 import { getRuleList } from "../../api/RuleAPI";
 import { Rule } from "../../api/_models";
-import { AddRule } from "../AddEditRule/AddRule";
 import { RuleListHeader } from "./RuleListHeader";
 import { CustomHeaderColumn } from "./columns/CustomHeaderColumn";
 import { CustomRow } from "./columns/CustomRow";
@@ -13,7 +13,7 @@ import { RuleListLoading } from "./pagination/RuleListLoading";
 import { RuleListPagination } from "./pagination/RuleListPagination";
 
 const RuleTable = () => {
-  const [showAddRule, setShowAddRule] = useState(false);
+  const navigate = useNavigate();
   const [data, setData] = useState<any>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState<any>(10);
@@ -51,15 +51,7 @@ const RuleTable = () => {
   });
 
   const onShowAddRule = () => {
-    setShowAddRule(true);
-  };
-
-  const onCloseAddRule = () => {
-    setShowAddRule(false);
-  };
-
-  const onGetRuleList = () => {
-    ruleListQuery.refetch();
+    navigate("/rule/add");
   };
 
   return (
@@ -101,7 +93,6 @@ const RuleTable = () => {
           setPagination={setPagination}
           setData={setData}
         />
-        {showAddRule && <AddRule onCloseAddRule={onCloseAddRule} onGetRuleList={onGetRuleList} />}
         {isLoading && <RuleListLoading />}
       </KTCardBody>
     </KTCard>

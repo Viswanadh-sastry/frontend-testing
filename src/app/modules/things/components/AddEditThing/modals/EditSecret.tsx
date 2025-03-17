@@ -36,7 +36,7 @@ const EditSecret = ({ data, onClose, onDisplay }: IEditSecretProps) => {
           onDisplay();
         })
 
-        .catch((error) => toast.error(error.message))
+        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -95,7 +95,7 @@ const EditSecret = ({ data, onClose, onDisplay }: IEditSecretProps) => {
                   <button type="reset" onClick={onClose} className="btn btn-light me-3" data-kt-users-modal-action="cancel" disabled={formik.isSubmitting}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
                     <span className="indicator-label">Submit</span>
                   </button>
                 </div>
