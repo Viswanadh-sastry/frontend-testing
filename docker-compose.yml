@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-honeycomb-fe:
+  honeycomb-fe:
     image: mdatalabdev/honeycomb-fe  # Change this if you push to a registry
     build: .
     ports:
