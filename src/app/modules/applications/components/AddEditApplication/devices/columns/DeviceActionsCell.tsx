@@ -20,7 +20,7 @@ const DeviceActionsCell: FC<Props> = ({ id }) => {
   };
   const deviceListQuery = useQuery({
     queryKey: [`deviceList`, filterDevice],
-    queryFn: async () => getDevice(filterDevice),
+    queryFn: async () => getDevice(filterDevice).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
 
@@ -42,13 +42,13 @@ const DeviceActionsCell: FC<Props> = ({ id }) => {
       },
     }).then((result) => {
       if (result.isConfirmed) {
-        deleteKeysById(String(id));
+        deleteKeysById(String(id)).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
         deleteDeviceById(String(id))
           .then(() => {
             toast.success("Device deleted successfully");
             deviceListQuery.refetch();
           })
-          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
       }
     });
   };

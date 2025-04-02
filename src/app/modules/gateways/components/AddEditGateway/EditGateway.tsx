@@ -19,7 +19,7 @@ const EditGateway = () => {
   const id = params.id as string;
   const gatewayQuery = useQuery({
     queryKey: [`gateway`, id],
-    queryFn: async () => getGatewayById(id).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getGatewayById(id).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const gateway = useMemo(() => gatewayQuery.data?.gateway || {}, [gatewayQuery.data]);
@@ -65,7 +65,7 @@ const EditGateway = () => {
           toast.success("Gateway updated successfully");
           navigate("/gateways");
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });

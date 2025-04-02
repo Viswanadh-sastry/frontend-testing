@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { useFormik } from "formik";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
-import { KTIcon } from "../../../../../_metronic/helpers";
+import { ConditionInputFields, KTIcon } from "../../../../../_metronic/helpers";
 
 interface IQueryBuilderProps {
   onCloseQueryBuilder: () => void;
@@ -16,8 +16,8 @@ const QueryBuilder = ({ onCloseQueryBuilder }: IQueryBuilderProps) => {
         device: Yup.string().required("Device is required"),
         parameter: Yup.string().required("Parameter is required"),
         isCondition: Yup.boolean().required("Condition is required"),
-        conditionText: Yup.string().required("Condition is required"),
-        conditionValue: Yup.string().required("Value is required"),
+        isAndOrCondition: Yup.boolean(),
+        conditions: Yup.array(),
       })
     ),
   });
@@ -30,8 +30,13 @@ const QueryBuilder = ({ onCloseQueryBuilder }: IQueryBuilderProps) => {
           device: "",
           parameter: "",
           isCondition: true,
-          conditionText: "",
-          conditionValue: "",
+          isAndOrCondition: false,
+          conditions: [
+            {
+              conditionText: "",
+              conditionValue: "",
+            },
+          ],
         },
       ],
     },
@@ -96,220 +101,205 @@ const QueryBuilder = ({ onCloseQueryBuilder }: IQueryBuilderProps) => {
                       </div>
                     </div>
                   </div>
-                  {formik.values.filterCondition.map((condition, index) => (
-                    <div className="row" key={index}>
-                      {/* Device */}
-                      <div className="col-md-12">
-                        <div className="card card-custom gutter-b">
-                          <div className="card-header d-flex justify-content-between align-items-center">
-                            <h4 className="card-title font-weight-bold">Filter Condition</h4>
-                            <button
-                              className="btn btn-light-danger btn-sm"
-                              onClick={() => {
-                                const newArray = [...formik.values.filterCondition];
-                                newArray.splice(index, 1);
-                                formik.setFieldValue("filterCondition", newArray);
-                              }}
-                            >
-                              <i className="bi bi-trash p-0"></i>
-                            </button>
-                          </div>
-                          <div className="card-body">
-                            <select
-                              {...formik.getFieldProps(`filterCondition.${index}.device`)}
-                              className={clsx(
-                                "form-select form-select form-select-lg",
-                                {
-                                  "is-invalid":
-                                    formik.touched.filterCondition?.[index]?.device &&
-                                    typeof formik.errors.filterCondition?.[index] === "object" &&
-                                    formik.errors.filterCondition?.[index]?.device,
-                                },
-                                {
-                                  "is-valid":
-                                    formik.touched.filterCondition?.[index]?.device &&
-                                    typeof formik.errors.filterCondition?.[index] === "object" &&
-                                    !formik.errors.filterCondition?.[index]?.device,
-                                }
-                              )}
-                            >
-                              <option>Select Asset/Device</option>
-                            </select>
-                            {formik.touched.filterCondition?.[index]?.device &&
-                              typeof formik.errors.filterCondition?.[index] === "object" &&
-                              formik.errors.filterCondition?.[index]?.device && (
-                                <div className="fv-plugins-message-container">
-                                  <div className="fv-help-block">
-                                    <span role="alert">{formik.errors.filterCondition?.[index]?.device}</span>
-                                  </div>
-                                </div>
-                              )}
-                            <select
-                              {...formik.getFieldProps(`filterCondition.${index}.parameter`)}
-                              className={clsx(
-                                "form-select form-select form-select-lg mt-3",
-                                {
-                                  "is-invalid":
-                                    formik.touched.filterCondition?.[index]?.parameter &&
-                                    typeof formik.errors.filterCondition?.[index] === "object" &&
-                                    formik.errors.filterCondition?.[index]?.parameter,
-                                },
-                                {
-                                  "is-valid":
-                                    formik.touched.filterCondition?.[index]?.parameter &&
-                                    typeof formik.errors.filterCondition?.[index] === "object" &&
-                                    !formik.errors.filterCondition?.[index]?.parameter,
-                                }
-                              )}
-                            >
-                              <option>Select Parameter (Type of Sensor)</option>
-                            </select>
-                            {formik.touched.filterCondition?.[index]?.parameter &&
-                              typeof formik.errors.filterCondition?.[index] === "object" &&
-                              formik.errors.filterCondition?.[index]?.parameter && (
-                                <div className="fv-plugins-message-container">
-                                  <div className="fv-help-block">
-                                    <span role="alert">{formik.errors.filterCondition?.[index]?.parameter}</span>
-                                  </div>
-                                </div>
-                              )}
-                            <div className="mt-3">
-                              <div className="form-check form-check-inline">
-                                <input
-                                  type="radio"
-                                  id={`static-${index}`}
-                                  name={`static-${index}`}
-                                  checked={formik.values.filterCondition[index].isCondition}
-                                  onChange={() => formik.setFieldValue(`filterCondition.${index}.isCondition`, true)}
-                                  className="form-check-input"
-                                />
-                                <label htmlFor={`static-${index}`} className="form-check-label">
-                                  Static
-                                </label>
-                              </div>
-                              <div className="form-check form-check-inline">
-                                <input
-                                  type="radio"
-                                  id={`dynamic-${index}`}
-                                  name={`dynamic-${index}`}
-                                  checked={!formik.values.filterCondition[index].isCondition}
-                                  onChange={() => formik.setFieldValue(`filterCondition.${index}.isCondition`, false)}
-                                  className="form-check-input"
-                                />
-                                <label htmlFor={`dynamic-${index}`} className="form-check-label">
-                                  Dynamic
-                                </label>
-                              </div>
+                  {formik.values.filterCondition.map((conditions, index) => (
+                    <>
+                      {index > 0 && (
+                        <div className="row my-3" key={index}>
+                          <div className="col-md-12 d-flex justify-content-center align-items-center">
+                            <div className="form-check form-switch form-check-custom form-check-solid me-10">
+                              <input
+                                type="checkbox"
+                                id={`and-or-condition-${index}`}
+                                checked={formik.values.filterCondition[index].isAndOrCondition}
+                                onChange={() => formik.setFieldValue(`filterCondition.${index}.isAndOrCondition`, !formik.values.filterCondition[index].isAndOrCondition)}
+                                className="form-check-input h-30px w-50px"
+                              />
+                              <label htmlFor={`and-or-condition-${index}`} className="form-check-label">
+                                {formik.values.filterCondition[index].isAndOrCondition ? "AND" : "OR"}
+                              </label>
                             </div>
-                            {formik.values.filterCondition[index].isCondition && (
-                              <div className="d-flex align-items-start mt-3">
-                                <select {...formik.getFieldProps(`filterCondition.${index}.conditionText`)} className="form-select form-select-lg w-auto">
-                                  <option value="<">&lt;</option>
-                                  <option value=">">&gt;</option>
-                                  <option value="<=">&lt;=</option>
-                                  <option value=">=">&gt;=</option>
-                                  <option value="==">==</option>
-                                  <option value="!=">!=</option>
-                                </select>
-                                <div className="form-input w-100 mx-2">
+                          </div>
+                        </div>
+                      )}
+                      <div className="row" key={index}>
+                        {/* Device */}
+                        <div className="col-md-12">
+                          <div className="card card-custom gutter-b">
+                            <div className="card-header d-flex justify-content-between align-items-center">
+                              <h4 className="card-title font-weight-bold">Filter Condition</h4>
+                              <button
+                                className="btn btn-light-danger btn-sm"
+                                onClick={() => {
+                                  const newArray = [...formik.values.filterCondition];
+                                  newArray.splice(index, 1);
+                                  formik.setFieldValue("filterCondition", newArray);
+                                }}
+                              >
+                                <i className="bi bi-trash p-0"></i>
+                              </button>
+                            </div>
+                            <div className="card-body">
+                              <select
+                                {...formik.getFieldProps(`filterCondition.${index}.device`)}
+                                className={clsx(
+                                  "form-select form-select form-select-lg",
+                                  {
+                                    "is-invalid":
+                                      formik.touched.filterCondition?.[index]?.device &&
+                                      typeof formik.errors.filterCondition?.[index] === "object" &&
+                                      formik.errors.filterCondition?.[index]?.device,
+                                  },
+                                  {
+                                    "is-valid":
+                                      formik.touched.filterCondition?.[index]?.device &&
+                                      typeof formik.errors.filterCondition?.[index] === "object" &&
+                                      !formik.errors.filterCondition?.[index]?.device,
+                                  }
+                                )}
+                              >
+                                <option>Select Asset/Device</option>
+                              </select>
+                              {formik.touched.filterCondition?.[index]?.device &&
+                                typeof formik.errors.filterCondition?.[index] === "object" &&
+                                formik.errors.filterCondition?.[index]?.device && (
+                                  <div className="fv-plugins-message-container">
+                                    <div className="fv-help-block">
+                                      <span role="alert">{formik.errors.filterCondition?.[index]?.device}</span>
+                                    </div>
+                                  </div>
+                                )}
+                              <select
+                                {...formik.getFieldProps(`filterCondition.${index}.parameter`)}
+                                className={clsx(
+                                  "form-select form-select form-select-lg mt-3",
+                                  {
+                                    "is-invalid":
+                                      formik.touched.filterCondition?.[index]?.parameter &&
+                                      typeof formik.errors.filterCondition?.[index] === "object" &&
+                                      formik.errors.filterCondition?.[index]?.parameter,
+                                  },
+                                  {
+                                    "is-valid":
+                                      formik.touched.filterCondition?.[index]?.parameter &&
+                                      typeof formik.errors.filterCondition?.[index] === "object" &&
+                                      !formik.errors.filterCondition?.[index]?.parameter,
+                                  }
+                                )}
+                              >
+                                <option>Select Parameter (Type of Sensor)</option>
+                              </select>
+                              {formik.touched.filterCondition?.[index]?.parameter &&
+                                typeof formik.errors.filterCondition?.[index] === "object" &&
+                                formik.errors.filterCondition?.[index]?.parameter && (
+                                  <div className="fv-plugins-message-container">
+                                    <div className="fv-help-block">
+                                      <span role="alert">{formik.errors.filterCondition?.[index]?.parameter}</span>
+                                    </div>
+                                  </div>
+                                )}
+                              <div className="mt-3">
+                                <div className="form-check form-check-inline">
                                   <input
-                                    type="text"
-                                    {...formik.getFieldProps(`filterCondition.${index}.conditionValue`)}
+                                    type="radio"
+                                    id={`static-${index}`}
+                                    name={`static-${index}`}
+                                    checked={formik.values.filterCondition[index].isCondition}
+                                    onChange={() => formik.setFieldValue(`filterCondition.${index}.isCondition`, true)}
+                                    className="form-check-input"
+                                  />
+                                  <label htmlFor={`static-${index}`} className="form-check-label">
+                                    Static
+                                  </label>
+                                </div>
+                                <div className="form-check form-check-inline">
+                                  <input
+                                    type="radio"
+                                    id={`dynamic-${index}`}
+                                    name={`dynamic-${index}`}
+                                    checked={!formik.values.filterCondition[index].isCondition}
+                                    onChange={() => formik.setFieldValue(`filterCondition.${index}.isCondition`, false)}
+                                    className="form-check-input"
+                                  />
+                                  <label htmlFor={`dynamic-${index}`} className="form-check-label">
+                                    Dynamic
+                                  </label>
+                                </div>
+                              </div>
+                              {formik.values.filterCondition[index].isCondition && (
+                                <div className="mt-3">
+                                  <ConditionInputFields
+                                    conditions={formik.values.filterCondition[index].conditions}
+                                    setConditions={(value: any) => formik.setFieldValue(`filterCondition.${index}.conditions`, value)}
+                                  />
+                                </div>
+                              )}
+                              {!formik.values.filterCondition[index].isCondition && (
+                                <div className="mt-3">
+                                  <select
+                                    {...formik.getFieldProps(`filterCondition.${index}.device`)}
                                     className={clsx(
-                                      "form-control form-control-lg ml-2",
+                                      "form-select form-select form-select-lg",
                                       {
                                         "is-invalid":
-                                          formik.touched.filterCondition?.[index]?.conditionValue &&
+                                          formik.touched.filterCondition?.[index]?.device &&
                                           typeof formik.errors.filterCondition?.[index] === "object" &&
-                                          formik.errors.filterCondition?.[index]?.conditionValue,
+                                          formik.errors.filterCondition?.[index]?.device,
                                       },
                                       {
                                         "is-valid":
-                                          formik.touched.filterCondition?.[index]?.conditionValue &&
+                                          formik.touched.filterCondition?.[index]?.device &&
                                           typeof formik.errors.filterCondition?.[index] === "object" &&
-                                          !formik.errors.filterCondition?.[index]?.conditionValue,
+                                          !formik.errors.filterCondition?.[index]?.device,
                                       }
                                     )}
-                                  />
-                                  {formik.touched.filterCondition?.[index]?.conditionValue &&
+                                  >
+                                    <option>Select Asset/Device</option>
+                                  </select>
+                                  {formik.touched.filterCondition?.[index]?.device &&
                                     typeof formik.errors.filterCondition?.[index] === "object" &&
-                                    formik.errors.filterCondition?.[index]?.conditionValue && (
+                                    formik.errors.filterCondition?.[index]?.device && (
                                       <div className="fv-plugins-message-container">
                                         <div className="fv-help-block">
-                                          <span role="alert">{formik.errors.filterCondition?.[index]?.conditionValue}</span>
+                                          <span role="alert">{formik.errors.filterCondition?.[index]?.device}</span>
+                                        </div>
+                                      </div>
+                                    )}
+                                  <select
+                                    {...formik.getFieldProps(`filterCondition.${index}.parameter`)}
+                                    className={clsx(
+                                      "form-select form-select form-select-lg mt-3",
+                                      {
+                                        "is-invalid":
+                                          formik.touched.filterCondition?.[index]?.parameter &&
+                                          typeof formik.errors.filterCondition?.[index] === "object" &&
+                                          formik.errors.filterCondition?.[index]?.parameter,
+                                      },
+                                      {
+                                        "is-valid":
+                                          formik.touched.filterCondition?.[index]?.parameter &&
+                                          typeof formik.errors.filterCondition?.[index] === "object" &&
+                                          !formik.errors.filterCondition?.[index]?.parameter,
+                                      }
+                                    )}
+                                  >
+                                    <option>Select Parameter (Type of Sensor)</option>
+                                  </select>
+                                  {formik.touched.filterCondition?.[index]?.parameter &&
+                                    typeof formik.errors.filterCondition?.[index] === "object" &&
+                                    formik.errors.filterCondition?.[index]?.parameter && (
+                                      <div className="fv-plugins-message-container">
+                                        <div className="fv-help-block">
+                                          <span role="alert">{formik.errors.filterCondition?.[index]?.parameter}</span>
                                         </div>
                                       </div>
                                     )}
                                 </div>
-                                <button className="btn btn-primary ml-2">+</button>
-                              </div>
-                            )}
-                            {!formik.values.filterCondition[index].isCondition && (
-                              <div className="mt-3">
-                                <select
-                                  {...formik.getFieldProps(`filterCondition.${index}.device`)}
-                                  className={clsx(
-                                    "form-select form-select form-select-lg",
-                                    {
-                                      "is-invalid":
-                                        formik.touched.filterCondition?.[index]?.device &&
-                                        typeof formik.errors.filterCondition?.[index] === "object" &&
-                                        formik.errors.filterCondition?.[index]?.device,
-                                    },
-                                    {
-                                      "is-valid":
-                                        formik.touched.filterCondition?.[index]?.device &&
-                                        typeof formik.errors.filterCondition?.[index] === "object" &&
-                                        !formik.errors.filterCondition?.[index]?.device,
-                                    }
-                                  )}
-                                >
-                                  <option>Select Asset/Device</option>
-                                </select>
-                                {formik.touched.filterCondition?.[index]?.device &&
-                                  typeof formik.errors.filterCondition?.[index] === "object" &&
-                                  formik.errors.filterCondition?.[index]?.device && (
-                                    <div className="fv-plugins-message-container">
-                                      <div className="fv-help-block">
-                                        <span role="alert">{formik.errors.filterCondition?.[index]?.device}</span>
-                                      </div>
-                                    </div>
-                                  )}
-                                <select
-                                  {...formik.getFieldProps(`filterCondition.${index}.parameter`)}
-                                  className={clsx(
-                                    "form-select form-select form-select-lg mt-3",
-                                    {
-                                      "is-invalid":
-                                        formik.touched.filterCondition?.[index]?.parameter &&
-                                        typeof formik.errors.filterCondition?.[index] === "object" &&
-                                        formik.errors.filterCondition?.[index]?.parameter,
-                                    },
-                                    {
-                                      "is-valid":
-                                        formik.touched.filterCondition?.[index]?.parameter &&
-                                        typeof formik.errors.filterCondition?.[index] === "object" &&
-                                        !formik.errors.filterCondition?.[index]?.parameter,
-                                    }
-                                  )}
-                                >
-                                  <option>Select Parameter (Type of Sensor)</option>
-                                </select>
-                                {formik.touched.filterCondition?.[index]?.parameter &&
-                                  typeof formik.errors.filterCondition?.[index] === "object" &&
-                                  formik.errors.filterCondition?.[index]?.parameter && (
-                                    <div className="fv-plugins-message-container">
-                                      <div className="fv-help-block">
-                                        <span role="alert">{formik.errors.filterCondition?.[index]?.parameter}</span>
-                                      </div>
-                                    </div>
-                                  )}
-                              </div>
-                            )}
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </>
                   ))}
                   <div className="row">
                     <div className="col-md-12">
@@ -323,8 +313,12 @@ const QueryBuilder = ({ onCloseQueryBuilder }: IQueryBuilderProps) => {
                               device: "",
                               parameter: "",
                               isCondition: true,
-                              conditionText: "",
-                              conditionValue: "",
+                              conditions: [
+                                {
+                                  conditionText: "",
+                                  conditionValue: "",
+                                },
+                              ],
                             },
                           ])
                         }

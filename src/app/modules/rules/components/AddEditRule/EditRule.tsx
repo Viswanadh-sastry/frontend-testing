@@ -17,7 +17,7 @@ const EditRule = () => {
   const [showQueryBuilder, setShowQueryBuilder] = useState(false);
   const ruleQuery = useQuery({
     queryKey: [`rule`, name],
-    queryFn: async () => getRule(name).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getRule(name).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const rule = useMemo(() => ruleQuery.data || {}, [ruleQuery.data]);
@@ -74,7 +74,7 @@ const EditRule = () => {
           toast.success("Rule updated successfully");
           navigate("/rule");
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });

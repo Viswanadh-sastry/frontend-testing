@@ -13,7 +13,7 @@ const applicationsColumns: ReadonlyArray<Column<Application>> = [
     accessor: "description",
   },
   {
-    Header: (props) => <ApplicationCustomHeader tableProps={props} title="Actions" className="text-end min-w-100px" />,
+    Header: (props) => <ApplicationCustomHeader tableProps={props} title="Actions" className="text-end min-w-150px" />,
     id: "actions",
     Cell: ({ ...props }) => <ApplicationActionsCell id={props.data[props.row.index].id} />,
   },

@@ -43,7 +43,7 @@ const DeviceListFilter = ({ setFilterDevice, setHistoryList }: IDeviceListHeader
 
   const deviceListQuery = useQuery({
     queryKey: [`deviceList`, filterDevice],
-    queryFn: async () => getThingListAll(filterDevice).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getThingListAll(filterDevice).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
 

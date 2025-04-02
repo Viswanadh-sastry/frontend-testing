@@ -222,7 +222,7 @@ const NotificationListHeader = ({ setFilterNotification, filterNotification, not
           toast.success("Notification deleted successfully");
           notificationListQuery.refetch();
         } catch (error: any) {
-          toast.error(error?.response?.data?.error || "Something went wrong");
+          toast.error(error?.response?.data?.message || "Something went wrong");
         }
       }
     });

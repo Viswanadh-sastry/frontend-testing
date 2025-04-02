@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { ColumnInstance, Row, useTable } from "react-table";
+import { toast } from "react-toastify";
 import { KTCard, KTCardBody } from "../../../../../_metronic/helpers";
+import { SelectedValuesProvider } from "../../NotificationContext";
 import { getNotification } from "../../api/NotificationAPI";
 import { Notification } from "../../api/_models";
 import { NotificationListHeader } from "./NotificationListHeader";
@@ -10,7 +12,6 @@ import { CustomRow } from "./columns/CustomRow";
 import { notificationsColumns } from "./columns/_columns";
 import { NotificationListLoading } from "./pagination/NotificationListLoading";
 import { NotificationListPagination } from "./pagination/NotificationListPagination";
-import { SelectedValuesProvider } from "../../NotificationContext";
 
 const NotificationTable = () => {
   const [filterNotification, setFilterNotification] = useState({
@@ -22,7 +23,7 @@ const NotificationTable = () => {
   });
   const notificationListQuery = useQuery({
     queryKey: [`notificationList`, filterNotification],
-    queryFn: async () => getNotification(filterNotification),
+    queryFn: async () => getNotification(filterNotification).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
 

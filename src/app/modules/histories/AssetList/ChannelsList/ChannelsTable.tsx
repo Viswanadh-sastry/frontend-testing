@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { ColumnInstance, Row, useTable } from "react-table";
+import { toast } from "react-toastify";
 import { KTCard, KTCardBody } from "../../../../../_metronic/helpers";
 import { getChannelList } from "../../../channels/api/ChannelsAPI";
+import { SelectedValuesProvider } from "../../HistoryContext";
 import { Channels } from "../../api/_models";
 import { ChannelsListHeader } from "./ChannelsListHeader";
 import { CustomHeaderColumn } from "./columns/CustomHeaderColumn";
@@ -10,7 +12,6 @@ import { CustomRow } from "./columns/CustomRow";
 import { channelsColumns } from "./columns/_columns";
 import { ChannelsListLoading } from "./pagination/ChannelsListLoading";
 import { ChannelsListPagination } from "./pagination/ChannelsListPagination";
-import { SelectedValuesProvider } from "../../HistoryContext";
 
 const ChannelsTable = () => {
   const [filterChannel, setFilterChannel] = useState({
@@ -24,7 +25,7 @@ const ChannelsTable = () => {
   // only call getChannelList api when the component is mounted
   const channelListQuery = useQuery({
     queryKey: [`channelList`, filterChannel],
-    queryFn: async () => getChannelList(filterChannel),
+    queryFn: async () => getChannelList(filterChannel).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
 

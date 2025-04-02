@@ -1,9 +1,11 @@
 # Frontend Architecture Documentation
 
 ## Overview
+
 This document outlines the frontend architecture of the Rapid App, a React-based application built with TypeScript and utilizing the Metronic theme framework.
 
 ## Tech Stack
+
 - **Framework**: React with TypeScript
 - **Build Tool**: Vite
 - **Package Manager**: Yarn
@@ -63,7 +65,9 @@ rapid-app/
 ### Key Directories Explained
 
 #### 1. Feature Modules (`src/app/modules/`)
+
 Each feature module is self-contained and follows a consistent structure:
+
 ```
 module-name/
 ├── components/     # Module-specific components
@@ -72,17 +76,20 @@ module-name/
 ```
 
 #### 2. Core Application (`src/app/`)
+
 - `pages/`: Top-level page components
 - `routing/`: Route definitions and guards
 - `hooks/`: Shared custom hooks
 - `constants/`: Application-wide constants
 
 #### 3. Theme Integration (`src/_metronic/`)
+
 - Metronic theme components and utilities
 - Layout management
 - Theme-specific assets and styles
 
 #### 4. Configuration Files
+
 - `vite.config.ts`: Build and development configuration
 - `tsconfig.json`: TypeScript compiler options
 - `.eslintrc.cjs`: Code style and quality rules
@@ -92,60 +99,70 @@ module-name/
 The application is organized into distinct feature modules, each responsible for a specific domain:
 
 1. **Authentication (`auth/`)**
+
    - Login/Logout functionality
    - Authorization management
    - User session handling
 
 2. **Home (`home/`)**
+
    - Home page layout
    - Analytics displays
 
 3. **Dashboard (`dashboard/`)**
+
    - Dashboard creation
    - Widget configuration
    - Data visualization
    - Summary views
 
 4. **User Management (`users/`)**
+
    - User CRUD operations
    - User permissions
    - Profile management
 
 5. **Invitation System (`invitations/`)**
+
    - Invitation creation and management
    - User acceptance
 
 6. **Domain Management (`domain/`)**
+
    - Domain creation and management
    - Organization structure
 
 7. **Profile (`profile/`)**
+
    - User profile management
    - Change password
 
 8. **Channel Management (`channels/`)**
+
    - Channel creation and configuration
    - Thing assignment
    - Group assignment
    - Member management
 
 9. **Group Management (`groups/`)**
+
    - Group creation and management
    - Channel assignment
    - Member administration
 
 10. **Thing Management (`things/`)**
-   - Thing creation and management
-   - Channel assignment
+
+- Thing creation and management
+- Channel assignment
 
 11. **History Tracking (`histories/`)**
-   - Activity logging
-   - Data export
-   - Analytics
 
-12. **Reports (`reports/`)**
+- Activity logging
+- Data export
+- Analytics
 
 This modular structure enables:
+
 - Independent feature development
 - Clear separation of concerns
 - Easy maintenance and testing
@@ -155,6 +172,7 @@ This modular structure enables:
 ## Application Architecture
 
 ### 1. Component Organization
+
 The application follows a modular architecture with the following key areas:
 
 ```
@@ -166,6 +184,7 @@ app/
 ```
 
 ### 2. Data Flow
+
 ```mermaid
 graph TD
     A[User Interface] -->|Action| B[Component]
@@ -177,18 +196,21 @@ graph TD
 ```
 
 ### 3. Routing Structure
+
 - Protected Routes
 - Public Routes
 - Module based Routing
 - Lazy Loading for Route Components
 
 ### 4. State Management
+
 - Context API for global state
 - Local component state for UI-specific data
 
 ## Useful Resources
 
 ### Official Documentation
+
 - [React Documentation](https://react.dev/)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 - [Vite Guide](https://vitejs.dev/guide/)
@@ -206,4 +228,3 @@ graph TD
 - [Formik Documentation](https://formik.org/)
 - [Moment Documentation](https://momentjs.com/)
 - [Yarn Documentation](https://classic.yarnpkg.com/lang/en/docs/cli/)
-

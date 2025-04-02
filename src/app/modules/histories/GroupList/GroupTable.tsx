@@ -58,7 +58,7 @@ const GroupTable = () => {
       if (filterGroup.groupId) {
         const channelList = [];
         for (const groupId of filterGroup.groupId) {
-          const channelListByGroupId = await getGroupChannelList(groupId, filterChannel);
+          const channelListByGroupId = await getGroupChannelList(groupId, filterChannel).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
           channelList.push(...channelListByGroupId.groups);
         }
         return channelList;
@@ -83,24 +83,24 @@ const GroupTable = () => {
           for (const name of filterGroup.name) {
             const filterWithName = { ...filterGroup, name: [name] }; // Add publisher here
             try {
-              const historyData = await getHistoryListAll(channel.id, filterWithName);
+              const historyData = await getHistoryListAll(channel.id, filterWithName).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
               if (historyData.messages) {
                 allHistoryData.push(...historyData.messages);
               }
               totalCount += historyData.total;
             } catch (error: any) {
-              toast.error(error?.response?.data?.error || "Something went wrong");
+              toast.error(error?.response?.data?.message || "Something went wrong");
             }
           }
         } else {
           try {
-            const historyData = await getHistoryListAll(channel.id, filterGroup);
+            const historyData = await getHistoryListAll(channel.id, filterGroup).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
             if (historyData.messages) {
               allHistoryData.push(...historyData.messages);
             }
             totalCount += historyData.total;
           } catch (error: any) {
-            toast.error(error?.response?.data?.error || "Something went wrong");
+            toast.error(error?.response?.data?.message || "Something went wrong");
           }
         }
       }

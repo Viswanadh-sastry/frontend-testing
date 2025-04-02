@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { ColumnInstance, Row, useTable } from "react-table";
+import { toast } from "react-toastify";
 import { KTCard, KTCardBody } from "../../../../../_metronic/helpers";
 import { getLORAAuth } from "../../../auth/core/LORAHelpers";
 import { getGateway } from "../../api/GatewayAPI";
@@ -22,7 +23,7 @@ const GatewayTable = () => {
   });
   const gatewayListQuery = useQuery({
     queryKey: [`gatewayList`, filterGateway],
-    queryFn: async () => getGateway(filterGateway),
+    queryFn: async () => getGateway(filterGateway).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
 

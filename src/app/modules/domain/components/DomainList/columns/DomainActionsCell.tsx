@@ -47,7 +47,7 @@ const UserActionsCell: FC<Props> = ({ domainId, domainName, permission }) => {
         window.location.reload();
       })
       .catch((error) => {
-        toast.error(error?.response?.data?.error || "Something went wrong");
+        toast.error(error?.response?.data?.message || "Something went wrong");
         saveAuth(undefined);
       });
   };

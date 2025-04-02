@@ -40,7 +40,7 @@ const MembersListPagination = ({ filterMember, setFilterMember }: IMembersListPa
   });
   const memberListQuery = useQuery({
     queryKey: [`memberList`, domainId, filterMember],
-    queryFn: async () => getMemberList(domainId, filterMember).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getMemberList(domainId, filterMember).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
   const isLoading = memberListQuery.isLoading;

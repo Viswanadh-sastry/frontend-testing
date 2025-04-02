@@ -48,7 +48,7 @@ const Card4: FC<Props> = ({ id, url, icon, title, description, onGetDashboardLis
             toast.success("Dashboard deleted successfully");
             onGetDashboardList();
           })
-          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
       }
     });
   };

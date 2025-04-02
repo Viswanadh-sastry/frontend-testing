@@ -44,12 +44,12 @@ const InviteUserByDomain = ({ onCloseInviteUser, onGetInvitationList }: IInviteU
             metadata: "",
             status: "enabled",
           };
-          const memberList = await getMemberListAll(domainId, filterMember).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+          const memberList = await getMemberListAll(domainId, filterMember).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
           const memberListIds = memberList.users.map((member: any) => member.id);
           response.users = response.users.filter((user: any) => !memberListIds.includes(user.id));
           return response;
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const userList = useMemo(() => userListQuery.data?.users || [], [userListQuery.data]);
@@ -74,7 +74,7 @@ const InviteUserByDomain = ({ onCloseInviteUser, onGetInvitationList }: IInviteU
           onCloseInviteUser();
           onGetInvitationList();
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });

@@ -15,7 +15,7 @@ const EditDeviceProfile = () => {
   const id = params.id as string;
   const deviceProfileQuery = useQuery({
     queryKey: [`deviceProfile`, id],
-    queryFn: async () => getDeviceProfileById(id).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getDeviceProfileById(id).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const deviceProfile = useMemo(() => deviceProfileQuery.data?.deviceProfile || {}, [deviceProfileQuery.data]);
@@ -79,7 +79,7 @@ const EditDeviceProfile = () => {
           toast.success("Device Profile updated successfully");
           navigate("/device-profiles");
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });

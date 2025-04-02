@@ -17,7 +17,7 @@ const SubscriptionActionsCell: FC<Props> = ({ row }) => {
   };
   const subscriptionListQuery = useQuery({
     queryKey: [`subscriptionList`, filterSubscription],
-    queryFn: async () => getSubscriptionList(filterSubscription).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getSubscriptionList(filterSubscription).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
 
@@ -48,7 +48,7 @@ const SubscriptionActionsCell: FC<Props> = ({ row }) => {
             toast.success("Subscription deleted successfully");
             subscriptionListQuery.refetch();
           })
-          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
       }
     });
   };

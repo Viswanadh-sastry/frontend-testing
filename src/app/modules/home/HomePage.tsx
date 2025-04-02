@@ -33,7 +33,7 @@ const HomePage: React.FC = () => {
   };
   const userListQuery = useQuery({
     queryKey: [`userList`, filterUser],
-    queryFn: async () => getUserListAll(filterUser).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getUserListAll(filterUser).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const userData = useMemo(() => userListQuery.data?.users || [], [userListQuery.data]);
@@ -48,7 +48,7 @@ const HomePage: React.FC = () => {
   };
   const disabledUserListQuery = useQuery({
     queryKey: [`disabledUserList`, disabledFilterUser],
-    queryFn: async () => getUserListAll(disabledFilterUser).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getUserListAll(disabledFilterUser).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const disabledUserData = useMemo(() => disabledUserListQuery.data?.users || [], [disabledUserListQuery.data]);
@@ -63,7 +63,7 @@ const HomePage: React.FC = () => {
   };
   const groupListQuery = useQuery({
     queryKey: [`groupList`, filterGroup],
-    queryFn: async () => getGroupListAll(filterGroup).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getGroupListAll(filterGroup).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const groupData = useMemo(() => groupListQuery.data?.groups || [], [groupListQuery.data]);
@@ -77,7 +77,7 @@ const HomePage: React.FC = () => {
   };
   const disabledGroupListQuery = useQuery({
     queryKey: [`disabledGroupList`, disabledFilterGroup],
-    queryFn: async () => getGroupListAll(disabledFilterGroup).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getGroupListAll(disabledFilterGroup).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const disabledGroupData = useMemo(() => disabledGroupListQuery.data?.groups || [], [disabledGroupListQuery.data]);
@@ -91,7 +91,7 @@ const HomePage: React.FC = () => {
   };
   const channelListQuery = useQuery({
     queryKey: [`channelList`, filterChannel],
-    queryFn: async () => getChannelListAll(filterChannel).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getChannelListAll(filterChannel).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const assetData = useMemo(() => channelListQuery.data?.groups || [], [channelListQuery.data]);
@@ -104,7 +104,7 @@ const HomePage: React.FC = () => {
   };
   const disabledChannelListQuery = useQuery({
     queryKey: [`disabledChannelList`, disabledFilterChannel],
-    queryFn: async () => getChannelListAll(disabledFilterChannel).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getChannelListAll(disabledFilterChannel).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const disabledAssetData = useMemo(() => disabledChannelListQuery.data?.groups || [], [disabledChannelListQuery.data]);
@@ -120,7 +120,7 @@ const HomePage: React.FC = () => {
   const thingListQuery = useQuery({
     queryKey: [`thingList`, filterThing],
     queryFn: async () => {
-      const response = await getThingListAll(filterThing).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+      const response = await getThingListAll(filterThing).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
       return {
         ...response,
         things: [
@@ -143,7 +143,7 @@ const HomePage: React.FC = () => {
   };
   const disabledThingListQuery = useQuery({
     queryKey: [`disabledThingList`, disabledFilterThing],
-    queryFn: async () => getThingListAll(disabledFilterThing).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getThingListAll(disabledFilterThing).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const disabledDeviceData = useMemo(() => disabledThingListQuery.data?.things || [], [disabledThingListQuery.data]);
@@ -157,7 +157,7 @@ const HomePage: React.FC = () => {
   };
   const newNotificationListQuery = useQuery({
     queryKey: [`newNotificationList`, newFilterNotification],
-    queryFn: async () => getNotification(newFilterNotification),
+    queryFn: async () => getNotification(newFilterNotification).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const newNotificationCount = useMemo(() => newNotificationListQuery.data?.totalCount || 0, [newNotificationListQuery.data]);
@@ -170,7 +170,7 @@ const HomePage: React.FC = () => {
   };
   const processedNotificationListQuery = useQuery({
     queryKey: [`processedNotificationList`, processedFilterNotification],
-    queryFn: async () => getNotification(processedFilterNotification),
+    queryFn: async () => getNotification(processedFilterNotification).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const processedNotificationCount = useMemo(() => processedNotificationListQuery.data?.totalCount || 0, [processedNotificationListQuery.data]);
@@ -183,7 +183,7 @@ const HomePage: React.FC = () => {
   };
   const escalatedNotificationListQuery = useQuery({
     queryKey: [`escalatedNotificationList`, escalatedFilterNotification],
-    queryFn: async () => getNotification(escalatedFilterNotification),
+    queryFn: async () => getNotification(escalatedFilterNotification).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const escalatedNotificationCount = useMemo(() => escalatedNotificationListQuery.data?.totalCount || 0, [escalatedNotificationListQuery.data]);
@@ -208,7 +208,7 @@ const HomePage: React.FC = () => {
             metadata: "",
             status: "enabled",
           };
-          const channel = await getThingChannelList(thing.id, filterThingChannel);
+          const channel = await getThingChannelList(thing.id, filterThingChannel).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
           const historyData = await Promise.all(
             channel.groups.map(async (group: any) => {
               try {
@@ -219,7 +219,7 @@ const HomePage: React.FC = () => {
                   publisher: thing.id,
                   status: "enabled",
                 };
-                const history = await getHistoryListAll(group.id, filterHistory);
+                const history = await getHistoryListAll(group.id, filterHistory).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
                 return history;
               } catch (error) {
                 return [];
@@ -395,7 +395,7 @@ const HomePage: React.FC = () => {
             </div>
           </div>
           <div className="row g-5 g-xl-8 mb-5">
-            <div className="col-xl-3">
+            <div className="col-xl-6 col-md-6 col-sm-12">
               <div className="card hoverable mb-xl-4">
                 <div className="card-body d-flex align-items-center pt-3 pb-5">
                   <div className="d-flex flex-column flex-grow-1 py-5 me-2">
@@ -406,7 +406,7 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="col-xl-3">
+            <div className="col-xl-6 col-md-6 col-sm-12">
               <div className="card hoverable mb-xl-4">
                 <div className="card-body d-flex align-items-center pt-3 pb-5">
                   <div className="d-flex flex-column flex-grow-1 py-5 me-2">
@@ -417,7 +417,7 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="col-xl-3">
+            <div className="col-xl-6 col-md-6 col-sm-12">
               <div className="card hoverable mb-xl-4">
                 <div className="card-body d-flex align-items-center pt-3 pb-5">
                   <div className="d-flex flex-column flex-grow-1 py-5 me-2">
@@ -428,7 +428,7 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="col-xl-3">
+            <div className="col-xl-6 col-md-6 col-sm-12">
               <div className="card hoverable mb-xl-4">
                 <div className="card-body d-flex align-items-center pt-3 pb-5">
                   <div className="d-flex flex-column flex-grow-1 py-5 me-2">

@@ -19,7 +19,7 @@ const DeviceProfileActionsCell: FC<Props> = ({ id }) => {
   };
   const deviceProfileListQuery = useQuery({
     queryKey: [`deviceProfileList`, filterDeviceProfile],
-    queryFn: async () => getDeviceProfile(filterDeviceProfile),
+    queryFn: async () => getDeviceProfile(filterDeviceProfile).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
 
@@ -46,7 +46,7 @@ const DeviceProfileActionsCell: FC<Props> = ({ id }) => {
             toast.success("Device Profile deleted successfully");
             deviceProfileListQuery.refetch();
           })
-          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
       }
     });
   };

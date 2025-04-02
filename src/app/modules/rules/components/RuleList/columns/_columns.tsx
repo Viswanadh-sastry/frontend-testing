@@ -13,7 +13,7 @@ const rulesColumns: ReadonlyArray<Column<Rule>> = [
     accessor: "status",
   },
   {
-    Header: (props) => <RuleCustomHeader tableProps={props} title="Actions" className="text-end w-120px" />,
+    Header: (props) => <RuleCustomHeader tableProps={props} title="Actions" className="text-end w-260px" />,
     id: "actions",
     Cell: ({ ...props }) => <RuleActionsCell row={props.row} />,
   },

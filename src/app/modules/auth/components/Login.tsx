@@ -50,6 +50,7 @@ export function Login() {
           throw new Error("No token found");
         }
         vaultHelper.setVaultToken(vaultToken.data.token);
+        vaultHelper.setVaultClientToken(vault.auth.client_token);
         const loraAuth = loraHelper.getLORAAuth();
         if (!loraAuth) {
           loraHelper.setLORAAuth({

@@ -13,7 +13,7 @@ const StreamActionsCell: FC<Props> = ({ row }) => {
   const [showEditStream, setShowEditStream] = useState(false);
   const streamListQuery = useQuery({
     queryKey: [`streamList`],
-    queryFn: async () => getStreamList(),
+    queryFn: async () => getStreamList().catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
 
@@ -44,7 +44,7 @@ const StreamActionsCell: FC<Props> = ({ row }) => {
             toast.success("Stream deleted successfully");
             streamListQuery.refetch();
           })
-          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
       }
     });
   };

@@ -15,7 +15,7 @@ const ApplicationConfiguration = () => {
   const id = params.id as string;
   const applicationQuery = useQuery({
     queryKey: [`application`, id],
-    queryFn: async () => getApplicationById(id).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getApplicationById(id).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const application = useMemo(() => applicationQuery.data?.application || {}, [applicationQuery.data]);
@@ -49,7 +49,7 @@ const ApplicationConfiguration = () => {
           toast.success("Application updated successfully");
           navigate("/applications");
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });

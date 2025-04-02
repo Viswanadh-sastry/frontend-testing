@@ -24,7 +24,7 @@ const ChannelActionsCell: FC<Props> = ({ id }) => {
   };
   const channelListQuery = useQuery({
     queryKey: [`channelThingList`, filterChannel],
-    queryFn: async () => getThingChannelList(thingId, filterChannel).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getThingChannelList(thingId, filterChannel).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
 
@@ -51,7 +51,7 @@ const ChannelActionsCell: FC<Props> = ({ id }) => {
             toast.success("Channel disconnected successfully");
             channelListQuery.refetch();
           })
-          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
       }
     });
   };

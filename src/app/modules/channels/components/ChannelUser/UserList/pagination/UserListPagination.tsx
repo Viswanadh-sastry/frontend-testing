@@ -42,7 +42,7 @@ const UserListPagination = ({ filterUser, setFilterUser }: IUserListPaginationPr
   });
   const userListQuery = useQuery({
     queryKey: [`userList`, filterUser],
-    queryFn: async () => getChannelUserList(id, filterUser).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getChannelUserList(id, filterUser).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
   const isLoading = userListQuery.isLoading;

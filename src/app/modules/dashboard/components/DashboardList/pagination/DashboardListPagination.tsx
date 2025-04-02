@@ -41,7 +41,7 @@ const DashboardListPagination = ({ filterDashboard, setFilterDashboard }: IDashb
   });
   const dashboardListQuery = useQuery({
     queryKey: [`dashboardList`, userId],
-    queryFn: async () => getDashboardList(userId).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getDashboardList(userId).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
   const isLoading = dashboardListQuery.isLoading;

@@ -22,7 +22,7 @@ const WidgetParameters = ({ deviceData, setDeviceData, maxDevices = 10 }: IWidge
   };
   const channelListQuery = useQuery({
     queryKey: [`channelList`, filterChannel],
-    queryFn: async () => getChannelListAll(filterChannel).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getChannelListAll(filterChannel).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const channelList = channelListQuery.data?.groups.map((group: any) => ({ label: group.name, value: group.id })) || [];
@@ -33,7 +33,7 @@ const WidgetParameters = ({ deviceData, setDeviceData, maxDevices = 10 }: IWidge
   };
   const deviceListQuery = useQuery({
     queryKey: [`deviceList`, filterDevice],
-    queryFn: async () => getThingListAll(filterDevice).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getThingListAll(filterDevice).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const deviceList = deviceListQuery.data?.things.map((thing: any) => ({ label: thing.name, value: thing.id })) || [];

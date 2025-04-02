@@ -23,7 +23,7 @@ const GroupChannelActionsCell: FC<Props> = ({ id }) => {
   };
   const groupListQuery = useQuery({
     queryKey: [`groupChannelList`, filterGroupChannel],
-    queryFn: async () => getGroupChannelList(id, filterGroupChannel).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getGroupChannelList(id, filterGroupChannel).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
 
@@ -53,7 +53,7 @@ const GroupChannelActionsCell: FC<Props> = ({ id }) => {
             toast.success("Channel unassigned successfully");
             groupListQuery.refetch();
           })
-          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
       }
     });
   };

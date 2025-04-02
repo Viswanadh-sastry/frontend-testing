@@ -15,12 +15,12 @@ interface IEditStreamProps {
 const EditStream = ({ row, onCloseEditStream }: IEditStreamProps) => {
   const streamListQuery = useQuery({
     queryKey: [`streamList`],
-    queryFn: async () => getStreamList(),
+    queryFn: async () => getStreamList().catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
   const streamQuery = useQuery({
     queryKey: [`stream`, row.original.name],
-    queryFn: async () => getStream(row.original.name).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getStream(row.original.name).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const stream = useMemo(() => streamQuery.data || {}, [streamQuery.data]);
@@ -42,7 +42,7 @@ const EditStream = ({ row, onCloseEditStream }: IEditStreamProps) => {
           onCloseEditStream();
           streamListQuery.refetch();
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });

@@ -3,7 +3,7 @@ import { FC } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import { deleteIntegration, getIntegration } from "../../../../api/IntegrationAPI";
+import { deleteIntegration, getIntegrationList } from "../../../../api/IntegrationAPI";
 
 type Props = {
   kind: string | undefined;
@@ -20,7 +20,7 @@ const IntegrationActionsCell: FC<Props> = ({ kind }) => {
   };
   const integrationListQuery = useQuery({
     queryKey: [`integrationList`, filterIntegration],
-    queryFn: async () => getIntegration(filterIntegration),
+    queryFn: async () => getIntegrationList(filterIntegration.applicationId).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
 
@@ -42,12 +42,12 @@ const IntegrationActionsCell: FC<Props> = ({ kind }) => {
       },
     }).then((result) => {
       if (result.isConfirmed) {
-        deleteIntegration({ applicationId, kind })
+        deleteIntegration({ applicationId, kind: kind?.toLowerCase() })
           .then(() => {
             toast.success("Integration deleted successfully");
             integrationListQuery.refetch();
           })
-          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
       }
     });
   };

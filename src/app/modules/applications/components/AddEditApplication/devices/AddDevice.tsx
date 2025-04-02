@@ -22,7 +22,7 @@ const AddDevice = () => {
   };
   const deviceProfileListQuery = useQuery({
     queryKey: [`deviceProfileList`, filterDeviceProfile],
-    queryFn: async () => getDeviceProfile(filterDeviceProfile),
+    queryFn: async () => getDeviceProfile(filterDeviceProfile).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const deviceProfileData = useMemo(() => deviceProfileListQuery.data?.result || [], [deviceProfileListQuery.data]);
@@ -76,7 +76,7 @@ const AddDevice = () => {
           toast.success("Device created successfully");
           navigate(`/applications/${values.applicationId}/devices`);
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });

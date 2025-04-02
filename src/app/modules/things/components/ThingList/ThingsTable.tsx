@@ -46,7 +46,7 @@ const ThingsTable = () => {
           const things = await Promise.all(
             response.things.map(async (thing: any) => {
               try {
-                const channel = await getThingChannelList(thing.id, filterChannel);
+                const channel = await getThingChannelList(thing.id, filterChannel).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
                 const historyData = await Promise.all(
                   channel.groups.map(async (group: any) => {
                     try {
@@ -57,7 +57,7 @@ const ThingsTable = () => {
                         publisher: thing.id,
                         status: "enabled",
                       };
-                      const history = await getHistoryList(group.id, filterHistory);
+                      const history = await getHistoryList(group.id, filterHistory).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
                       return history;
                     } catch (error) {
                       return [];
@@ -103,7 +103,7 @@ const ThingsTable = () => {
           );
           return { ...response, things };
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
 

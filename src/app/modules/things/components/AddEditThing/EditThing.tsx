@@ -23,7 +23,7 @@ const EditThing = () => {
   });
   const thingQuery = useQuery({
     queryKey: [`thing`, id],
-    queryFn: async () => getThing(id).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getThing(id).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const thing = thingQuery.data;
@@ -74,7 +74,7 @@ const EditThing = () => {
           thingQuery.refetch();
           setEnabled(false);
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
     } else {
       enableThing(thing?.id)
         .then(() => {
@@ -82,7 +82,7 @@ const EditThing = () => {
           thingQuery.refetch();
           setEnabled(true);
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
     }
   };
 
@@ -103,7 +103,7 @@ const EditThing = () => {
             toast.success("Device deleted successfully");
             navigate("/things");
           })
-          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
       }
     });
   };

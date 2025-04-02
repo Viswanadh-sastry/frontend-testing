@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ColumnInstance, Row, useTable } from "react-table";
+import { toast } from "react-toastify";
 import { KTCard, KTCardBody, PaginationState } from "../../../../../_metronic/helpers";
 import { getRuleList } from "../../api/RuleAPI";
 import { Rule } from "../../api/_models";
@@ -25,7 +26,7 @@ const RuleTable = () => {
   const [ruleList, setRuleList] = useState<any>([]);
   const ruleListQuery = useQuery({
     queryKey: [`ruleList`],
-    queryFn: async () => getRuleList(),
+    queryFn: async () => getRuleList().catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
 

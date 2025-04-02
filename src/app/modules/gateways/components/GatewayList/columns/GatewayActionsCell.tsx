@@ -19,7 +19,7 @@ const GatewayActionsCell: FC<Props> = ({ id }) => {
   };
   const gatewayListQuery = useQuery({
     queryKey: [`gatewayList`, filterGateway],
-    queryFn: async () => getGateway(filterGateway),
+    queryFn: async () => getGateway(filterGateway).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
 
@@ -46,7 +46,7 @@ const GatewayActionsCell: FC<Props> = ({ id }) => {
             toast.success("Gateway deleted successfully");
             gatewayListQuery.refetch();
           })
-          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
       }
     });
   };

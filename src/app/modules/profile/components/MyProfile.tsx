@@ -18,7 +18,7 @@ const MyProfile: FC = () => {
   });
   const profileQuery = useQuery({
     queryKey: [`profile`],
-    queryFn: async () => getProfile().catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getProfile().catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const profile = profileQuery.data;
@@ -62,7 +62,7 @@ const MyProfile: FC = () => {
   //         profileQuery.refetch();
   //         setEnabled(false);
   //       })
-  //       .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+  //       .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
   //   } else {
   //     enableUser(profile?.id)
   //       .then(() => {
@@ -70,7 +70,7 @@ const MyProfile: FC = () => {
   //         profileQuery.refetch();
   //         setEnabled(true);
   //       })
-  //       .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+  //       .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
   //   }
   // };
 

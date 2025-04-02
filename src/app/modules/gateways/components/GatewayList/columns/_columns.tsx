@@ -21,7 +21,7 @@ const gatewaysColumns: ReadonlyArray<Column<Gateway>> = [
     accessor: "state",
   },
   {
-    Header: (props) => <GatewayCustomHeader tableProps={props} title="Actions" className="text-end min-w-100px" />,
+    Header: (props) => <GatewayCustomHeader tableProps={props} title="Actions" className="text-end min-w-150px" />,
     id: "actions",
     Cell: ({ ...props }) => <GatewayActionsCell id={props.data[props.row.index].gatewayId} />,
   },

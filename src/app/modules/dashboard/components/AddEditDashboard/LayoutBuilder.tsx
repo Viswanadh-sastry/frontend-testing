@@ -102,11 +102,11 @@ const LayoutBuilder = () => {
           widgets: [...dashboard.data.widgets, ...widgetData],
         },
       });
-      await updateDashboard(userId, payload);
+      await updateDashboard(userId, payload).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
       toast.success("Widget saved successfully");
       setDashboard(getDashboardById(id));
     } catch (error: any) {
-      toast.error(error?.response?.data?.error || "Something went wrong");
+      toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
 
@@ -114,7 +114,7 @@ const LayoutBuilder = () => {
     const payload = getDashboard();
     updateDashboard(userId, payload)
       .then(() => toast.success("Layout saved successfully"))
-      .catch((error: any) => toast.error(error?.response?.data?.error || "Something went wrong"));
+      .catch((error: any) => toast.error(error?.response?.data?.message || "Something went wrong"));
   };
 
   const onOpenWidget = (data: any) => {
@@ -167,7 +167,7 @@ const LayoutBuilder = () => {
         setEditWidget({ open: false, data: null });
         setDashboard(getDashboardById(id));
       })
-      .catch((error: any) => toast.error(error?.response?.data?.error || "Something went wrong"));
+      .catch((error: any) => toast.error(error?.response?.data?.message || "Something went wrong"));
   };
 
   const onRemoveWidget = (widgetId: string) => {
@@ -190,7 +190,7 @@ const LayoutBuilder = () => {
             toast.success("Widget removed successfully");
             setDashboard(getDashboardById(id));
           })
-          .catch((error: any) => toast.error(error?.response?.data?.error || "Something went wrong"));
+          .catch((error: any) => toast.error(error?.response?.data?.message || "Something went wrong"));
       }
     });
   };

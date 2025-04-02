@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { ColumnInstance, Row, useTable } from "react-table";
+import { toast } from "react-toastify";
 import { KTCard, KTCardBody } from "../../../../../_metronic/helpers";
 import { getThingList } from "../../../things/api/ThingAPI";
+import { SelectedValuesProvider } from "../../HistoryContext";
 import { Thing } from "../../api/_models";
 import { ThingsListHeader } from "./ThingsListHeader";
 import { CustomHeaderColumn } from "./columns/CustomHeaderColumn";
@@ -10,7 +12,6 @@ import { CustomRow } from "./columns/CustomRow";
 import { thingsColumns } from "./columns/_columns";
 import { ThingsListLoading } from "./pagination/ThingsListLoading";
 import { ThingsListPagination } from "./pagination/ThingsListPagination";
-import { SelectedValuesProvider } from "../../HistoryContext";
 
 const ThingsTable = () => {
   const [filterThing, setFilterThing] = useState({
@@ -24,7 +25,7 @@ const ThingsTable = () => {
 
   const thingListQuery = useQuery({
     queryKey: [`thingList`, filterThing],
-    queryFn: async () => getThingList(filterThing),
+    queryFn: async () => getThingList(filterThing).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
 

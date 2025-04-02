@@ -36,7 +36,7 @@ const ApplicationListPagination = ({ filterApplication, setFilterApplication }: 
   });
   const applicationListQuery = useQuery({
     queryKey: [`applicationList`, filterApplication],
-    queryFn: async () => getApplication(filterApplication).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getApplication(filterApplication).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
   const isLoading = applicationListQuery.isLoading;

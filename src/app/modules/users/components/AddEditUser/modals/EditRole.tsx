@@ -29,7 +29,7 @@ const EditRole = ({ data, onClose, onDisplay }: IEditRoleProps) => {
           onClose();
           onDisplay();
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });

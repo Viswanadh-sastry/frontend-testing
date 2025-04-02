@@ -5,11 +5,13 @@ const API_URL = import.meta.env.VITE_APP_LORA_API_URL;
 
 export async function addIntegration(data: any) {
     const payload = {
-        encoding: data.integration.encoding,
-        eventEndpointUrl: data.integration.eventEndpointUrl,
-        headers: data.integration.headers,
+        integration: {
+            encoding: data.encoding,
+            eventEndpointUrl: data.eventEndpointUrl,
+            headers: data.headers,
+        },
     };
-    const response = await axios.post(`${API_URL}/applications/${data.integration.applicationId}/integrations/${data.integration.kind}`, payload, {
+    const response = await axios.post(`${API_URL}/applications/${data.applicationId}/integrations/${data.kind}`, payload, {
         headers: {
             'Grpc-Metadata-Authorization': `Bearer ${getLORAAuth()?.access_token}`,
         }
@@ -19,11 +21,13 @@ export async function addIntegration(data: any) {
 
 export async function updateIntegration(data: any) {
     const payload = {
-        encoding: data.integration.encoding,
-        eventEndpointUrl: data.integration.eventEndpointUrl,
-        headers: data.integration.headers,
+        integration: {
+            encoding: data.encoding,
+            eventEndpointUrl: data.eventEndpointUrl,
+            headers: data.headers,
+        },
     };
-    const response = await axios.put(`${API_URL}/applications/${data.integration.applicationId}/integrations/${data.integration.kind}`, payload, {
+    const response = await axios.put(`${API_URL}/applications/${data.applicationId}/integrations/${data.kind}`, payload, {
         headers: {
             'Grpc-Metadata-Authorization': `Bearer ${getLORAAuth()?.access_token}`,
         }

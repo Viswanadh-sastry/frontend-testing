@@ -41,7 +41,7 @@ const ChannelListPagination = ({ filterChannel, setFilterChannel }: IChannelList
   });
   const channelListQuery = useQuery({
     queryKey: [`channelThingList`, filterChannel],
-    queryFn: async () => getThingChannelList(id, filterChannel).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getThingChannelList(id, filterChannel).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
   const isLoading = channelListQuery.isLoading;

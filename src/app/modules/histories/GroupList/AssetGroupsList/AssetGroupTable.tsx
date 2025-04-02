@@ -27,7 +27,7 @@ const AssetGroupTable: FC = () => {
 
   const groupListQuery = useQuery({
     queryKey: [`groupList`, filterGroup],
-    queryFn: async () => getGroupListAll(filterGroup).catch((error: any) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getGroupListAll(filterGroup).catch((error: any) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
 

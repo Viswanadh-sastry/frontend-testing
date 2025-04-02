@@ -19,7 +19,7 @@ const ApplicationActionsCell: FC<Props> = ({ id }) => {
   };
   const applicationListQuery = useQuery({
     queryKey: [`applicationList`, filterApplication],
-    queryFn: async () => getApplication(filterApplication),
+    queryFn: async () => getApplication(filterApplication).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
 
@@ -46,7 +46,7 @@ const ApplicationActionsCell: FC<Props> = ({ id }) => {
             toast.success("Application deleted successfully");
             applicationListQuery.refetch();
           })
-          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
       }
     });
   };

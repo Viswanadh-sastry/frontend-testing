@@ -13,7 +13,7 @@ export type Device = {
     description?: string
     deviceProfileId?: string
     deviceProfileName?: string
-    deviceStatus?: string
+    deviceStatus?: any
     skipFcntCheck?: boolean
     isDisabled?: boolean
     joinEui?: string

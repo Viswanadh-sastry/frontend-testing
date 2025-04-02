@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ColumnInstance, Row, useTable } from "react-table";
+import { toast } from "react-toastify";
 import { KTCardBody } from "../../../../../../_metronic/helpers";
 import { getIntegrationList } from "../../../api/IntegrationAPI";
 import { Integration } from "../../../api/_models";
@@ -22,7 +23,7 @@ const IntegrationTable = () => {
   });
   const integrationListQuery = useQuery({
     queryKey: [`integrationList`, filterIntegration],
-    queryFn: async () => getIntegrationList(filterIntegration.applicationId),
+    queryFn: async () => getIntegrationList(filterIntegration.applicationId).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
 

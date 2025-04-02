@@ -67,7 +67,7 @@ const AddDeviceProfile = () => {
           toast.success("Device Profile created successfully");
           navigate("/device-profiles");
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });

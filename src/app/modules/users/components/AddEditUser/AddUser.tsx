@@ -6,6 +6,7 @@ import { Typeahead } from "react-bootstrap-typeahead";
 import { createUser } from "../../api/UserAPI";
 import { KTIcon, MetadataInputFields } from "../../../../../_metronic/helpers";
 import "react-bootstrap-typeahead/css/Typeahead.css";
+import { getGeneratePassword, getJWTToken, getRootToken, getVToken, updateUserPassword } from "../../api/VaultAPI";
 // import { addUpdateUser } from "../../api/VaultAPI";
 
 interface IAddUserProps {
@@ -16,7 +17,10 @@ interface IAddUserProps {
 const AddUser = ({ onCloseAddUser, onGetUserList }: IAddUserProps) => {
   const userSchema = Yup.object().shape({
     name: Yup.string().required("User Name is required"),
-    identity: Yup.string().required("User Email is required").email("Invalid email format"),
+    identity: Yup.string()
+      .required("User Email is required")
+      .email("Invalid email format")
+      .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, "Invalid email format"),
     secret: Yup.string().required("User Password is required").min(8, "Password must be at least 8 characters"),
     tags: Yup.array(),
     metadata: Yup.object(),
@@ -48,25 +52,33 @@ const AddUser = ({ onCloseAddUser, onGetUserList }: IAddUserProps) => {
         status: "enabled",
       };
       createUser(data)
-        .then(() => {
-          toast.success("User created successfully");
-          onCloseAddUser();
-          onGetUserList();
-          // const username = values.identity.split("@")[0];
-          // const userData = {
-          //   password: values.secret,
-          //   token_policies: ["default"],
-          // };
-          // // Create user in vault
-          // addUpdateUser(username, userData)
-          //   .then(() => {
-          //     toast.success("User created successfully");
-          //     onCloseAddUser();
-          //     onGetUserList();
-          //   })
-          //   .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+        .then(async () => {
+          // Create user in vault
+          const username = values.identity.split("@")[0];
+          const rootAuth = await getRootToken().catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
+          getGeneratePassword(username)
+            .then(async (response) => {
+              const userData = {
+                username: username,
+                password: response.password,
+              };
+              const vToken = await getVToken(userData, rootAuth.tokens[0]).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
+              await getJWTToken(username, vToken.auth.client_token).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
+              const params = {
+                username: username,
+                password: values.secret,
+              };
+              updateUserPassword(params, rootAuth.tokens[0])
+                .then(() => {
+                  toast.success("User created successfully");
+                  onCloseAddUser();
+                  onGetUserList();
+                })
+                .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
+            })
+            .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });

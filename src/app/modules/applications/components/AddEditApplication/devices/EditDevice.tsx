@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import { useFormik } from "formik";
-import { useMemo } from "react";
+import moment from "moment";
+import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
@@ -10,12 +11,13 @@ import { getLORAAuth } from "../../../../auth/core/LORAHelpers";
 import { getDeviceProfile } from "../../../../device-profiles/api/DeviceProfileAPI";
 import { Device } from "../../../api/_models";
 import { createKeysById, deleteKeysById, getDeviceById, getKeysById, getLinkMetrics, updateDevice } from "../../../api/DeviceAPI";
-import moment from "moment";
+import { LinkMetrics } from "./LinkMetrics";
 
 const EditDevice = () => {
   const navigate = useNavigate();
   const params = useParams();
   const id = params.id as string;
+  const [groupName, setGroupName] = useState<string>("24h");
   const filterDeviceProfile = {
     limit: 10,
     offset: 0,
@@ -23,34 +25,34 @@ const EditDevice = () => {
   };
   const deviceProfileListQuery = useQuery({
     queryKey: [`deviceProfileList`, filterDeviceProfile],
-    queryFn: async () => getDeviceProfile(filterDeviceProfile),
+    queryFn: async () => getDeviceProfile(filterDeviceProfile).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const deviceProfileData = useMemo(() => deviceProfileListQuery.data?.result || [], [deviceProfileListQuery.data]);
   const keyDeviceQuery = useQuery({
     queryKey: [`keyDevice`, id],
-    queryFn: async () => getKeysById(id),
+    queryFn: async () => getKeysById(id).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const keys = useMemo(() => keyDeviceQuery.data?.deviceKeys || {}, [keyDeviceQuery.data]);
   const deviceQuery = useQuery({
     queryKey: [`device`, id],
-    queryFn: async () => getDeviceById(id).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getDeviceById(id).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const device = useMemo(() => deviceQuery.data?.device || {}, [deviceQuery.data]);
-  const filterLinkMetrics = {
+  const [filterLinkMetrics, setFilterLinkMetrics] = useState({
     start: moment().subtract(1, "days").toISOString(),
     end: moment().toISOString(),
     aggregation: "HOUR",
-  };
+  });
   const linkMetrics = useQuery({
-    queryKey: [`linkMetrics`, id],
-    queryFn: async () => getLinkMetrics(id, filterLinkMetrics).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryKey: [`linkMetrics`, id, filterLinkMetrics],
+    queryFn: async () => getLinkMetrics(id, filterLinkMetrics).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
-  const metrics = useMemo(() => linkMetrics || {}, [linkMetrics]);
-  console.log("metrics", metrics);
+  const metrics = useMemo(() => linkMetrics.data || null, [linkMetrics.data]);
+
   const eui64Regex = /^(?:[0-9A-Fa-f]{2}([-:])?){7}[0-9A-Fa-f]{2}$/;
   const deviceSchema = Yup.object().shape({
     devEui: Yup.string().required("Device EUI is required").matches(eui64Regex, "Invalid EUI64 format"),
@@ -63,7 +65,6 @@ const EditDevice = () => {
     variables: Yup.object(),
     nwkKey: Yup.string(),
   });
-
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -97,15 +98,15 @@ const EditDevice = () => {
             .then(() => {
               toast.success("Keys created successfully");
             })
-            .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+            .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
             .finally(() => setSubmitting(false));
         } else {
-          deleteKeysById(String(values.devEui));
+          deleteKeysById(String(values.devEui)).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
           createKeysById(String(values.devEui), data)
             .then(() => {
               toast.success("Keys updated successfully");
             })
-            .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+            .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
             .finally(() => setSubmitting(false));
         }
         return;
@@ -128,13 +129,36 @@ const EditDevice = () => {
           toast.success("Device updated successfully");
           navigate(`/applications/${values.applicationId}/devices`);
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
 
   const onCloseBackEditDevice = () => {
     navigate(`/applications/${formik.values.applicationId}/devices`);
+  };
+
+  const onClickDuration = (duration: string) => {
+    setGroupName(duration);
+    if (duration === "24h") {
+      setFilterLinkMetrics({
+        start: moment().subtract(1, "days").toISOString(),
+        end: moment().toISOString(),
+        aggregation: "HOUR",
+      });
+    } else if (duration === "31d") {
+      setFilterLinkMetrics({
+        start: moment().subtract(31, "days").toISOString(),
+        end: moment().toISOString(),
+        aggregation: "DAY",
+      });
+    } else if (duration === "1y") {
+      setFilterLinkMetrics({
+        start: moment().subtract(1, "years").toISOString(),
+        end: moment().toISOString(),
+        aggregation: "MONTH",
+      });
+    }
   };
 
   return (
@@ -169,26 +193,107 @@ const EditDevice = () => {
         </ul>
         <div className="tab-content" id="myTabContent">
           <div className="tab-pane fade show active" id="kt_tab_dashboard" role="tabpanel">
-            <div className="d-flex flex-column me-n7 pe-7">
-              <div className="row">
-                {/* Link chart */}
-                <div className="col-md-6">
-                  <div className="card card-custom card-stretch gutter-b">
-                    <div className="card-body">
-                      <div id="kt_mixed_widget_1_chart" style={{ height: "150px" }}></div>
+            {metrics && (
+              <div className="d-flex flex-column me-n7 pe-7">
+                <div className="row mb-5">
+                  <div className="btn-toolbar justify-content-between" role="toolbar" aria-label="Metrics with button groups">
+                    <div></div>
+                    <div className="btn-group" role="group" aria-label="Metrics group">
+                      <input
+                        type="radio"
+                        className="btn-check"
+                        name="btnradio"
+                        id="btn24h"
+                        autoComplete="off"
+                        checked={groupName === "24h"}
+                        onClick={() => onClickDuration("24h")}
+                      />
+                      <label className={`btn ${groupName === "24h" ? "btn-primary" : "btn-outline-primary"}`} htmlFor="btn24h">
+                        24h
+                      </label>
+
+                      <input
+                        type="radio"
+                        className="btn-check"
+                        name="btnradio"
+                        id="btn31d"
+                        autoComplete="off"
+                        checked={groupName === "31d"}
+                        onClick={() => onClickDuration("31d")}
+                      />
+                      <label className={`btn ${groupName === "31d" ? "btn-primary" : "btn-outline-primary"}`} htmlFor="btn31d">
+                        31d
+                      </label>
+
+                      <input type="radio" className="btn-check" name="btnradio" id="btn1y" autoComplete="off" checked={groupName === "1y"} onClick={() => onClickDuration("1y")} />
+                      <label className={`btn ${groupName === "1y" ? "btn-primary" : "btn-outline-primary"}`} htmlFor="btn1y">
+                        1y
+                      </label>
                     </div>
                   </div>
                 </div>
-                {/* Chart */}
-                <div className="col-md-6">
-                  <div className="card card-custom card-stretch gutter-b">
-                    <div className="card-body">
-                      <div id="kt_mixed_widget_2_chart" style={{ height: "150px" }}></div>
+                <div className="row mb-5">
+                  {/* Errors */}
+                  <div className="col-md-6">
+                    <div className="card">
+                      <div className="card-header border-0">
+                        <h3 className="card-title fw-bolder text-dark">Errors</h3>
+                      </div>
+                      <LinkMetrics layout="line" metricName="errors" groupName={groupName} widgetData={metrics.errors} />
+                    </div>
+                  </div>
+                  {/* RSSI */}
+                  <div className="col-md-6">
+                    <div className="card">
+                      <div className="card-header border-0">
+                        <h3 className="card-title fw-bolder text-dark">RSSI</h3>
+                      </div>
+                      <LinkMetrics layout="line" metricName="rssi" groupName={groupName} widgetData={metrics.gwRssi} />
+                    </div>
+                  </div>
+                </div>
+                <div className="row mb-5">
+                  {/* SNR */}
+                  <div className="col-md-6">
+                    <div className="card">
+                      <div className="card-header border-0">
+                        <h3 className="card-title fw-bolder text-dark">SNR</h3>
+                      </div>
+                      <LinkMetrics layout="line" metricName="snr" groupName={groupName} widgetData={metrics.gwSnr} />
+                    </div>
+                  </div>
+                  {/* Received */}
+                  <div className="col-md-6">
+                    <div className="card">
+                      <div className="card-header border-0">
+                        <h3 className="card-title fw-bolder text-dark">Received</h3>
+                      </div>
+                      <LinkMetrics layout="line" metricName="received" groupName={groupName} widgetData={metrics.rxPackets} />
+                    </div>
+                  </div>
+                </div>
+                <div className="row">
+                  {/* Received / DR */}
+                  <div className="col-md-6">
+                    <div className="card">
+                      <div className="card-header border-0">
+                        <h3 className="card-title fw-bolder text-dark">Received / DR</h3>
+                      </div>
+                      <LinkMetrics layout="line" metricName="received_dr" groupName={groupName} widgetData={metrics.rxPacketsPerDr} />
+                    </div>
+                  </div>
+                  {/* Received / frequency */}
+                  <div className="col-md-6">
+                    <div className="card">
+                      <div className="card-header border-0">
+                        <h3 className="card-title fw-bolder text-dark">Received / frequency</h3>
+                      </div>
+                      <LinkMetrics layout="line" metricName="received_frequency" groupName={groupName} widgetData={metrics.rxPacketsPerFreq} />
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
           <div className="tab-pane fade" id="kt_tab_general" role="tabpanel">
             <div className="d-flex flex-column me-n7 pe-7">

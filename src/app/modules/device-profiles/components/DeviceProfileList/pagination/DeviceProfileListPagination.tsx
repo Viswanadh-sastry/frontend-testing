@@ -36,7 +36,7 @@ const DeviceProfileListPagination = ({ filterDeviceProfile, setFilterDeviceProfi
   });
   const deviceProfileListQuery = useQuery({
     queryKey: [`deviceProfileList`, filterDeviceProfile],
-    queryFn: async () => getDeviceProfile(filterDeviceProfile).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getDeviceProfile(filterDeviceProfile).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
   const isLoading = deviceProfileListQuery.isLoading;

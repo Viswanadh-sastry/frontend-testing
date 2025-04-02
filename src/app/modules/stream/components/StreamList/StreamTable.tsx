@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { ColumnInstance, Row, useTable } from "react-table";
+import { toast } from "react-toastify";
 import { KTCard, KTCardBody, PaginationState } from "../../../../../_metronic/helpers";
 import { getStreamList } from "../../api/StreamAPI";
 import { Stream } from "../../api/_models";
@@ -25,7 +26,7 @@ const StreamTable = () => {
   const [streamList, setStreamList] = useState<any>([]);
   const streamListQuery = useQuery({
     queryKey: [`streamList`],
-    queryFn: async () => getStreamList(),
+    queryFn: async () => getStreamList().catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
 

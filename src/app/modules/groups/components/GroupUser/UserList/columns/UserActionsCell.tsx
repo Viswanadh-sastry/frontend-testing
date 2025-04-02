@@ -37,7 +37,7 @@ const UserActionsCell: FC<Props> = ({ id, relation }) => {
           );
           return { ...response, users };
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
 
@@ -68,7 +68,7 @@ const UserActionsCell: FC<Props> = ({ id, relation }) => {
             toast.success("Member deleted successfully");
             userListQuery.refetch();
           })
-          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
       }
     });
   };

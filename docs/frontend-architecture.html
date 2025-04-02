@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Frontend Architecture Documentation</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="frontend-architecture-documentation">Frontend Architecture Documentation</h1>
+<h2 id="overview">Overview</h2>
+<p>This document outlines the frontend architecture of the Rapid App, a React-based application built with TypeScript and utilizing the Metronic theme framework.</p>
+<h2 id="tech-stack">Tech Stack</h2>
+<ul>
+<li><strong>Framework</strong>: React with TypeScript</li>
+<li><strong>Build Tool</strong>: Vite</li>
+<li><strong>Package Manager</strong>: Yarn</li>
+<li><strong>UI Framework</strong>: Metronic Theme</li>
+<li><strong>State Management</strong>: React Context API</li>
+<li><strong>Routing</strong>: React Router</li>
+<li><strong>Code Quality</strong>: ESLint</li>
+</ul>
+<h2 id="project-structure">Project Structure</h2>
+<p>The application follows a well-organized directory structure that promotes modularity and separation of concerns:</p>
+<pre><code>rapid-app/
+├── src/
+│   ├── _metronic/               # Metronic theme integration
+│   │   ├── assets/             # Theme assets (images, styles)
+│   │   ├── helpers/            # Theme utility functions
+│   │   ├── layout/             # Layout components
+│   │   └── partials/           # Reusable UI components
+│   │
+│   ├── app/                    # Main application code
+│   │   ├── modules/           # Feature modules
+│   │   │   ├── auth/         # Authentication &amp; authorization
+│   │   │   ├── channels/     # Channel management
+│   │   │   ├── dashboard/    # Dashboard features
+│   │   │   ├── domain/       # Domain-specific logic
+│   │   │   ├── errors/       # Error handling
+│   │   │   ├── groups/       # Group management
+│   │   │   ├── histories/    # History tracking
+│   │   │   ├── home/         # Home page features
+│   │   │   ├── invitations/  # Invitation system
+│   │   │   ├── profile/      # User profile
+│   │   │   ├── reports/      # Reporting features
+│   │   │   ├── things/       # Thing management
+│   │   │   └── users/        # User management
+│   │   │
+│   │   ├── pages/           # Page components
+│   │   ├── routing/         # Route configurations
+│   │   ├── hooks/           # Custom React hooks
+│   │   ├── constants/       # Application constants
+│   │   └── App.tsx         # Root component
+│   │
+│   └── main.tsx              # Application entry point
+│
+├── public/                    # Static assets
+│   ├── media/               # Media files
+│   └── favicon.ico         # Site favicon
+│
+├── index.html                # HTML entry point
+├── package.json              # Dependencies and scripts
+├── tsconfig.json             # TypeScript configuration
+├── vite.config.ts            # Vite configuration
+└── .eslintrc.cjs             # ESLint configuration
+</code></pre>
+<h3 id="key-directories-explained">Key Directories Explained</h3>
+<h4 id="1-feature-modules-srcappmodules">1. Feature Modules (<code>src/app/modules/</code>)</h4>
+<p>Each feature module is self-contained and follows a consistent structure:</p>
+<pre><code>module-name/
+├── components/     # Module-specific components
+├── api/             # API services
+└── page.tsx         # Page component
+</code></pre>
+<h4 id="2-core-application-srcapp">2. Core Application (<code>src/app/</code>)</h4>
+<ul>
+<li><code>pages/</code>: Top-level page components</li>
+<li><code>routing/</code>: Route definitions and guards</li>
+<li><code>hooks/</code>: Shared custom hooks</li>
+<li><code>constants/</code>: Application-wide constants</li>
+</ul>
+<h4 id="3-theme-integration-src_metronic">3. Theme Integration (<code>src/_metronic/</code>)</h4>
+<ul>
+<li>Metronic theme components and utilities</li>
+<li>Layout management</li>
+<li>Theme-specific assets and styles</li>
+</ul>
+<h4 id="4-configuration-files">4. Configuration Files</h4>
+<ul>
+<li><code>vite.config.ts</code>: Build and development configuration</li>
+<li><code>tsconfig.json</code>: TypeScript compiler options</li>
+<li><code>.eslintrc.cjs</code>: Code style and quality rules</li>
+</ul>
+<h3 id="module-organization">Module Organization</h3>
+<p>The application is organized into distinct feature modules, each responsible for a specific domain:</p>
+<ol>
+<li>
+<p><strong>Authentication (<code>auth/</code>)</strong></p>
+<ul>
+<li>Login/Logout functionality</li>
+<li>Authorization management</li>
+<li>User session handling</li>
+</ul>
+</li>
+<li>
+<p><strong>Home (<code>home/</code>)</strong></p>
+<ul>
+<li>Home page layout</li>
+<li>Analytics displays</li>
+</ul>
+</li>
+<li>
+<p><strong>Dashboard (<code>dashboard/</code>)</strong></p>
+<ul>
+<li>Dashboard creation</li>
+<li>Widget configuration</li>
+<li>Data visualization</li>
+<li>Summary views</li>
+</ul>
+</li>
+<li>
+<p><strong>User Management (<code>users/</code>)</strong></p>
+<ul>
+<li>User CRUD operations</li>
+<li>User permissions</li>
+<li>Profile management</li>
+</ul>
+</li>
+<li>
+<p><strong>Invitation System (<code>invitations/</code>)</strong></p>
+<ul>
+<li>Invitation creation and management</li>
+<li>User acceptance</li>
+</ul>
+</li>
+<li>
+<p><strong>Domain Management (<code>domain/</code>)</strong></p>
+<ul>
+<li>Domain creation and management</li>
+<li>Organization structure</li>
+</ul>
+</li>
+<li>
+<p><strong>Profile (<code>profile/</code>)</strong></p>
+<ul>
+<li>User profile management</li>
+<li>Change password</li>
+</ul>
+</li>
+<li>
+<p><strong>Channel Management (<code>channels/</code>)</strong></p>
+<ul>
+<li>Channel creation and configuration</li>
+<li>Thing assignment</li>
+<li>Group assignment</li>
+<li>Member management</li>
+</ul>
+</li>
+<li>
+<p><strong>Group Management (<code>groups/</code>)</strong></p>
+<ul>
+<li>Group creation and management</li>
+<li>Channel assignment</li>
+<li>Member administration</li>
+</ul>
+</li>
+<li>
+<p><strong>Thing Management (<code>things/</code>)</strong></p>
+</li>
+</ol>
+<ul>
+<li>Thing creation and management</li>
+<li>Channel assignment</li>
+</ul>
+<ol start="11">
+<li><strong>History Tracking (<code>histories/</code>)</strong></li>
+</ol>
+<ul>
+<li>Activity logging</li>
+<li>Data export</li>
+<li>Analytics</li>
+</ul>
+<p>This modular structure enables:</p>
+<ul>
+<li>Independent feature development</li>
+<li>Clear separation of concerns</li>
+<li>Easy maintenance and testing</li>
+<li>Scalable architecture</li>
+<li>Code reusability</li>
+</ul>
+<h2 id="application-architecture">Application Architecture</h2>
+<h3 id="1-component-organization">1. Component Organization</h3>
+<p>The application follows a modular architecture with the following key areas:</p>
+<pre><code>app/
+├── modules/             # Feature-specific modules
+├── routing/            # Route configurations
+├── constants/          # Application constants
+└── pages/              # Top-level page components
+</code></pre>
+<h3 id="2-data-flow">2. Data Flow</h3>
+<pre><code class="language-mermaid">graph TD
+    A[User Interface] --&gt;|Action| B[Component]
+    B --&gt;|State Update| C[Context/Store]
+    C --&gt;|Data| D[API Service]
+    D --&gt;|Response| C
+    C --&gt;|Update| B
+    B --&gt;|Render| A
+</code></pre>
+<h3 id="3-routing-structure">3. Routing Structure</h3>
+<ul>
+<li>Protected Routes</li>
+<li>Public Routes</li>
+<li>Module based Routing</li>
+<li>Lazy Loading for Route Components</li>
+</ul>
+<h3 id="4-state-management">4. State Management</h3>
+<ul>
+<li>Context API for global state</li>
+<li>Local component state for UI-specific data</li>
+</ul>
+<h2 id="useful-resources">Useful Resources</h2>
+<h3 id="official-documentation">Official Documentation</h3>
+<ul>
+<li><a href="https://react.dev/">React Documentation</a></li>
+<li><a href="https://www.typescriptlang.org/docs/">TypeScript Handbook</a></li>
+<li><a href="https://vitejs.dev/guide/">Vite Guide</a></li>
+<li><a href="https://preview.keenthemes.com/metronic8/demo1/documentation/">Metronic Theme</a></li>
+<li><a href="https://reactrouter.com/en/main">React Router Documentation</a></li>
+<li><a href="https://react-table.tanstack.com/">React Table Documentation</a></li>
+<li><a href="https://react-bootstrap.github.io/">React Bootstrap</a></li>
+<li><a href="https://react-bootstrap-typeahead.js.org/">React Bootstrap Typeahead</a></li>
+<li><a href="https://tanstack.com/query/v4/">Tanstack/React Query</a></li>
+<li><a href="https://axios-http.com/docs/intro">Axios Documentation</a></li>
+<li><a href="https://apexcharts.com/docs/react-charts/">ApexCharts Documentation</a></li>
+<li><a href="https://getbootstrap.com/docs/5.3/getting-started/introduction/">Bootstrap Documentation</a></li>
+<li><a href="https://icons.getbootstrap.com/">Bootstrap Icons</a></li>
+<li><a href="https://github.com/jquense/yup">Yup Documentation</a></li>
+<li><a href="https://formik.org/">Formik Documentation</a></li>
+<li><a href="https://momentjs.com/">Moment Documentation</a></li>
+<li><a href="https://classic.yarnpkg.com/lang/en/docs/cli/">Yarn Documentation</a></li>
+</ul>
+
+            
+            
+        </body>
+        </html>

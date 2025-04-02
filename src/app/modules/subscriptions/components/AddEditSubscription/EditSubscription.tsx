@@ -18,7 +18,7 @@ const EditSubscription = ({ row, onCloseEditSubscription }: IEditSubscriptionPro
   };
   const subscriptionListQuery = useQuery({
     queryKey: [`subscriptionList`, filterSubscription],
-    queryFn: async () => getSubscriptionList(filterSubscription).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getSubscriptionList(filterSubscription).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
   const subscriptionSchema = Yup.object().shape({
@@ -87,7 +87,7 @@ const EditSubscription = ({ row, onCloseEditSubscription }: IEditSubscriptionPro
           onCloseEditSubscription();
           subscriptionListQuery.refetch();
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });

@@ -21,7 +21,7 @@ const InvitationActionsCell: FC<Props> = ({ userId, domainId }) => {
   };
   const invitationListQuery = useQuery({
     queryKey: [`invitationList`, filterInvitation],
-    queryFn: async () => getInvitationList(filterInvitation).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getInvitationList(filterInvitation).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
 
@@ -44,7 +44,7 @@ const InvitationActionsCell: FC<Props> = ({ userId, domainId }) => {
             toast.success("Invitation deleted successfully");
             invitationListQuery.refetch();
           })
-          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
       }
     });
   };

@@ -33,7 +33,7 @@ const AddChannel = ({ onCloseAddChannel, onGetChannelList }: IAddChannelProps) =
 
   const channelListQuery = useQuery({
     queryKey: [`channelList`, filterChannel],
-    queryFn: async () => getChannelListAll(filterChannel).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getChannelListAll(filterChannel).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
 
@@ -55,7 +55,7 @@ const AddChannel = ({ onCloseAddChannel, onGetChannelList }: IAddChannelProps) =
           onCloseAddChannel();
           onGetChannelList();
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });

@@ -33,7 +33,7 @@ const AddGroupChannel = ({ onCloseAddGroupChannel, onGetGroupChannelList }: IAdd
 
   const channelListQuery = useQuery({
     queryKey: [`ChannelList`, filterGroupChannel],
-    queryFn: async () => getChannelListAll(filterGroupChannel).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getChannelListAll(filterGroupChannel).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
 
@@ -58,7 +58,7 @@ const AddGroupChannel = ({ onCloseAddGroupChannel, onGetGroupChannelList }: IAdd
           onCloseAddGroupChannel();
           onGetGroupChannelList();
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });

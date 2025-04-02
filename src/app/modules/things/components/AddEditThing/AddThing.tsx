@@ -15,12 +15,12 @@ interface IAddThingProps {
 const AddThing = ({ onCloseAddThing, onGetThingList }: IAddThingProps) => {
   const deviceProfileListQuery = useQuery({
     queryKey: ["deviceProfileList"],
-    queryFn: async () => getDeviceProfileList().catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getDeviceProfileList().catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const deviceServiceListQuery = useQuery({
     queryKey: ["deviceServiceList"],
-    queryFn: async () => getDeviceServiceList().catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getDeviceServiceList().catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const thingSchema = Yup.object().shape({
@@ -113,14 +113,14 @@ const AddThing = ({ onCloseAddThing, onGetThingList }: IAddThingProps) => {
                 onCloseAddThing();
                 onGetThingList();
               })
-              .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+              .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
           } else {
             toast.success("Device created successfully");
             onCloseAddThing();
             onGetThingList();
           }
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -139,7 +139,7 @@ const AddThing = ({ onCloseAddThing, onGetThingList }: IAddThingProps) => {
         (document.querySelector('input[name="uploadProfile"]') as HTMLInputElement).value = "";
         deviceProfileListQuery.refetch();
       })
-      .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+      .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
   };
 
   const isValidateMetadata = (metadata: any) => {

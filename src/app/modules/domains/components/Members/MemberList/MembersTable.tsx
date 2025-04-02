@@ -26,7 +26,7 @@ const MembersTable = () => {
   });
   const memberListQuery = useQuery({
     queryKey: [`memberList`, domainId, filterMember],
-    queryFn: async () => getMemberList(domainId, filterMember).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getMemberList(domainId, filterMember).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const isLoading = memberListQuery.isLoading;

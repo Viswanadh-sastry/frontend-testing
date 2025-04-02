@@ -52,7 +52,7 @@ const subscriptionsColumns: ReadonlyArray<Column<Subscription>> = [
     accessor: "resendInterval",
   },
   {
-    Header: (props) => <SubscriptionCustomHeader tableProps={props} title="Actions" className="text-end w-120px" />,
+    Header: (props) => <SubscriptionCustomHeader tableProps={props} title="Actions" className="text-end w-150px" />,
     id: "actions",
     Cell: ({ ...props }) => <SubscriptionActionsCell row={props.row} />,
   },

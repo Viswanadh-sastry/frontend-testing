@@ -61,7 +61,7 @@ const DeviceTable = () => {
     queryFn: async () => {
       const channelList = [];
       if (thingId) {
-        const channelListByThingId = await getThingChannelList(thingId, filterGroupChannel);
+        const channelListByThingId = await getThingChannelList(thingId, filterGroupChannel).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
         if (channelListByThingId.groups) {
           const groupsWithThingId = channelListByThingId.groups.map((group: any) => ({
             ...group,
@@ -71,7 +71,9 @@ const DeviceTable = () => {
         }
       } else if (filterDevice.thingId) {
         for (const thingId of filterDevice.thingId) {
-          const channelListByThingId = await getThingChannelList(thingId, filterGroupChannel);
+          const channelListByThingId = await getThingChannelList(thingId, filterGroupChannel).catch((error) =>
+            toast.error(error?.response?.data?.message || "Something went wrong")
+          );
           if (channelListByThingId.groups) {
             const groupsWithThingId = channelListByThingId.groups.map((group: any) => ({
               ...group,
@@ -100,25 +102,27 @@ const DeviceTable = () => {
           for (const name of filterDevice.name) {
             try {
               const filterWithNameAndPublisher = { ...filterDevice, name: [name], publisher: channel.thingId };
-              const historyData = await getHistoryListAll(channel.id, filterWithNameAndPublisher);
+              const historyData = await getHistoryListAll(channel.id, filterWithNameAndPublisher).catch((error) =>
+                toast.error(error?.response?.data?.message || "Something went wrong")
+              );
               if (historyData.messages) {
                 allHistoryData.push(...historyData.messages);
               }
               totalCount += historyData.total;
             } catch (error: any) {
-              toast.error(error?.response?.data?.error || "Something went wrong");
+              toast.error(error?.response?.data?.message || "Something went wrong");
             }
           }
         } else {
           try {
             const filterWithPublisher = { ...filterDevice, publisher: channel.thingId };
-            const historyData = await getHistoryListAll(channel.id, filterWithPublisher);
+            const historyData = await getHistoryListAll(channel.id, filterWithPublisher).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
             if (historyData.messages) {
               allHistoryData.push(...historyData.messages);
             }
             totalCount += historyData.total;
           } catch (error: any) {
-            toast.error(error?.response?.data?.error || "Something went wrong");
+            toast.error(error?.response?.data?.message || "Something went wrong");
           }
         }
       }

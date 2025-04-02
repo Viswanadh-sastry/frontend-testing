@@ -53,7 +53,7 @@ const AssetTable = () => {
       if (channelId) {
         let channelListByThingId;
         if (filterAsset.name && filterAsset.name.length == 0) {
-          channelListByThingId = await getHistoryListAll(channelId, filterAsset);
+          channelListByThingId = await getHistoryListAll(channelId, filterAsset).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
         }
         // when filterAsset.name.length > 0, we need to pass the name one by one to get the data
         if (filterAsset.name && filterAsset.name.length > 0) {
@@ -61,13 +61,13 @@ const AssetTable = () => {
           for (const name of filterAsset.name) {
             try {
               const filterWithName = { ...filterAsset, name: [name] }; // Pass the name one by one
-              const historyData = await getHistoryListAll(channelId, filterWithName);
+              const historyData = await getHistoryListAll(channelId, filterWithName).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
               if (historyData.messages) {
                 channelList.push(...historyData.messages);
               }
               totalCount += historyData.total;
             } catch (error: any) {
-              toast.error(error?.response?.data?.error || "Something went wrong");
+              toast.error(error?.response?.data?.message || "Something went wrong");
             }
           }
           setHistoryList([...historyList, ...channelList]);
@@ -90,17 +90,17 @@ const AssetTable = () => {
               for (const name of filterAsset.name) {
                 try {
                   const filterWithName = { ...filterAsset, name: [name] }; // Pass the name one by one
-                  const historyData = await getHistoryListAll(assetId, filterWithName);
+                  const historyData = await getHistoryListAll(assetId, filterWithName).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
                   if (historyData.messages) {
                     channelList.push(...historyData.messages);
                   }
                   totalCount += historyData.total;
                 } catch (error: any) {
-                  toast.error(error?.response?.data?.error || "Something went wrong");
+                  toast.error(error?.response?.data?.message || "Something went wrong");
                 }
               }
             } else {
-              const channelListByThingId = await getHistoryListAll(assetId, filterAsset);
+              const channelListByThingId = await getHistoryListAll(assetId, filterAsset).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
               if (channelListByThingId.messages) {
                 channelList.push(...channelListByThingId.messages);
               }

@@ -16,7 +16,7 @@ const HeaderUserMenu: FC = () => {
   const navigate = useNavigate();
   const profileQuery = useQuery({
     queryKey: [`profile`],
-    queryFn: async () => getProfile().catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getProfile().catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const profile = profileQuery.data;
@@ -35,6 +35,7 @@ const HeaderUserMenu: FC = () => {
     removeRole();
     credHelper.removeCred();
     vaultHelper.removeVaultToken();
+    vaultHelper.removeVaultClientToken();
     // loraHelper.removeLORAAuth();
     navigate("/auth/login");
   };

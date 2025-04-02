@@ -85,7 +85,7 @@ const ThingsListHeader = ({ onShowAddThing, setFilterThing, onShowImportThing, f
         );
         return { ...response, things };
       })
-      .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+      .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
   };
 
   const convertToCSV = (data: any[], headerOrder: string[]) => {

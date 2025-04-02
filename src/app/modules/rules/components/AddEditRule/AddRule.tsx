@@ -44,7 +44,7 @@ const AddRule = () => {
           toast.success("Rule created successfully");
           navigate("/rule");
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });

@@ -13,7 +13,7 @@ const RuleActionsCell: FC<Props> = ({ row }) => {
   const navigate = useNavigate();
   const ruleListQuery = useQuery({
     queryKey: [`ruleList`],
-    queryFn: async () => getRuleList(),
+    queryFn: async () => getRuleList().catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
 
@@ -36,7 +36,7 @@ const RuleActionsCell: FC<Props> = ({ row }) => {
             toast.success("Rule deleted successfully");
             ruleListQuery.refetch();
           })
-          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
       }
     });
   };
@@ -60,7 +60,7 @@ const RuleActionsCell: FC<Props> = ({ row }) => {
             toast.success("Rule started successfully");
             ruleListQuery.refetch();
           })
-          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
       }
     });
   };
@@ -84,7 +84,7 @@ const RuleActionsCell: FC<Props> = ({ row }) => {
             toast.success("Rule stopped successfully");
             ruleListQuery.refetch();
           })
-          .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
       }
     });
   };

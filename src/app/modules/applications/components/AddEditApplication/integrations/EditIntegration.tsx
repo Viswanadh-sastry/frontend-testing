@@ -16,7 +16,7 @@ const EditIntegration = () => {
   const kind = (params.kind as string).toLowerCase();
   const integrationQuery = useQuery({
     queryKey: [`integration`, id],
-    queryFn: async () => getIntegration({ applicationId: id, kind: kind }).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getIntegration({ applicationId: id, kind: kind }).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const integration = useMemo(() => integrationQuery.data?.integration || {}, [integrationQuery.data]);
@@ -39,20 +39,18 @@ const EditIntegration = () => {
     validationSchema: integrationSchema,
     onSubmit: async (values, { setSubmitting }) => {
       const data = {
-        integration: {
-          applicationId: values.applicationId,
-          kind: values.kind,
-          encoding: values.encoding,
-          eventEndpointUrl: values.eventEndpointUrl,
-          headers: values.headers,
-        },
+        applicationId: values.applicationId,
+        kind: values.kind,
+        encoding: values.encoding,
+        eventEndpointUrl: values.eventEndpointUrl,
+        headers: values.headers,
       };
       updateIntegration(data)
         .then(() => {
           toast.success("Integration updated successfully");
           navigate(`/applications/${values.applicationId}/integrations`);
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -120,7 +118,7 @@ const EditIntegration = () => {
                     >
                       <option value="">Select Encoding</option>
                       <option value="JSON">JSON</option>
-                      <option value="Protobuf (binary)">Protobuf (binary)</option>
+                      <option value="PROTOBUF">Protobuf (binary)</option>
                     </select>
                     {formik.touched.encoding && formik.errors.encoding && (
                       <div className="fv-plugins-message-container">

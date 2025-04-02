@@ -101,7 +101,7 @@ const SensorPreviewItem = ({ widgetData }: ISensorPreviewItemProps) => {
               allHistoryData.push(...historyData.messages);
             }
           } catch (error: any) {
-            toast.error(error?.response?.data?.error || "Something went wrong");
+            toast.error(error?.response?.data?.message || "Something went wrong");
           }
         }
 

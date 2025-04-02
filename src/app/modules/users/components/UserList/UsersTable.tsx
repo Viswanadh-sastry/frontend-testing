@@ -48,7 +48,7 @@ const UsersTable = () => {
   });
   const userListQuery = useQuery({
     queryKey: [`userList`, filterUser],
-    queryFn: async () => getUserListAll(filterUser).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getUserListAll(filterUser).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
   const isLoading = userListQuery.isLoading;

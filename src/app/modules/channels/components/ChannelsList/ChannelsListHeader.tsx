@@ -95,7 +95,7 @@ const ChannelsListHeader = ({ onShowAddChannel, setFilterChannel, onShowImportCh
         );
         return { ...response, groups };
       })
-      .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"));
+      .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
   };
 
   const convertToCSV = (data: any[], headerOrder: string[]) => {

@@ -36,7 +36,7 @@ const AddThing = ({ onCloseAddThing, onGetThingList }: IAddThingProps) => {
 
   const thingListQuery = useQuery({
     queryKey: [`thingList`, filterThing],
-    queryFn: async () => getThingListAll(filterThing).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getThingListAll(filterThing).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
 
@@ -54,7 +54,7 @@ const AddThing = ({ onCloseAddThing, onGetThingList }: IAddThingProps) => {
           onCloseAddThing();
           onGetThingList();
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });

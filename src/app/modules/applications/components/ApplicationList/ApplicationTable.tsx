@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { ColumnInstance, Row, useTable } from "react-table";
+import { toast } from "react-toastify";
 import { KTCard, KTCardBody } from "../../../../../_metronic/helpers";
 import { getLORAAuth } from "../../../auth/core/LORAHelpers";
 import { getApplication } from "../../api/ApplicationAPI";
@@ -22,7 +23,7 @@ const ApplicationTable = () => {
   });
   const applicationListQuery = useQuery({
     queryKey: [`applicationList`, filterApplication],
-    queryFn: async () => getApplication(filterApplication),
+    queryFn: async () => getApplication(filterApplication).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
 

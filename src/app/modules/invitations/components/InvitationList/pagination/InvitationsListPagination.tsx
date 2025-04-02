@@ -40,7 +40,7 @@ const InvitationsListPagination = ({ filterInvitation, setFilterInvitation }: II
   });
   const invitationListQuery = useQuery({
     queryKey: [`invitationList`, filterInvitation],
-    queryFn: async () => getInvitationList(filterInvitation).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getInvitationList(filterInvitation).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
   const isLoading = invitationListQuery.isLoading;

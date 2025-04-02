@@ -29,7 +29,7 @@ const AddGroup = ({ onCloseAddGroup, onGetGroupList }: IAddGroupProps) => {
 
   const groupListQuery = useQuery({
     queryKey: [`groupList`, filterGroup],
-    queryFn: async () => getGroupListAll(filterGroup).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getGroupListAll(filterGroup).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: true,
   });
 
@@ -81,7 +81,7 @@ const AddGroup = ({ onCloseAddGroup, onGetGroupList }: IAddGroupProps) => {
           onCloseAddGroup();
           onGetGroupList();
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });

@@ -30,20 +30,18 @@ const AddIntegration = () => {
     validationSchema: integrationSchema,
     onSubmit: async (values, { setSubmitting }) => {
       const data = {
-        integration: {
-          applicationId: values.applicationId,
-          kind: values.kind,
-          encoding: values.encoding,
-          eventEndpointUrl: values.eventEndpointUrl,
-          headers: values.headers,
-        },
+        applicationId: values.applicationId,
+        kind: values.kind,
+        encoding: values.encoding,
+        eventEndpointUrl: values.eventEndpointUrl,
+        headers: values.headers,
       };
       addIntegration(data)
         .then(() => {
           toast.success("Integration created successfully");
           navigate(`/applications/${values.applicationId}/integrations`);
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });
@@ -110,7 +108,7 @@ const AddIntegration = () => {
                     >
                       <option value="">Select Encoding</option>
                       <option value="JSON">JSON</option>
-                      <option value="Protobuf (binary)">Protobuf (binary)</option>
+                      <option value="PROTOBUF">Protobuf (binary)</option>
                     </select>
                     {formik.touched.encoding && formik.errors.encoding && (
                       <div className="fv-plugins-message-container">

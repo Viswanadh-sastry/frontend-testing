@@ -42,7 +42,7 @@ const GroupChannelListPagination = ({ filterGroupChannel, setFilterGroupChannel 
   });
   const groupChannelListQuery = useQuery({
     queryKey: [`groupChannelList`, filterGroupChannel],
-    queryFn: async () => getGroupChannelList(id, filterGroupChannel).catch((error) => toast.error(error?.response?.data?.error || "Something went wrong")),
+    queryFn: async () => getGroupChannelList(id, filterGroupChannel).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong")),
     enabled: false,
   });
   const isLoading = groupChannelListQuery.isLoading;

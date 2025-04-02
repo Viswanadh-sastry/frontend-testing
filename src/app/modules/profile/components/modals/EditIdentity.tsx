@@ -23,7 +23,10 @@ const EditIdentity = ({ data, onClose, onDisplay }: IEditIdentityProps) => {
     },
     enableReinitialize: true,
     validationSchema: Yup.object().shape({
-      identity: Yup.string().email("Invalid email format").required("Identity is required."),
+      identity: Yup.string()
+        .email("Invalid email format")
+        .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, "Invalid email format")
+        .required("Identity is required."),
     }),
     onSubmit: async (values, { setSubmitting }) => {
       updateProfileIdentity(data.id, values.identity)
@@ -32,7 +35,7 @@ const EditIdentity = ({ data, onClose, onDisplay }: IEditIdentityProps) => {
           onClose();
           onDisplay();
         })
-        .catch((error) => toast.error(error?.response?.data?.error || "Something went wrong"))
+        .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"))
         .finally(() => setSubmitting(false));
     },
   });

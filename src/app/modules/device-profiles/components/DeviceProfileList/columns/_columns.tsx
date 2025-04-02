@@ -26,7 +26,7 @@ const deviceProfilesColumns: ReadonlyArray<Column<DeviceProfile>> = [
     Cell: ({ value }) => (value ? "Yes" : "No"),
   },
   {
-    Header: (props) => <DeviceProfileCustomHeader tableProps={props} title="Actions" className="text-end min-w-100px" />,
+    Header: (props) => <DeviceProfileCustomHeader tableProps={props} title="Actions" className="text-end min-w-150px" />,
     id: "actions",
     Cell: ({ ...props }) => <DeviceProfileActionsCell id={props.data[props.row.index].id} />,
   },
