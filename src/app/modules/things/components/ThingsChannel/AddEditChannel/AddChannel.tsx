@@ -84,7 +84,7 @@ const AddChannel = ({ onCloseAddChannel, onGetChannelList }: IAddChannelProps) =
               {/* end::Modal title */}
 
               {/* begin::Close */}
-              <div className="btn btn-icon btn-sm btn-active-icon-primary" data-kt-user-modal-action="close" onClick={onCloseAddChannel} style={{ cursor: "pointer" }}>
+              <div className="btn btn-icon btn-sm btn-active-icon-primary cursor-pointer" data-kt-user-modal-action="close" onClick={onCloseAddChannel}>
                 <KTIcon iconName="cross" className="fs-1" />
               </div>
               {/* end::Close */}

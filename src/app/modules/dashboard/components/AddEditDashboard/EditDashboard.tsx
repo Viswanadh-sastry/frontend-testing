@@ -61,7 +61,7 @@ const EditDashboard = ({ id, onCloseEditDashboard, onGetDashboardList }: IEditDa
               {/* end::Modal title */}
 
               {/* begin::Close */}
-              <div className="btn btn-icon btn-sm btn-active-icon-primary" data-kt-dashboard-modal-action="close" onClick={onCloseEditDashboard} style={{ cursor: "pointer" }}>
+              <div className="btn btn-icon btn-sm btn-active-icon-primary cursor-pointer" data-kt-dashboard-modal-action="close" onClick={onCloseEditDashboard}>
                 <KTIcon iconName="cross" className="fs-1" />
               </div>
               {/* end::Close */}

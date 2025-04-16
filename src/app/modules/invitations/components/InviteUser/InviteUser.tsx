@@ -112,7 +112,7 @@ const InviteUser = ({ onCloseInviteUser, onGetInvitationList }: IInviteUserProps
               {/* end::Modal title */}
 
               {/* begin::Close */}
-              <div className="btn btn-icon btn-sm btn-active-icon-primary" data-kt-invitations-modal-action="close" onClick={onCloseInviteUser} style={{ cursor: "pointer" }}>
+              <div className="btn btn-icon btn-sm btn-active-icon-primary cursor-pointer" data-kt-invitations-modal-action="close" onClick={onCloseInviteUser}>
                 <KTIcon iconName="cross" className="fs-1" />
               </div>
               {/* end::Close */}

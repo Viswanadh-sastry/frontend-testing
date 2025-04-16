@@ -161,7 +161,7 @@ const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetSensorWidgetList }: 
               {/* end::Modal title */}
 
               {/* begin::Close */}
-              <div className="btn btn-icon btn-sm btn-active-icon-primary" data-kt-chart-modal-action="close" onClick={onCloseAddSensor} style={{ cursor: "pointer" }}>
+              <div className="btn btn-icon btn-sm btn-active-icon-primary cursor-pointer" data-kt-chart-modal-action="close" onClick={onCloseAddSensor}>
                 <KTIcon iconName="cross" className="fs-1" />
               </div>
               {/* end::Close */}
@@ -261,26 +261,24 @@ const AddSensor = ({ selectedLayout, onCloseAddSensor, onGetSensorWidgetList }: 
                             <span className="fw-bold fs-6 mx-2">Custom</span>
                           </label>
                           {String(formik.values.timeline) === "0" && (
-                            <label>
-                              <div className="d-flex">
-                                <input
-                                  {...formik.getFieldProps("fromDate")}
-                                  type="date"
-                                  className="form-control w-150px mx-2"
-                                  name="fromDate"
-                                  placeholder="From Date"
-                                  style={{ colorScheme: ktThemeModeValue || undefined }}
-                                />
-                                <input
-                                  {...formik.getFieldProps("toDate")}
-                                  type="date"
-                                  className="form-control w-150px"
-                                  name="toDate"
-                                  placeholder="To Date"
-                                  style={{ colorScheme: ktThemeModeValue || undefined }}
-                                />
-                              </div>
-                            </label>
+                            <div className="d-flex">
+                              <input
+                                {...formik.getFieldProps("fromDate")}
+                                type="date"
+                                className="form-control w-150px mx-2"
+                                name="fromDate"
+                                placeholder="From Date"
+                                style={{ colorScheme: ktThemeModeValue || undefined }}
+                              />
+                              <input
+                                {...formik.getFieldProps("toDate")}
+                                type="date"
+                                className="form-control w-150px"
+                                name="toDate"
+                                placeholder="To Date"
+                                style={{ colorScheme: ktThemeModeValue || undefined }}
+                              />
+                            </div>
                           )}
                         </div>
                       </div>

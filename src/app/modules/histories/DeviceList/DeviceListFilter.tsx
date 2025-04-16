@@ -119,7 +119,7 @@ const DeviceListFilter = ({ setFilterDevice, setHistoryList }: IDeviceListHeader
         <div className="px-7 py-5" data-kt-device-table-filter="form">
           <div className="mt-1">
             <label className="form-label fs-6 fw-bold">Sensor Type:</label>
-            <div onClick={handleTypeaheadContainerClick}>
+            <div role="button" onClick={handleTypeaheadContainerClick}>
               <Typeahead
                 id="channelList"
                 labelKey="label"

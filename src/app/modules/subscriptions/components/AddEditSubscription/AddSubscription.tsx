@@ -89,7 +89,7 @@ const AddSubscription = ({ onCloseAddSubscription, onGetSubscriptionList }: IAdd
               {/* end::Modal title */}
 
               {/* begin::Close */}
-              <div className="btn btn-icon btn-sm btn-active-icon-primary" data-kt-subscription-modal-action="close" onClick={onCloseAddSubscription} style={{ cursor: "pointer" }}>
+              <div className="btn btn-icon btn-sm btn-active-icon-primary cursor-pointer" data-kt-subscription-modal-action="close" onClick={onCloseAddSubscription}>
                 <KTIcon iconName="cross" className="fs-1" />
               </div>
               {/* end::Close */}

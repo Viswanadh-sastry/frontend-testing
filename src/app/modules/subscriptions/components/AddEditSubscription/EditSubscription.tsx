@@ -105,12 +105,7 @@ const EditSubscription = ({ row, onCloseEditSubscription }: IEditSubscriptionPro
               {/* end::Modal title */}
 
               {/* begin::Close */}
-              <div
-                className="btn btn-icon btn-sm btn-active-icon-primary"
-                data-kt-subscription-modal-action="close"
-                onClick={onCloseEditSubscription}
-                style={{ cursor: "pointer" }}
-              >
+              <div className="btn btn-icon btn-sm btn-active-icon-primary cursor-pointer" data-kt-subscription-modal-action="close" onClick={onCloseEditSubscription}>
                 <KTIcon iconName="cross" className="fs-1" />
               </div>
               {/* end::Close */}

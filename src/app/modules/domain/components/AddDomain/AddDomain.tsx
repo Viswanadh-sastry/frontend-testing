@@ -57,7 +57,7 @@ const AddDomain = ({ onCloseAddDomain, onGetDomainList }: IAddDomainProps) => {
               {/* end::Modal title */}
 
               {/* begin::Close */}
-              <div className="btn btn-icon btn-sm btn-active-icon-primary" data-kt-domains-modal-action="close" onClick={onCloseAddDomain} style={{ cursor: "pointer" }}>
+              <div className="btn btn-icon btn-sm btn-active-icon-primary cursor-pointer" data-kt-domains-modal-action="close" onClick={onCloseAddDomain}>
                 <KTIcon iconName="cross" className="fs-1" />
               </div>
               {/* end::Close */}

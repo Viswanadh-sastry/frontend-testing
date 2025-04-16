@@ -177,7 +177,7 @@ const AddThing = ({ onCloseAddThing, onGetThingList }: IAddThingProps) => {
               {/* end::Modal title */}
 
               {/* begin::Close */}
-              <div className="btn btn-icon btn-sm btn-active-icon-primary" data-kt-thing-modal-action="close" onClick={onCloseAddThing} style={{ cursor: "pointer" }}>
+              <div className="btn btn-icon btn-sm btn-active-icon-primary cursor-pointer" data-kt-thing-modal-action="close" onClick={onCloseAddThing}>
                 <KTIcon iconName="cross" className="fs-1" />
               </div>
               {/* end::Close */}

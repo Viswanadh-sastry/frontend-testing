@@ -60,7 +60,7 @@ const EditStream = ({ row, onCloseEditStream }: IEditStreamProps) => {
               {/* end::Modal title */}
 
               {/* begin::Close */}
-              <div className="btn btn-icon btn-sm btn-active-icon-primary" data-kt-stream-modal-action="close" onClick={onCloseEditStream} style={{ cursor: "pointer" }}>
+              <div className="btn btn-icon btn-sm btn-active-icon-primary cursor-pointer" data-kt-stream-modal-action="close" onClick={onCloseEditStream}>
                 <KTIcon iconName="cross" className="fs-1" />
               </div>
               {/* end::Close */}

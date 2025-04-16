@@ -154,7 +154,7 @@ const ThingsListPagination = ({ filterThing, setFilterThing }: IThingsListPagina
                 disabled: isLoading || pagination.page === 1,
               })}
             >
-              <a onClick={() => updatePage(1)} style={{ cursor: "pointer" }} className="page-link">
+              <a onClick={() => updatePage(1)} className="cursor-pointer page-link">
                 First
               </a>
             </li>
@@ -173,12 +173,14 @@ const ThingsListPagination = ({ filterThing, setFilterThing }: IThingsListPagina
                   })}
                 >
                   <a
-                    className={clsx("page-link", {
-                      "page-text": link.label === "Previous" || link.label === "Next",
-                      "me-5": link.label === "Previous",
-                    })}
+                    className={
+                      "cursor-pointer " +
+                      clsx("page-link", {
+                        "page-text": link.label === "Previous" || link.label === "Next",
+                        "me-5": link.label === "Previous",
+                      })
+                    }
                     onClick={() => updatePage(link.page)}
-                    style={{ cursor: "pointer" }}
                   >
                     {mappedLabel(link.label)}
                   </a>
@@ -189,7 +191,7 @@ const ThingsListPagination = ({ filterThing, setFilterThing }: IThingsListPagina
                 disabled: isLoading || pagination.page === (pagination.links?.length || 3) - 2,
               })}
             >
-              <a onClick={() => updatePage((pagination.links?.length || 3) - 2)} style={{ cursor: "pointer" }} className="page-link">
+              <a onClick={() => updatePage((pagination.links?.length || 3) - 2)} className="cursor-pointer page-link">
                 Last
               </a>
             </li>

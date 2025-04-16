@@ -87,7 +87,7 @@ const AddGroupChannel = ({ onCloseAddGroupChannel, onGetGroupChannelList }: IAdd
               {/* end::Modal title */}
 
               {/* begin::Close */}
-              <div className="btn btn-icon btn-sm btn-active-icon-primary" data-kt-group-modal-action="close" onClick={onCloseAddGroupChannel} style={{ cursor: "pointer" }}>
+              <div className="btn btn-icon btn-sm btn-active-icon-primary cursor-pointer" data-kt-group-modal-action="close" onClick={onCloseAddGroupChannel}>
                 <KTIcon iconName="cross" className="fs-1" />
               </div>
               {/* end::Close */}

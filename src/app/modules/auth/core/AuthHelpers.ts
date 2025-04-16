@@ -105,12 +105,11 @@ export function setupAxios(axios: any) {
       const auth = getAuth();
       const dAuth = getDAuth();
 
-      // // Set Referrer-Policy
-      // config.headers["Referrer-Policy"] = "no-referrer";
-
+      // Enable Referrer-Policy and X-Content-Type-Options
       // config.headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
       // config.headers["X-Content-Type-Options"] = "nosniff";
 
+      // Use Content Security Policy (CSP)
       // config.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';";
 
       if (config.url.includes('chirp.meridiandatalabs.com')) {

@@ -90,7 +90,7 @@ const AddGroup = ({ onCloseAddGroup, onGetGroupList }: IAddGroupProps) => {
               {/* end::Modal title */}
 
               {/* begin::Close */}
-              <div className="btn btn-icon btn-sm btn-active-icon-primary" data-kt-group-modal-action="close" onClick={onCloseAddGroup} style={{ cursor: "pointer" }}>
+              <div className="btn btn-icon btn-sm btn-active-icon-primary cursor-pointer" data-kt-group-modal-action="close" onClick={onCloseAddGroup}>
                 <KTIcon iconName="cross" className="fs-1" />
               </div>
               {/* end::Close */}

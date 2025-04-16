@@ -89,7 +89,7 @@ const Card4: FC<Props> = ({ id, url, icon, title, description, onGetDashboardLis
               </div>
             </div>
           </div>
-          <a className="text-gray-800 text-hover-primary d-flex flex-column" onClick={() => navigate(url)} style={{ cursor: "pointer" }}>
+          <a className="text-gray-800 text-hover-primary d-flex flex-column cursor-pointer" onClick={() => navigate(url)}>
             <div className="symbol symbol-75px mb-6">
               <img src={toAbsoluteUrl(icon)} alt="" />
             </div>

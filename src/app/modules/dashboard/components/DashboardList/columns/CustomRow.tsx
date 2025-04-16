@@ -16,7 +16,7 @@ const CustomRow: FC<Props> = ({ row }) => {
         return (
           <td {...cell.getCellProps()} className={clsx({ "text-end min-w-100px": cell.column.id === "actions" })} key={cell.column.id}>
             {cell.column.id === "name" ? (
-              <span className="text-primary" onClick={() => navigate(`/dashboard/${row.original.id}/view`)} style={{ cursor: "pointer" }}>
+              <span className="text-primary cursor-pointer" onClick={() => navigate(`/dashboard/${row.original.id}/view`)}>
                 {cell.render("Cell")}
               </span>
             ) : (

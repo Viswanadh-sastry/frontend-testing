@@ -140,20 +140,227 @@
         <body class="vscode-body vscode-light">
             <h1 id="frontend-architecture-documentation">Frontend Architecture Documentation</h1>
 <h2 id="overview">Overview</h2>
-<p>This document outlines the frontend architecture of the Rapid App, a React-based application built with TypeScript and utilizing the Metronic theme framework.</p>
+<p>This document outlines the frontend architecture of the Honeycomb Front End Application, a centralized IoT management frontend built for configuring devices, visualizing data, and managing user roles across industrial environments.</p>
+<blockquote>
+<p><strong>Note</strong>: In the context of the Honeycomb platform, a <strong>Thing</strong> refers to a device or IoT device, and a <strong>Channel</strong> corresponds to an Asset to which the device sends data.</p>
+</blockquote>
 <h2 id="tech-stack">Tech Stack</h2>
 <ul>
-<li><strong>Framework</strong>: React with TypeScript</li>
-<li><strong>Build Tool</strong>: Vite</li>
-<li><strong>Package Manager</strong>: Yarn</li>
-<li><strong>UI Framework</strong>: Metronic Theme</li>
-<li><strong>State Management</strong>: React Context API</li>
-<li><strong>Routing</strong>: React Router</li>
-<li><strong>Code Quality</strong>: ESLint</li>
+<li><strong>Framework</strong>: React with TypeScript
+<ul>
+<li>React is used for building modular, reusable UI components, while TypeScript provides static typing for safer and more maintainable code.</li>
 </ul>
+</li>
+<li><strong>Build Tool</strong>: Vite
+<ul>
+<li>Vite offers fast development server startup and optimized production builds, supporting hot module replacement for rapid feedback.</li>
+</ul>
+</li>
+<li><strong>Package Manager</strong>: Yarn
+<ul>
+<li>Yarn ensures deterministic dependency management and fast installs, supporting workspaces for monorepo setups.</li>
+</ul>
+</li>
+<li><strong>UI Framework</strong>: Metronic Theme
+<ul>
+<li>Metronic provides a rich set of Bootstrap-based UI components, layouts, and SASS/CSS theming, enabling rapid UI development and consistent design.</li>
+</ul>
+</li>
+<li><strong>State Management</strong>: React Context API
+<ul>
+<li>Used for sharing global state (e.g., authentication, theme) across components without prop drilling.</li>
+</ul>
+</li>
+<li><strong>Routing</strong>: React Router
+<ul>
+<li>Enables declarative, nested, and dynamic routing, supporting route guards and lazy loading.</li>
+</ul>
+</li>
+<li><strong>Code Quality</strong>: ESLint
+<ul>
+<li>Enforces code style and best practices, integrated with Prettier for formatting.</li>
+</ul>
+</li>
+</ul>
+<h2 id="routing-flow">Routing Flow</h2>
+<p>The application separates routes into public (unauthenticated) and private (authenticated) flows. Public routes (e.g., login, forgot password) are accessible to all users, while private routes (e.g., dashboard, profile) require authentication and are guarded by token checks.</p>
+<pre><code class="language-mermaid">graph TD
+    A[Public Routes] --&gt;|Unauthenticated| B[Login/Forgot Password]
+    C[Private Routes] --&gt;|Authenticated| D[Dashboard/Profile]
+    B --&gt;|Authentication| C
+</code></pre>
+<h3 id="implementation-example">Implementation Example</h3>
+<pre><code class="language-typescript"><span class="hljs-comment">// filepath: src/routing/AppRoutes.tsx</span>
+<span class="hljs-keyword">import</span> { <span class="hljs-variable constant_">FC</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;react&quot;</span>;
+<span class="hljs-keyword">import</span> { <span class="hljs-title class_">Routes</span>, <span class="hljs-title class_">Route</span>, <span class="hljs-title class_">BrowserRouter</span>, <span class="hljs-title class_">Navigate</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;react-router-dom&quot;</span>;
+<span class="hljs-keyword">import</span> { <span class="hljs-title class_">PrivateRoutes</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;./PrivateRoutes&quot;</span>;
+<span class="hljs-keyword">import</span> { <span class="hljs-title class_">ErrorsPage</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;../modules/errors/ErrorsPage&quot;</span>;
+<span class="hljs-keyword">import</span> { <span class="hljs-title class_">Logout</span>, <span class="hljs-title class_">AuthPage</span>, useAuth } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;../modules/auth&quot;</span>;
+<span class="hljs-keyword">import</span> { <span class="hljs-title class_">DomainPage</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;../modules/domain&quot;</span>;
+<span class="hljs-keyword">import</span> { <span class="hljs-title class_">App</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;../App&quot;</span>;
+
+<span class="hljs-keyword">const</span> { <span class="hljs-variable constant_">BASE_URL</span> } = <span class="hljs-keyword">import</span>.<span class="hljs-property">meta</span>.<span class="hljs-property">env</span>;
+
+<span class="hljs-keyword">const</span> <span class="hljs-title class_">AppRoutes</span>: <span class="hljs-variable constant_">FC</span> = <span class="hljs-function">() =&gt;</span> {
+  <span class="hljs-keyword">const</span> { currentUser } = <span class="hljs-title function_">useAuth</span>();
+  <span class="hljs-keyword">return</span> (
+    <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">BrowserRouter</span> <span class="hljs-attr">basename</span>=<span class="hljs-string">{BASE_URL}</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">Routes</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">element</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">App</span> /&gt;</span>}&gt;
+          <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;error/*&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">ErrorsPage</span> /&gt;</span>} /&gt;
+          <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;logout&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">Logout</span> /&gt;</span>} /&gt;
+          {currentUser ? (
+            <span class="hljs-tag">&lt;&gt;</span>
+              <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;/*&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">PrivateRoutes</span> /&gt;</span>} /&gt;
+              <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">index</span> <span class="hljs-attr">element</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">Navigate</span> <span class="hljs-attr">to</span>=<span class="hljs-string">&quot;/home&quot;</span> /&gt;</span>} /&gt;
+            <span class="hljs-tag">&lt;/&gt;</span>
+          ) : (
+            <span class="hljs-tag">&lt;&gt;</span>
+              <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;auth/*&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">AuthPage</span> /&gt;</span>} /&gt;
+              <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;domain/*&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">DomainPage</span> /&gt;</span>} /&gt;
+              <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;*&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">Navigate</span> <span class="hljs-attr">to</span>=<span class="hljs-string">&quot;/auth&quot;</span> /&gt;</span>} /&gt;
+            <span class="hljs-tag">&lt;/&gt;</span>
+          )}
+        <span class="hljs-tag">&lt;/<span class="hljs-name">Route</span>&gt;</span></span>
+      &lt;/<span class="hljs-title class_">Routes</span>&gt;
+    &lt;/<span class="hljs-title class_">BrowserRouter</span>&gt;
+  );
+};
+
+<span class="hljs-keyword">export</span> { <span class="hljs-title class_">AppRoutes</span> };
+</code></pre>
+<h2 id="frontend-data-lifecycle">Frontend Data Lifecycle</h2>
+<p>The data lifecycle covers user actions, component state, API calls, and UI updates. State is managed via hooks and context, with API interactions handled by a centralized Axios client.</p>
+<pre><code class="language-mermaid">graph TD
+    A[User Action] --&gt;|Triggers| B[Component]
+    B --&gt;|API Call| C[Service Layer]
+    C --&gt;|Response| D[State Management]
+    D --&gt;|Updates| B
+    B --&gt;|Renders| E[UI]
+</code></pre>
+<h3 id="example-state-management-flow">Example: State Management Flow</h3>
+<pre><code class="language-typescript"><span class="hljs-comment">// filepath: src/hooks/useAuth.ts</span>
+<span class="hljs-keyword">import</span> { useState } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span>;
+<span class="hljs-keyword">import</span> apiClient <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;../api/apiClient&#x27;</span>;
+
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">useAuth</span> = (<span class="hljs-params"></span>) =&gt; {
+  <span class="hljs-keyword">const</span> [user, setUser] = <span class="hljs-title function_">useState</span>(<span class="hljs-literal">null</span>);
+
+  <span class="hljs-keyword">const</span> <span class="hljs-title function_">login</span> = <span class="hljs-keyword">async</span> (<span class="hljs-params">credentials</span>) =&gt; {
+    <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> apiClient.<span class="hljs-title function_">post</span>(<span class="hljs-string">&#x27;/login&#x27;</span>, credentials);
+    <span class="hljs-title function_">setUser</span>(response.<span class="hljs-property">data</span>.<span class="hljs-property">user</span>);
+  };
+
+  <span class="hljs-keyword">const</span> <span class="hljs-title function_">logout</span> = (<span class="hljs-params"></span>) =&gt; {
+    <span class="hljs-title function_">setUser</span>(<span class="hljs-literal">null</span>);
+    <span class="hljs-variable language_">localStorage</span>.<span class="hljs-title function_">removeItem</span>(<span class="hljs-string">&#x27;token&#x27;</span>);
+  };
+
+  <span class="hljs-keyword">return</span> { user, login, logout };
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> useAuth;
+</code></pre>
+<h2 id="inter-module-interactions">Inter-Module Interactions</h2>
+<p>Modules such as <code>auth</code>, <code>device</code>, and <code>history</code> interact via shared context, hooks, and event-driven updates. For example, authentication state is consumed by device and history modules to control access and personalize charts/alerts.</p>
+<pre><code class="language-mermaid">graph TD
+    Auth --&gt;|Token| Device
+Device --&gt;|Data| History
+History --&gt;|Charts/Alerts| Auth
+</code></pre>
+<h2 id="coding-standards-and-patterns">Coding Standards and Patterns</h2>
+<ul>
+<li><strong>API Layer</strong>: All HTTP requests use a shared Axios instance, configured with interceptors for token injection and error handling.</li>
+<li><strong>Hooks Pattern</strong>: Custom hooks encapsulate logic for authentication, data fetching, and UI state.</li>
+<li><strong>Component Structure</strong>: Follows a container/presenter split where appropriate, with reusable UI components in <code>partials/</code> and feature logic in <code>modules/</code>.</li>
+</ul>
+<h3 id="example-axios-api-layer">Example: Axios API Layer</h3>
+<pre><code class="language-typescript"><span class="hljs-comment">// filepath: src/api/apiClient.ts</span>
+<span class="hljs-keyword">import</span> axios <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;axios&#x27;</span>;
+
+<span class="hljs-keyword">const</span> apiClient = axios.<span class="hljs-title function_">create</span>({
+  <span class="hljs-attr">baseURL</span>: process.<span class="hljs-property">env</span>.<span class="hljs-property">REACT_APP_API_URL</span>,
+  <span class="hljs-attr">headers</span>: { <span class="hljs-string">&#x27;Content-Type&#x27;</span>: <span class="hljs-string">&#x27;application/json&#x27;</span> },
+});
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> apiClient;
+</code></pre>
+<h2 id="performance-optimization-techniques">Performance Optimization Techniques</h2>
+<ul>
+<li><strong>Memoization</strong>: <code>React.memo</code> and <code>useMemo</code> are used to prevent unnecessary re-renders of heavy components.</li>
+<li><strong>Lazy Loading</strong>: Large modules (e.g., charts, dashboards) are loaded on demand using React's <code>lazy</code> and <code>Suspense</code>.</li>
+</ul>
+<h3 id="example-lazy-loading">Example: Lazy Loading</h3>
+<pre><code class="language-typescript"><span class="hljs-comment">// filepath: src/routing/PrivateRoutes.tsx</span>
+<span class="hljs-keyword">import</span> <span class="hljs-title class_">React</span>, { lazy, <span class="hljs-title class_">Suspense</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span>;
+<span class="hljs-keyword">import</span> { <span class="hljs-title class_">Routes</span>, <span class="hljs-title class_">Route</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-router-dom&#x27;</span>;
+<span class="hljs-keyword">import</span> <span class="hljs-title class_">MasterLayout</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;../_metronic/layout/MasterLayout&#x27;</span>;
+
+<span class="hljs-keyword">const</span> <span class="hljs-title class_">ThingPage</span> = <span class="hljs-title function_">lazy</span>(<span class="hljs-function">() =&gt;</span> <span class="hljs-title function_">import</span>(<span class="hljs-string">&#x27;../modules/things/ThingPage&#x27;</span>));
+
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">PrivateRoutes</span> = (<span class="hljs-params"></span>) =&gt; (
+  <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">Routes</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">element</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">MasterLayout</span> /&gt;</span>}&gt;
+      <span class="hljs-tag">&lt;<span class="hljs-name">Route</span>
+          <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;things/*&quot;</span>
+          <span class="hljs-attr">element</span>=<span class="hljs-string">{</span>
+            &lt;<span class="hljs-attr">Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">div</span>&gt;</span>Loading...<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>}&gt;
+              <span class="hljs-tag">&lt;<span class="hljs-name">ThingPage</span> /&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">Suspense</span>&gt;</span>
+          }
+        /&gt;
+      <span class="hljs-tag">&lt;/<span class="hljs-name">Route</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">Routes</span>&gt;</span></span>
+);
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-title class_">PrivateRoutes</span>;
+</code></pre>
+<h2 id="security-practices">Security Practices</h2>
+<ul>
+<li><strong>Headers</strong>: NGINX or a frontend proxy sets headers like <code>X-Content-Type-Options: nosniff</code> and <code>Strict-Transport-Security</code> for secure delivery.</li>
+<li><strong>Input Sanitization</strong>: Libraries such as <code>DOMPurify</code> are used to sanitize user input and prevent XSS.</li>
+<li><strong>Token Storage</strong>: Access and refresh tokens are stored in HTTP-only cookies to mitigate XSS and CSRF risks.</li>
+<li><strong>CSRF Protection</strong>: CSRF tokens are included in cookies and validated on sensitive requests.</li>
+<li><strong>Rate Limiting</strong>: API endpoints are protected by rate limiting and device/IP-based controls.</li>
+</ul>
+<h2 id="token-and-session-handling">Token and Session Handling</h2>
+<ul>
+<li><strong>Access/Refresh Tokens</strong>: Short-lived access tokens are used for API calls; refresh tokens are used to obtain new access tokens without re-authentication.</li>
+<li><strong>Renewal</strong>: Tokens are automatically renewed before expiry using silent refresh mechanisms.</li>
+<li><strong>Rotation</strong>: Refresh tokens are rotated on each use to reduce replay attack risk.</li>
+<li><strong>Session Expiry</strong>: Expired tokens trigger logout and redirect to login.</li>
+<li><strong>CSRF</strong>: All cookie-based authentication is protected by CSRF tokens.</li>
+</ul>
+<h2 id="testing-strategy">Testing Strategy</h2>
+<ul>
+<li><strong>Unit Testing</strong>: Components, hooks, and utility functions are tested with Jest and React Testing Library, covering props, state, and rendering logic.</li>
+<li><strong>Integration Testing</strong>: Tests verify interactions between components, API calls, and state updates.</li>
+<li><strong>Lint &amp; Prettier</strong>: Code style and formatting are enforced via ESLint and Prettier.</li>
+</ul>
+<h3 id="example-unit-test-for-a-component">Example: Unit Test for a Component</h3>
+<pre><code class="language-typescript"><span class="hljs-comment">// filepath: src/components/Button.test.tsx</span>
+<span class="hljs-keyword">import</span> { render, screen } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@testing-library/react&#x27;</span>;
+<span class="hljs-keyword">import</span> <span class="hljs-title class_">Button</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./Button&#x27;</span>;
+
+<span class="hljs-title function_">test</span>(<span class="hljs-string">&#x27;renders button with correct text&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
+  <span class="hljs-title function_">render</span>(<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">Button</span> <span class="hljs-attr">text</span>=<span class="hljs-string">&quot;Click Me&quot;</span> /&gt;</span></span>);
+  <span class="hljs-title function_">expect</span>(screen.<span class="hljs-title function_">getByText</span>(<span class="hljs-string">&#x27;Click Me&#x27;</span>)).<span class="hljs-title function_">toBeInTheDocument</span>();
+});
+</code></pre>
+<h2 id="component-hierarchy-diagrams">Component Hierarchy Diagrams</h2>
+<p>Visualizing the component structure helps understand dependencies and data flow:</p>
+<pre><code class="language-mermaid">graph TD
+    App --&gt; Header
+    App --&gt; Sidebar
+    App --&gt; MainContent
+    MainContent --&gt; Dashboard
+    MainContent --&gt; Profile
+</code></pre>
+<h2 id="metronic-theme">Metronic Theme</h2>
+<p>Metronic is integrated under <code>src/_metronic/</code>, providing SASS/CSS overrides, layout components, and reusable UI elements. Layouts (header, sidebar, footer) and partials (modals, dropdowns, notifications) are imported and customized as needed.</p>
 <h2 id="project-structure">Project Structure</h2>
 <p>The application follows a well-organized directory structure that promotes modularity and separation of concerns:</p>
-<pre><code>rapid-app/
+<pre><code>honeycomb-fe-app/
 ├── src/
 │   ├── _metronic/               # Metronic theme integration
 │   │   ├── assets/             # Theme assets (images, styles)
@@ -175,12 +382,16 @@
 │   │   │   ├── profile/      # User profile
 │   │   │   ├── reports/      # Reporting features
 │   │   │   ├── things/       # Thing management
+│   │   │   ├── stream/       # Stream processing
+│   │   │   ├── rule/         # Rule management
+│   │   │   ├── notification/ # Notification handling
+│   │   │   ├── subscription/ # Subscription management
 │   │   │   └── users/        # User management
 │   │   │
 │   │   ├── pages/           # Page components
 │   │   ├── routing/         # Route configurations
 │   │   ├── hooks/           # Custom React hooks
-│   │   ├── constants/       # Application constants
+│   │   ├── constants/       # Application constants and functions
 │   │   └── App.tsx         # Root component
 │   │
 │   └── main.tsx              # Application entry point
@@ -197,138 +408,155 @@
 </code></pre>
 <h3 id="key-directories-explained">Key Directories Explained</h3>
 <h4 id="1-feature-modules-srcappmodules">1. Feature Modules (<code>src/app/modules/</code>)</h4>
-<p>Each feature module is self-contained and follows a consistent structure:</p>
+<p>Feature modules encapsulate specific functionalities (e.g., auth, dashboard, things). Each module contains its own components, API services, and main page.</p>
+<h5 id="structure-of-a-feature-module">Structure of a Feature Module</h5>
 <pre><code>module-name/
-├── components/     # Module-specific components
-├── api/             # API services
-└── page.tsx         # Page component
+├── components/     # Module-specific reusable components
+├── api/            # API services for the module
+└── page.tsx        # Main page component for the module
 </code></pre>
-<h4 id="2-core-application-srcapp">2. Core Application (<code>src/app/</code>)</h4>
+<h5 id="example-auth-module">Example: <code>auth/</code> Module</h5>
 <ul>
-<li><code>pages/</code>: Top-level page components</li>
-<li><code>routing/</code>: Route definitions and guards</li>
-<li><code>hooks/</code>: Shared custom hooks</li>
-<li><code>constants/</code>: Application-wide constants</li>
+<li><strong>Purpose</strong>: Handles user authentication and authorization.</li>
+<li><strong>Components</strong>: Login form, forgot password, logout.</li>
+<li><strong>API Services</strong>: <code>login</code>, <code>logout</code>, <code>getUserDetails</code>.</li>
+<li><strong>Hooks</strong>: <code>useAuth</code> for managing authentication state.</li>
+<li><strong>Constants</strong>: Role definitions, permission mappings.</li>
+</ul>
+<h5 id="example-dashboard-module">Example: <code>dashboard/</code> Module</h5>
+<ul>
+<li><strong>Purpose</strong>: Provides a customizable dashboard for users.</li>
+<li><strong>Components</strong>: Widgets, charts, and summary cards.</li>
+<li><strong>API Services</strong>: Fetching user-specific data and analytics.</li>
+</ul>
+<h4 id="2-core-application-srcapp">2. Core Application (<code>src/app/</code>)</h4>
+<p>The core application directory contains shared resources and configurations that are used across multiple modules.</p>
+<h5 id="key-directories">Key Directories</h5>
+<ul>
+<li><strong><code>pages/</code></strong>: Contains top-level page components, such as the home page, error pages, and layout wrappers.</li>
+<li><strong><code>routing/</code></strong>: Defines the application's routing structure, including protected routes and lazy-loaded modules.</li>
+<li><strong><code>hooks/</code></strong>: Custom React hooks for shared functionality.</li>
+<li><strong><code>constants/</code></strong>: Centralized constants, common functions/methods, and configuration settings.</li>
+</ul>
+<h5 id="example-routing">Example: <code>routing/</code></h5>
+<p>The <code>routing/</code> directory organizes routes by feature modules. It includes:</p>
+<ul>
+<li><strong><code>AppRoutes.tsx</code></strong>: High-level route definitions.
+<ul>
+<li><em>Public Routes</em>: Accessible to all users, typically used for login and registration pages.</li>
+</ul>
+</li>
+<li><strong><code>PrivateRoutes.tsx</code></strong>: Guards for authenticated routes.
+<ul>
+<li><em>Protected Routes</em>: Ensure that only authenticated users can access certain parts of the application.</li>
+</ul>
+</li>
+<li><strong><code>Page.tsx</code></strong>: Module based routing, which loads the appropriate module based on the URL.
+<ul>
+<li><em>Module-Based Routing</em>: Routes are organized by feature modules, promoting modularity and ease of navigation.</li>
+</ul>
+</li>
+<li><strong><code>Lazy Loading</code></strong>: Lazy loading of modules for performance optimization.</li>
+</ul>
+<h5 id="example-hooks">Example: <code>hooks/</code></h5>
+<p>Custom hooks encapsulate reusable logic. For example:</p>
+<ul>
+<li><strong><code>useAuth.ts</code></strong>: Provides authentication state and helper methods.</li>
+<li><strong><code>useLayout.ts</code></strong>: Manages layout-related state, such as sidebar visibility.</li>
 </ul>
 <h4 id="3-theme-integration-src_metronic">3. Theme Integration (<code>src/_metronic/</code>)</h4>
+<p>The <code>_metronic/</code> directory integrates the Metronic theme into the application. It includes assets, layout components, and reusable UI elements.</p>
+<h5 id="key-directories-1">Key Directories</h5>
 <ul>
-<li>Metronic theme components and utilities</li>
-<li>Layout management</li>
-<li>Theme-specific assets and styles</li>
+<li><strong><code>assets/</code></strong>: Contains theme assets, such as images, fonts, and styles.</li>
+<li><strong><code>helpers/</code></strong>: Utility functions for common tasks, such as formatting dates and managing themes.</li>
+<li><strong><code>layout/</code></strong>: Defines the application's layout, including the header, sidebar, and footer.</li>
+<li><strong><code>partials/</code></strong>: Reusable UI components, such as modals, dropdowns, and notifications.</li>
+</ul>
+<h5 id="example-layout">Example: <code>layout/</code></h5>
+<p>The <code>layout/</code> directory manages the application's layout. It includes:</p>
+<ul>
+<li><strong><code>Header.tsx</code></strong>: The top navigation bar.</li>
+<li><strong><code>Sidebar.tsx</code></strong>: The main sidebar menu.</li>
+<li><strong><code>Footer.tsx</code></strong>: The footer section.</li>
+</ul>
+<h5 id="example-partials">Example: <code>partials/</code></h5>
+<p>The <code>partials/</code> directory contains reusable components, such as:</p>
+<ul>
+<li><strong><code>ThemeModeSwitcher.tsx</code></strong>: Allows users to toggle between light and dark themes.</li>
+<li><strong><code>HeaderUserMenu.tsx</code></strong>: Displays the user menu in the header.</li>
 </ul>
 <h4 id="4-configuration-files">4. Configuration Files</h4>
+<p>The root directory contains configuration files for the build process, TypeScript, and code quality.</p>
+<h5 id="key-files">Key Files</h5>
 <ul>
-<li><code>vite.config.ts</code>: Build and development configuration</li>
-<li><code>tsconfig.json</code>: TypeScript compiler options</li>
-<li><code>.eslintrc.cjs</code>: Code style and quality rules</li>
+<li><strong><code>vite.config.ts</code></strong>: Configures the Vite build tool, including plugins, aliases, and environment variables.</li>
+<li><strong><code>tsconfig.json</code></strong>: Defines TypeScript compiler options, such as strict mode and path aliases.</li>
+<li><strong><code>.eslintrc.cjs</code></strong>: Configures ESLint for enforcing code quality and style rules.</li>
+<li><strong><code>package.json</code></strong>: Lists project dependencies and scripts for development and production.</li>
 </ul>
-<h3 id="module-organization">Module Organization</h3>
-<p>The application is organized into distinct feature modules, each responsible for a specific domain:</p>
-<ol>
-<li>
-<p><strong>Authentication (<code>auth/</code>)</strong></p>
-<ul>
-<li>Login/Logout functionality</li>
-<li>Authorization management</li>
-<li>User session handling</li>
-</ul>
-</li>
-<li>
-<p><strong>Home (<code>home/</code>)</strong></p>
-<ul>
-<li>Home page layout</li>
-<li>Analytics displays</li>
-</ul>
-</li>
-<li>
-<p><strong>Dashboard (<code>dashboard/</code>)</strong></p>
-<ul>
-<li>Dashboard creation</li>
-<li>Widget configuration</li>
-<li>Data visualization</li>
-<li>Summary views</li>
-</ul>
-</li>
-<li>
-<p><strong>User Management (<code>users/</code>)</strong></p>
-<ul>
-<li>User CRUD operations</li>
-<li>User permissions</li>
-<li>Profile management</li>
-</ul>
-</li>
-<li>
-<p><strong>Invitation System (<code>invitations/</code>)</strong></p>
-<ul>
-<li>Invitation creation and management</li>
-<li>User acceptance</li>
-</ul>
-</li>
-<li>
-<p><strong>Domain Management (<code>domain/</code>)</strong></p>
-<ul>
-<li>Domain creation and management</li>
-<li>Organization structure</li>
-</ul>
-</li>
-<li>
-<p><strong>Profile (<code>profile/</code>)</strong></p>
-<ul>
-<li>User profile management</li>
-<li>Change password</li>
-</ul>
-</li>
-<li>
-<p><strong>Channel Management (<code>channels/</code>)</strong></p>
-<ul>
-<li>Channel creation and configuration</li>
-<li>Thing assignment</li>
-<li>Group assignment</li>
-<li>Member management</li>
-</ul>
-</li>
-<li>
-<p><strong>Group Management (<code>groups/</code>)</strong></p>
-<ul>
-<li>Group creation and management</li>
-<li>Channel assignment</li>
-<li>Member administration</li>
-</ul>
-</li>
-<li>
-<p><strong>Thing Management (<code>things/</code>)</strong></p>
-</li>
-</ol>
-<ul>
-<li>Thing creation and management</li>
-<li>Channel assignment</li>
-</ul>
-<ol start="11">
-<li><strong>History Tracking (<code>histories/</code>)</strong></li>
-</ol>
-<ul>
-<li>Activity logging</li>
-<li>Data export</li>
-<li>Analytics</li>
-</ul>
-<p>This modular structure enables:</p>
-<ul>
-<li>Independent feature development</li>
-<li>Clear separation of concerns</li>
-<li>Easy maintenance and testing</li>
-<li>Scalable architecture</li>
-<li>Code reusability</li>
-</ul>
-<h2 id="application-architecture">Application Architecture</h2>
-<h3 id="1-component-organization">1. Component Organization</h3>
-<p>The application follows a modular architecture with the following key areas:</p>
-<pre><code>app/
-├── modules/             # Feature-specific modules
-├── routing/            # Route configurations
-├── constants/          # Application constants
-└── pages/              # Top-level page components
+<h5 id="example-viteconfigts">Example: <code>vite.config.ts</code></h5>
+<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { defineConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;vite&#x27;</span>
+<span class="hljs-keyword">import</span> react <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@vitejs/plugin-react-swc&#x27;</span>
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-title function_">defineConfig</span>({
+  <span class="hljs-attr">plugins</span>: [<span class="hljs-title function_">react</span>()],
+  <span class="hljs-attr">base</span>: <span class="hljs-string">&#x27;/&#x27;</span>,
+  <span class="hljs-attr">build</span>: {
+    <span class="hljs-attr">chunkSizeWarningLimit</span>: <span class="hljs-number">3000</span>,
+  },
+});
 </code></pre>
-<h3 id="2-data-flow">2. Data Flow</h3>
+<h5 id="example-tsconfigjson">Example: <code>tsconfig.json</code></h5>
+<pre><code class="language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;compilerOptions&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;target&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ES2020&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;useDefineForClassFields&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">true</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;lib&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;ES2020&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;DOM&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;DOM.Iterable&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;module&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ESNext&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;skipLibCheck&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">true</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-comment">/* Bundler mode */</span>
+    <span class="hljs-attr">&quot;moduleResolution&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;bundler&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;allowImportingTsExtensions&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">true</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;resolveJsonModule&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">true</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;isolatedModules&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">true</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;noEmit&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">true</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;jsx&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;react-jsx&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-comment">/* Linting */</span>
+    <span class="hljs-attr">&quot;strict&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">true</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;noUnusedLocals&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">false</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;noUnusedParameters&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">false</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;noFallthroughCasesInSwitch&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">true</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-comment">/* Strict */</span>
+    <span class="hljs-attr">&quot;strictNullChecks&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">true</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;strictFunctionTypes&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">true</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;strictBindCallApply&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">true</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;strictPropertyInitialization&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">true</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;noImplicitAny&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">true</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;noImplicitThis&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">true</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;noImplicitReturns&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">false</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;noImplicitOverride&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">true</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;include&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;src&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;references&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-punctuation">{</span> <span class="hljs-attr">&quot;path&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;./tsconfig.node.json&quot;</span> <span class="hljs-punctuation">}</span><span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<h5 id="example-eslintrccjs">Example: <code>.eslintrc.cjs</code></h5>
+<pre><code class="language-javascript"><span class="hljs-variable language_">module</span>.<span class="hljs-property">exports</span> = {
+  <span class="hljs-attr">root</span>: <span class="hljs-literal">true</span>,
+  <span class="hljs-attr">env</span>: { <span class="hljs-attr">browser</span>: <span class="hljs-literal">true</span>, <span class="hljs-attr">es2020</span>: <span class="hljs-literal">true</span> },
+  <span class="hljs-attr">extends</span>: [<span class="hljs-string">&quot;eslint:recommended&quot;</span>, <span class="hljs-string">&quot;plugin:@typescript-eslint/recommended&quot;</span>, <span class="hljs-string">&quot;plugin:react-hooks/recommended&quot;</span>],
+  <span class="hljs-attr">ignorePatterns</span>: [<span class="hljs-string">&quot;dist&quot;</span>, <span class="hljs-string">&quot;.eslintrc.cjs&quot;</span>],
+  <span class="hljs-attr">parser</span>: <span class="hljs-string">&quot;@typescript-eslint/parser&quot;</span>,
+  <span class="hljs-attr">plugins</span>: [<span class="hljs-string">&quot;react-refresh&quot;</span>],
+  <span class="hljs-attr">rules</span>: {
+    <span class="hljs-string">&quot;react-refresh/only-export-components&quot;</span>: [<span class="hljs-string">&quot;warn&quot;</span>, { <span class="hljs-attr">allowConstantExport</span>: <span class="hljs-literal">true</span> }],
+    <span class="hljs-string">&quot;@typescript-eslint/no-explicit-any&quot;</span>: <span class="hljs-string">&quot;off&quot;</span>,
+    <span class="hljs-string">&quot;react-hooks/exhaustive-deps&quot;</span>: <span class="hljs-string">&quot;off&quot;</span>,
+  },
+};
+</code></pre>
+<h3 id="data-flow">Data Flow</h3>
 <pre><code class="language-mermaid">graph TD
     A[User Interface] --&gt;|Action| B[Component]
     B --&gt;|State Update| C[Context/Store]
@@ -337,18 +565,313 @@
     C --&gt;|Update| B
     B --&gt;|Render| A
 </code></pre>
-<h3 id="3-routing-structure">3. Routing Structure</h3>
+<h3 id="component-communication-patterns">Component Communication Patterns</h3>
 <ul>
-<li>Protected Routes</li>
-<li>Public Routes</li>
-<li>Module based Routing</li>
-<li>Lazy Loading for Route Components</li>
+<li><strong>Prop Drilling</strong>: Passing data through component trees via props.</li>
+<li><strong>Context API</strong>: Provides a way to share values between components without passing props explicitly.</li>
+<li><strong>Custom Hooks</strong>: Encapsulate logic and state management, offering reusable functionality across components.</li>
 </ul>
-<h3 id="4-state-management">4. State Management</h3>
+<h3 id="functions-and-implementations">Functions and Implementations</h3>
+<p>The application is designed to be modular, with each feature encapsulated within its own directory. This structure allows for easy navigation and understanding of the codebase.</p>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\Rapid.drawio.png" alt="alt text"></p>
+<p>The following sections outline the key features and functionalities of the application, organized by module.</p>
+<ol>
+<li>
+<p><strong>Authentication (<code>auth/</code>)</strong></p>
 <ul>
-<li>Context API for global state</li>
-<li>Local component state for UI-specific data</li>
+<li>Login/Logout functionality</li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image.png" alt="alt text"></li>
+<li>Authorization management</li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-1.png" alt="alt text"></li>
+<li>User session handling</li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-2.png" alt="alt text"></li>
 </ul>
+</li>
+<li>
+<p><strong>Home (<code>home/</code>)</strong></p>
+<ul>
+<li>Home page layout: Provides the main landing page for users, displaying key information and navigation options.</li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-3.png" alt="alt text"></li>
+<li>Analytics displays: Showcases various analytics and data visualizations to provide insights into user activity and system performance.</li>
+</ul>
+</li>
+<li>
+<p><strong>Dashboard (<code>dashboard/</code>)</strong></p>
+<ul>
+<li>
+<p>A visual interface providing an overview of data through customizable widgets, including graphs, pie charts, and line graphs. It enables real-time sensor data visualization, with sensor selection based on associated assets and devices.</p>
+</li>
+<li>
+<p>Dashboard creation: Allows users to create personalized dashboards tailored to their needs.</p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-4.png" alt="alt text"></p>
+</li>
+<li>
+<p>Widget configuration: Users can add, remove, and configure widgets to display specific data points.</p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-44.png" alt="alt text"></p>
+</li>
+<li>
+<p>Data visualization: Offers a range of visualization tools to represent data in an easily digestible format.</p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-45.png" alt="alt text"></p>
+</li>
+<li>
+<p>Summary views: Provides summary statistics and overviews for quick access to important metrics.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>User Management (<code>users/</code>)</strong></p>
+<ul>
+<li>
+<p>Individuals within the organization, each assigned specific roles and permissions. Users can be enabled or disabled through selection and filters, which allow retrieval of active and inactive users. Disabled users can be reactivated when needed.</p>
+</li>
+<li>
+<p>User CRUD operations: Supports creating, reading, updating, and deleting user accounts.</p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-42.png" alt="alt text"></p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-46.png" alt="alt text"></p>
+</li>
+<li>
+<p>User permissions: Manages user roles and permissions to ensure appropriate access levels.</p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-48.png" alt="alt text"></p>
+</li>
+<li>
+<p>Profile management: Allows users to update personal information and manage their profiles.</p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-47.png" alt="alt text"></p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Invitation System (<code>invitations/</code>)</strong></p>
+<ul>
+<li>
+<p>A process that allows a user to join a organization by receiving an invite from an administrator. The user must log in, accept or reject the invitation, and then access their assigned domain with the designated role.</p>
+</li>
+<li>
+<p>Invitation creation and management: Facilitates sending and managing invitations to new users.</p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-49.png" alt="alt text"></p>
+</li>
+<li>
+<p>User acceptance: Tracks and manages the acceptance of invitations by users.</p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-50.png" alt="alt text"></p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Domain Management (<code>domain/</code>)</strong></p>
+<ul>
+<li>
+<p>The top-level entity managing user access, asset groups, assets, and devices. Users can view and retrieve organizations by ID, see a list of accessible organizations and their members, create new organizations, and view user profiles with default avatars based on name initials and email identity.</p>
+</li>
+<li>
+<p>Domain creation and management: Enables the creation and management of domains within the application.</p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-51.png" alt="alt text"></p>
+</li>
+<li>
+<p>Organization structure: Defines the hierarchical structure of domains within the application.</p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-52.png" alt="alt text"></p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Profile (<code>profile/</code>)</strong></p>
+<ul>
+<li>User profile management: Allows users to update their personal information and manage their profiles.</li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-9.png" alt="alt text"></li>
+<li>Change password: Enables users to change their passwords for enhanced security.</li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-14.png" alt="alt text"></li>
+</ul>
+</li>
+<li>
+<p><strong>Group Management (<code>groups/</code>)</strong></p>
+<ul>
+<li>
+<p>An administrative unit that organizes assets, subgroups, and devices. Each asset group contains only one asset and serves as a parent group for asset hierarchy. Users can create, update, delete, and assign assets to groups using filters. Assets and asset groups are displayed together, differentiated by parent IDs. Timestamp tracking indicates creation time.</p>
+</li>
+<li>
+<p>Group creation and management: Facilitates the creation and management of asset groups.</p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-56.png" alt="alt text"></p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-57.png" alt="alt text"></p>
+</li>
+<li>
+<p>Channel assignment: Allows for the assignment of channels to groups for better organization.</p>
+</li>
+<li>
+<p>Member administration: Manages group members, including adding and removing users.</p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-58.png" alt="alt text"></p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Channel Management (<code>channels/</code>)</strong></p>
+<ul>
+<li>
+<p>A core functional unit within an asset group, responsible for executing tasks, storing data, and managing operations. Each asset belongs to only one asset group but can connect to multiple devices. Users can filter assets by status, view creation timestamps, connect/disconnect devices, assign/unassign groups, and disable assets.</p>
+</li>
+<li>
+<p>Channel creation and configuration: Enables the creation and configuration of communication channels.</p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-53.png" alt="alt text"></p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-54.png" alt="alt text"></p>
+</li>
+<li>
+<p>Thing assignment: Allows for the assignment of things to channels for effective management.</p>
+</li>
+<li>
+<p>Group assignment: Facilitates the organization of asset groups.</p>
+</li>
+<li>
+<p>Member management: Manages group members, including adding and removing users.</p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-55.png" alt="alt text"></p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Thing Management (<code>things/</code>)</strong></p>
+<ul>
+<li>
+<p>A fundamental entity linked to multiple assets, representing physical or virtual components. Users can filter devices by status (enabled/disabled), view creation timestamps, edit metadata, identity, and tags, disable devices, or delete them permanently.</p>
+</li>
+<li>
+<p>Thing creation and management: Facilitates the creation and management of things within the domain.</p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-43.png" alt="alt text"></p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-59.png" alt="alt text"></p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-60.png" alt="alt text"></p>
+</li>
+<li>
+<p>Channel assignment: Allows for the assignment of channels to things for better organization.</p>
+</li>
+<li>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-61.png" alt="alt text"></p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>History Tracking (<code>histories/</code>)</strong></p>
+<ul>
+<li>Activity logging: Device activity logging for tracking changes and events.</li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-26.png" alt="alt text"></li>
+<li>Data export: Exporting history data for analysis.</li>
+<li>Analytics: Provides insights into historical data trends.</li>
+</ul>
+</li>
+</ol>
+<p><strong>Rule Engine (EdgeX) functions</strong>
+Rule Engine integrating with the EdgeX API for managing devices and creating rules using the Rule Engine. The workflow includes user creation, authentication, device management, and rule creation.</p>
+<ol start="12">
+<li>
+<p><strong>Stream (<code>stream/</code>)</strong></p>
+<ul>
+<li>Stream creation and management: Facilitates the creation and management of streams within the application.</li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-62.png" alt="alt text"></li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-63.png" alt="alt text"></li>
+</ul>
+</li>
+<li>
+<p><strong>Rule (<code>rule/</code>)</strong></p>
+<ul>
+<li>Rule creation and management: Enables the creation and management of rules within the application.</li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-64.png" alt="alt text"></li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-65.png" alt="alt text"></li>
+</ul>
+</li>
+<li>
+<p><strong>Notification (<code>notification/</code>)</strong></p>
+<ul>
+<li>Display notifications: Manages and displays notifications to users.</li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-66.png" alt="alt text"></li>
+</ul>
+</li>
+<li>
+<p><strong>Subscription (<code>subscription/</code>)</strong></p>
+<ul>
+<li>Subscription management: Handles the management of user subscriptions.</li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-67.png" alt="alt text"></li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-68.png" alt="alt text"></li>
+</ul>
+</li>
+</ol>
+<p><strong>LoRa functions</strong>
+LoRa integration with the ChirpStack API enables the management of device profiles, applications, and gateways. The workflow involves handling application management, as well as creating and configuring devices and gateways.</p>
+<ol>
+<li>
+<p><strong>Device Profiles (<code>device-profiles/</code>)</strong></p>
+<ul>
+<li>Device profile creation and management: Facilitates the creation and management of device profiles within the application.</li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-69.png" alt="alt text"></li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-70.png" alt="alt text"></li>
+</ul>
+</li>
+<li>
+<p><strong>Gateway (<code>gateway/</code>)</strong></p>
+<ul>
+<li>Gateway creation and configuration: Enables the creation and configuration of gateways within the application.</li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-71.png" alt="alt text"></li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-72.png" alt="alt text"></li>
+</ul>
+</li>
+<li>
+<p><strong>Application (<code>application/</code>)</strong></p>
+<ul>
+<li>Application creation and device configuration: Facilitates the creation and configuration of applications and their associated devices.</li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-73.png" alt="alt text"></li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-74.png" alt="alt text"></li>
+<li><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-75.png" alt="alt text"></li>
+</ul>
+</li>
+</ol>
+<p>This modular structure enables:</p>
+<ul>
+<li>Independent feature development</li>
+<li>Clear separation of concerns</li>
+<li>Easy maintenance and testing</li>
+<li>Scalable architecture</li>
+<li>Code reusability</li>
+</ul>
+<h3 id="testing-strategy-1">Testing Strategy</h3>
+<ul>
+<li><strong>Unit Testing</strong>: Utilizes Jest and React Testing Library for component and logic testing.</li>
+<li><strong>Lint &amp; Prettier</strong>: Enforced via ESLint and Prettier, with configurations specified in <code>.eslintrc.cjs</code>.</li>
+</ul>
+<h3 id="vite-build-output">Vite Build Output</h3>
+<p>The Vite build process generates optimized static assets for deployment, including JavaScript bundles, CSS files, and other resources.</p>
 <h2 id="useful-resources">Useful Resources</h2>
 <h3 id="official-documentation">Official Documentation</h3>
 <ul>

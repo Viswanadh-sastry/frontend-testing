@@ -48,7 +48,7 @@ const EditDescription = ({ data, onClose, onDisplay }: IEditDescriptionProps) =>
               {/* end::Modal title */}
 
               {/* begin::Close */}
-              <div className="btn btn-icon btn-sm btn-active-icon-primary" data-kt-users-modal-action="close" onClick={onClose} style={{ cursor: "pointer" }}>
+              <div className="btn btn-icon btn-sm btn-active-icon-primary cursor-pointer" data-kt-users-modal-action="close" onClick={onClose}>
                 <KTIcon iconName="cross" className="fs-1" />
               </div>
               {/* end::Close */}

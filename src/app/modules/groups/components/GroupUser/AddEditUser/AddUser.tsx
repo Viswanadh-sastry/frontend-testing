@@ -104,7 +104,7 @@ const AddUser = ({ onCloseAddUser, onGetUserList }: IAddUserProps) => {
               {/* end::Modal title */}
 
               {/* begin::Close */}
-              <div className="btn btn-icon btn-sm btn-active-icon-primary" data-kt-user-modal-action="close" onClick={onCloseAddUser} style={{ cursor: "pointer" }}>
+              <div className="btn btn-icon btn-sm btn-active-icon-primary cursor-pointer" data-kt-user-modal-action="close" onClick={onCloseAddUser}>
                 <KTIcon iconName="cross" className="fs-1" />
               </div>
               {/* end::Close */}

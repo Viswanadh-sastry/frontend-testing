@@ -12,6 +12,9 @@ import { toAbsoluteUrl } from "../../../../_metronic/helpers";
 import { ThemeModeComponent } from "../../../../_metronic/assets/ts/layout";
 import { getJWTToken, getVaultToken } from "../../users/api/VaultAPI";
 
+const LORA_ACCESS_TOKEN = import.meta.env.VITE_APP_LORA_ACCESS_TOKEN;
+const LORA_TENANT_ID = import.meta.env.VITE_APP_LORA_TENANT_ID;
+
 const loginSchema = Yup.object().shape({
   identity: Yup.string().min(3, "Minimum 3 symbols").max(50, "Maximum 50 symbols").required("Email/Username is required"),
   secret: Yup.string().min(3, "Minimum 3 symbols").max(50, "Maximum 50 symbols").required("Password is required"),
@@ -54,9 +57,8 @@ export function Login() {
         const loraAuth = loraHelper.getLORAAuth();
         if (!loraAuth) {
           loraHelper.setLORAAuth({
-            access_token:
-              "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjaGlycHN0YWNrIiwiaXNzIjoiY2hpcnBzdGFjayIsInN1YiI6IjZiNmFkNGY1LTZlOWQtNDZjZS1iNDc2LTg4Mjc4MzZhYTA3YSIsInR5cCI6ImtleSJ9.8OBIcUbqivJmJm_a2BbmRorqu6D5KQByN-tWC0PZoE0",
-            tenant_id: "52f14cd4-c6f1-4fbd-8f87-4025e1d49242",
+            access_token: LORA_ACCESS_TOKEN,
+            tenant_id: LORA_TENANT_ID,
           });
         }
         // vaultHelper.setVaultToken(
@@ -172,7 +174,7 @@ export function Login() {
         <button type="submit" id="kt_sign_in_submit" className="btn btn-primary" disabled={formik.isSubmitting || !formik.isValid}>
           {!loading && <span className="indicator-label">Continue</span>}
           {loading && (
-            <span className="indicator-progress" style={{ display: "block" }}>
+            <span className="indicator-progress d-block">
               Please wait...
               <span className="spinner-border spinner-border-sm align-middle ms-2"></span>
             </span>

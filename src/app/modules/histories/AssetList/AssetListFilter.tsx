@@ -118,7 +118,7 @@ const AssetListFilter = ({ setFilterAsset, setHistoryList }: IAssetListHeaderPro
         <div className="px-7 py-5" data-kt-user-table-filter="form">
           <div className="mt-1">
             <label className="form-label fs-6 fw-bold">Sensor Type:</label>
-            <div onClick={handleTypeaheadContainerClick}>
+            <div role="button" onClick={handleTypeaheadContainerClick}>
               <Typeahead
                 id="channelList"
                 labelKey="label"

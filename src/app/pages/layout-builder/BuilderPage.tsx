@@ -351,7 +351,7 @@ const BuilderPage: React.FC = () => {
                     <button type="button" onClick={updateConfig} className="btn btn-primary me-2">
                       {!configLoading && <span className="indicator-label">Preview</span>}
                       {configLoading && (
-                        <span className="indicator-progress" style={{ display: "block" }}>
+                        <span className="indicator-progress d-block">
                           Please wait... <span className="spinner-border spinner-border-sm align-middle ms-2"></span>
                         </span>
                       )}
@@ -360,7 +360,7 @@ const BuilderPage: React.FC = () => {
                     <button type="button" id="kt_layout_builder_reset" className="btn btn-active-light btn-color-muted" onClick={reset}>
                       {!resetLoading && <span className="indicator-label">Reset</span>}
                       {resetLoading && (
-                        <span className="indicator-progress" style={{ display: "block" }}>
+                        <span className="indicator-progress d-block">
                           Please wait... <span className="spinner-border spinner-border-sm align-middle ms-2"></span>
                         </span>
                       )}

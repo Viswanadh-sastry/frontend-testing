@@ -48,7 +48,7 @@ const InvitationCustomHeader: FC<Props> = ({ className, title, tableProps }) => 
       className={className}
       key={tableProps.column.id}
       // className={clsx(className, isSelectedForSorting && order !== undefined && `table-sort-${order}`)}
-      // style={{ cursor: "pointer" }}
+      // className="cursor-pointer"
       // onClick={sortColumn}
     >
       {title}

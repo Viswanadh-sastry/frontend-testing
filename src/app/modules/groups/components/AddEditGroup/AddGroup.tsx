@@ -94,7 +94,7 @@ const AddGroup = ({ onCloseAddGroup, onGetGroupList }: IAddGroupProps) => {
             <div className="modal-header d-flex justify-content-between align-items-center">
               <h2 className="fw-bolder">Add Asset Group</h2>
 
-              <div className="btn btn-icon btn-sm btn-active-icon-primary" data-kt-group-modal-action="close" onClick={onCloseAddGroup} style={{ cursor: "pointer" }}>
+              <div className="btn btn-icon btn-sm btn-active-icon-primary cursor-pointer" data-kt-group-modal-action="close" onClick={onCloseAddGroup}>
                 <KTIcon iconName="cross" className="fs-1" />
               </div>
             </div>
