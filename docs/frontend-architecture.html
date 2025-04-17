@@ -18,7 +18,8 @@
 }
 
 </style>
-            
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
 <style>
@@ -189,6 +190,7 @@
     C[Private Routes] --&gt;|Authenticated| D[Dashboard/Profile]
     B --&gt;|Authentication| C
 </code></pre>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-76.png" alt="alt text"></p>
 <h3 id="implementation-example">Implementation Example</h3>
 <pre><code class="language-typescript"><span class="hljs-comment">// filepath: src/routing/AppRoutes.tsx</span>
 <span class="hljs-keyword">import</span> { <span class="hljs-variable constant_">FC</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;react&quot;</span>;
@@ -238,6 +240,7 @@
     D --&gt;|Updates| B
     B --&gt;|Renders| E[UI]
 </code></pre>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-77.png" alt="alt text"></p>
 <h3 id="example-state-management-flow">Example: State Management Flow</h3>
 <pre><code class="language-typescript"><span class="hljs-comment">// filepath: src/hooks/useAuth.ts</span>
 <span class="hljs-keyword">import</span> { useState } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span>;
@@ -268,6 +271,7 @@
 Device --&gt;|Data| History
 History --&gt;|Charts/Alerts| Auth
 </code></pre>
+<p><img src="file:///d:\Development\RapidApp\ClientApp\docs\image-78.png" alt="alt text"></p>
 <h2 id="coding-standards-and-patterns">Coding Standards and Patterns</h2>
 <ul>
 <li><strong>API Layer</strong>: All HTTP requests use a shared Axios instance, configured with interceptors for token injection and error handling.</li>
@@ -275,15 +279,33 @@ History --&gt;|Charts/Alerts| Auth
 <li><strong>Component Structure</strong>: Follows a container/presenter split where appropriate, with reusable UI components in <code>partials/</code> and feature logic in <code>modules/</code>.</li>
 </ul>
 <h3 id="example-axios-api-layer">Example: Axios API Layer</h3>
-<pre><code class="language-typescript"><span class="hljs-comment">// filepath: src/api/apiClient.ts</span>
+<pre><code class="language-typescript"><span class="hljs-comment">// filepath: src/modules/auth/core/AuthHelpers.ts</span>
 <span class="hljs-keyword">import</span> axios <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;axios&#x27;</span>;
 
-<span class="hljs-keyword">const</span> apiClient = axios.<span class="hljs-title function_">create</span>({
-  <span class="hljs-attr">baseURL</span>: process.<span class="hljs-property">env</span>.<span class="hljs-property">REACT_APP_API_URL</span>,
-  <span class="hljs-attr">headers</span>: { <span class="hljs-string">&#x27;Content-Type&#x27;</span>: <span class="hljs-string">&#x27;application/json&#x27;</span> },
-});
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">setupAxios</span>(<span class="hljs-params">axios: <span class="hljs-built_in">any</span></span>) {
+  axios.<span class="hljs-property">defaults</span>.<span class="hljs-property">headers</span>.<span class="hljs-property">Accept</span> = <span class="hljs-string">&#x27;application/json&#x27;</span>;
+  axios.<span class="hljs-property">interceptors</span>.<span class="hljs-property">request</span>.<span class="hljs-title function_">use</span>(
+    <span class="hljs-function">(<span class="hljs-params">config: <span class="hljs-built_in">any</span></span>) =&gt;</span> {
+      <span class="hljs-keyword">const</span> auth = <span class="hljs-title function_">getAuth</span>();
+      config.<span class="hljs-property">headers</span>.<span class="hljs-property">Authorization</span> = <span class="hljs-string">`Bearer <span class="hljs-subst">${auth.access_token}</span>`</span>;
+      <span class="hljs-keyword">return</span> config;
+    },
+    <span class="hljs-function">(<span class="hljs-params">err: <span class="hljs-built_in">any</span></span>) =&gt;</span> <span class="hljs-title class_">Promise</span>.<span class="hljs-title function_">reject</span>(err)
+  );
 
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> apiClient;
+  <span class="hljs-comment">// Response interceptor to handle 401 errors</span>
+  axios.<span class="hljs-property">interceptors</span>.<span class="hljs-property">response</span>.<span class="hljs-title function_">use</span>(
+    <span class="hljs-function">(<span class="hljs-params">response: <span class="hljs-built_in">any</span></span>) =&gt;</span> response,
+    <span class="hljs-keyword">async</span> (<span class="hljs-attr">error</span>: <span class="hljs-built_in">any</span>) =&gt; {
+      <span class="hljs-keyword">const</span> originalRequest = error.<span class="hljs-property">config</span>;
+      
+      <span class="hljs-keyword">if</span> (error &amp;&amp; error.<span class="hljs-property">response</span> &amp;&amp; error.<span class="hljs-property">response</span>.<span class="hljs-property">status</span> === <span class="hljs-number">401</span> &amp;&amp; !originalRequest.<span class="hljs-property">_retry</span>) {
+        <span class="hljs-comment">// implement your refresh token logic here</span>
+      }
+      <span class="hljs-keyword">return</span> <span class="hljs-title class_">Promise</span>.<span class="hljs-title function_">reject</span>(error);
+    }
+  );
+}
 </code></pre>
 <h2 id="performance-optimization-techniques">Performance Optimization Techniques</h2>
 <ul>
@@ -870,8 +892,39 @@ LoRa integration with the ChirpStack API enables the management of device profil
 <li><strong>Unit Testing</strong>: Utilizes Jest and React Testing Library for component and logic testing.</li>
 <li><strong>Lint &amp; Prettier</strong>: Enforced via ESLint and Prettier, with configurations specified in <code>.eslintrc.cjs</code>.</li>
 </ul>
+<h3 id="vite-development-output">Vite Development Output</h3>
+<p>The Vite development server provides a fast and efficient local development environment. Key features include:</p>
+<ul>
+<li>
+<p><strong>Hot Module Replacement (HMR)</strong>: Allows for instant updates to the UI without a full page reload, improving development speed.</p>
+</li>
+<li>
+<p><strong>Fast Refresh</strong>: React components are updated in real-time as changes are made, preserving component state.</p>
+</li>
+<li>
+<p><strong>Source Maps</strong>: Generated for easier debugging, allowing developers to trace errors back to the original source code.</p>
+</li>
+<li>
+<p><strong>Environment Variables</strong>: Vite supports loading environment variables from <code>.env</code> files, making it easy to manage different configurations for development and production.</p>
+</li>
+</ul>
 <h3 id="vite-build-output">Vite Build Output</h3>
-<p>The Vite build process generates optimized static assets for deployment, including JavaScript bundles, CSS files, and other resources.</p>
+<p>The Vite build process generates optimized static assets for deployment. These include:</p>
+<ul>
+<li>
+<p><strong>JavaScript bundles</strong>: Minified and tree-shaken to remove unused code, often split into chunks for better performance.</p>
+</li>
+<li>
+<p><strong>CSS files</strong>: Extracted from the code and optimized, sometimes code-split to load per route.</p>
+</li>
+<li>
+<p><strong>Assets</strong>: Images, fonts, and other resources are processed (e.g., hashed for cache busting) and placed in the output directory.</p>
+</li>
+<li>
+<p><strong>HTML files</strong>: The index.html is also processed to include hashed file references.</p>
+</li>
+</ul>
+<p>By default, the output is placed in the <strong>dist/</strong> directory.</p>
 <h2 id="useful-resources">Useful Resources</h2>
 <h3 id="official-documentation">Official Documentation</h3>
 <ul>
@@ -894,7 +947,7 @@ LoRa integration with the ChirpStack API enables the management of device profil
 <li><a href="https://classic.yarnpkg.com/lang/en/docs/cli/">Yarn Documentation</a></li>
 </ul>
 
-            
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
             
         </body>
         </html>

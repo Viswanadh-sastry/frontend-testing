@@ -34,6 +34,8 @@ graph TD
     B -->|Authentication| C
 ```
 
+![alt text](<image-76.png>)
+
 ### Implementation Example
 
 ```typescript
@@ -90,6 +92,8 @@ graph TD
     B -->|Renders| E[UI]
 ```
 
+![alt text](<image-77.png>)
+
 ### Example: State Management Flow
 
 ```typescript
@@ -127,6 +131,8 @@ Device -->|Data| History
 History -->|Charts/Alerts| Auth
 ```
 
+![alt text](<image-78.png>)
+
 ## Coding Standards and Patterns
 
 - **API Layer**: All HTTP requests use a shared Axios instance, configured with interceptors for token injection and error handling.
@@ -136,15 +142,33 @@ History -->|Charts/Alerts| Auth
 ### Example: Axios API Layer
 
 ```typescript
-// filepath: src/api/apiClient.ts
+// filepath: src/modules/auth/core/AuthHelpers.ts
 import axios from 'axios';
 
-const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_API_URL,
-  headers: { 'Content-Type': 'application/json' },
-});
+export function setupAxios(axios: any) {
+  axios.defaults.headers.Accept = 'application/json';
+  axios.interceptors.request.use(
+    (config: any) => {
+      const auth = getAuth();
+      config.headers.Authorization = `Bearer ${auth.access_token}`;
+      return config;
+    },
+    (err: any) => Promise.reject(err)
+  );
 
-export default apiClient;
+  // Response interceptor to handle 401 errors
+  axios.interceptors.response.use(
+    (response: any) => response,
+    async (error: any) => {
+      const originalRequest = error.config;
+      
+      if (error && error.response && error.response.status === 401 && !originalRequest._retry) {
+        // implement your refresh token logic here
+      }
+      return Promise.reject(error);
+    }
+  );
+}
 ```
 
 ## Performance Optimization Techniques
@@ -636,9 +660,31 @@ This modular structure enables:
 - **Unit Testing**: Utilizes Jest and React Testing Library for component and logic testing.
 - **Lint & Prettier**: Enforced via ESLint and Prettier, with configurations specified in `.eslintrc.cjs`.
 
+### Vite Development Output
+
+The Vite development server provides a fast and efficient local development environment. Key features include:
+
+- **Hot Module Replacement (HMR)**: Allows for instant updates to the UI without a full page reload, improving development speed.
+
+- **Fast Refresh**: React components are updated in real-time as changes are made, preserving component state.
+
+- **Source Maps**: Generated for easier debugging, allowing developers to trace errors back to the original source code.
+
+- **Environment Variables**: Vite supports loading environment variables from `.env` files, making it easy to manage different configurations for development and production.
+
 ### Vite Build Output
 
-The Vite build process generates optimized static assets for deployment, including JavaScript bundles, CSS files, and other resources.
+The Vite build process generates optimized static assets for deployment. These include:
+
+- **JavaScript bundles**: Minified and tree-shaken to remove unused code, often split into chunks for better performance.
+
+- **CSS files**: Extracted from the code and optimized, sometimes code-split to load per route.
+
+- **Assets**: Images, fonts, and other resources are processed (e.g., hashed for cache busting) and placed in the output directory.
+
+- **HTML files**: The index.html is also processed to include hashed file references.
+
+By default, the output is placed in the **dist/** directory.
 
 ## Useful Resources
 
