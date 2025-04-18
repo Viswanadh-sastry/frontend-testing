@@ -76,6 +76,69 @@ export async function deleteKeysById(id: string) {
     return response.data;
 }
 
+export async function resetKeyRotation() {
+    const response = await axios.post(`${API_URL}/downlink/reset-keyrotation`, {}, {
+        headers: {
+            'Grpc-Metadata-Authorization': `Bearer ${getLORAAuth()?.access_token}`,
+        }
+    });
+    return response.data;
+}
+
+export async function updateFrequency(data: any) {
+    const response = await axios.post(`${API_URL}/downlink/update-frequency`, data, {
+        headers: {
+            'Grpc-Metadata-Authorization': `Bearer ${getLORAAuth()?.access_token}`,
+        }
+    });
+    return response.data;
+}
+
+export async function rebootDevice(data: any) {
+    const response = await axios.post(`${API_URL}/downlink/device-reboot`, data, {
+        headers: {
+            'Grpc-Metadata-Authorization': `Bearer ${getLORAAuth()?.access_token}`,
+        }
+    });
+    return response.data;
+}
+
+export async function deviceStatus(data: any) {
+    const response = await axios.post(`${API_URL}/downlink/device-status`, data, {
+        headers: {
+            'Grpc-Metadata-Authorization': `Bearer ${getLORAAuth()?.access_token}`,
+        }
+    });
+    return response.data;
+}
+
+export async function logLevel(data: any) {
+    const response = await axios.post(`${API_URL}/downlink/log-level`, data, {
+        headers: {
+            'Grpc-Metadata-Authorization': `Bearer ${getLORAAuth()?.access_token}`,
+        }
+    });
+    return response.data;
+}
+
+export async function syncTime(data: any) {
+    const response = await axios.post(`${API_URL}/downlink/time-sync`, data, {
+        headers: {
+            'Grpc-Metadata-Authorization': `Bearer ${getLORAAuth()?.access_token}`,
+        }
+    });
+    return response.data;
+}
+
+export async function resetDevice(data: any) {
+    const response = await axios.post(`${API_URL}/downlink/reset-device`, data, {
+        headers: {
+            'Grpc-Metadata-Authorization': `Bearer ${getLORAAuth()?.access_token}`,
+        }
+    });
+    return response.data;
+}
+
 export async function getLinkMetrics(id: string, data: any) {
     const query = searchMetrics(data);
     const response = await axios.get(`${API_URL}/devices/${id}/link-metrics${query}`, {

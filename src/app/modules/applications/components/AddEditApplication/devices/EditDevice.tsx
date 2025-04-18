@@ -10,8 +10,9 @@ import { KTCardBody, TagInputFields, VariableInputFields } from "../../../../../
 import { getLORAAuth } from "../../../../auth/core/LORAHelpers";
 import { getDeviceProfile } from "../../../../device-profiles/api/DeviceProfileAPI";
 import { Device } from "../../../api/_models";
-import { createKeysById, deleteKeysById, getDeviceById, getKeysById, getLinkMetrics, updateDevice } from "../../../api/DeviceAPI";
+import { createKeysById, deleteKeysById, getDeviceById, getKeysById, getLinkMetrics, resetKeyRotation, syncTime, updateDevice, updateFrequency } from "../../../api/DeviceAPI";
 import { LinkMetrics } from "./LinkMetrics";
+import Swal from "sweetalert2";
 
 const EditDevice = () => {
   const navigate = useNavigate();
@@ -161,6 +162,83 @@ const EditDevice = () => {
     }
   };
 
+  const onClickResetKeyRotation = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Are you sure you want to reset key rotation?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, reset it!",
+      cancelButtonText: "Cancel",
+      customClass: {
+        confirmButton: "btn btn-primary",
+        cancelButton: "btn btn-secondary",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        resetKeyRotation()
+          .then(() => {
+            toast.success("Key rotation reset successfully");
+          })
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
+      }
+    });
+  };
+
+  const onClickUpdateFrequency = () => {
+    Swal.fire({
+      title: "Update Frequency",
+      input: "number",
+      inputLabel: "Frequency",
+      inputPlaceholder: "Enter frequency",
+      showCancelButton: true,
+      confirmButtonText: "Update",
+      cancelButtonText: "Cancel",
+      customClass: {
+        confirmButton: "btn btn-primary",
+        cancelButton: "btn btn-secondary",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const data = {
+          update_frequency: result.value,
+          dev_euid: formik.values.devEui,
+        };
+        updateFrequency(data)
+          .then(() => {
+            toast.success("Frequency updated successfully");
+          })
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
+      }
+    });
+  };
+
+  const onClickSyncTime = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Are you sure you want to sync time?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, sync it!",
+      cancelButtonText: "Cancel",
+      customClass: {
+        confirmButton: "btn btn-primary",
+        cancelButton: "btn btn-secondary",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const data = {
+          dev_euid: formik.values.devEui,
+        };
+        syncTime(data)
+          .then(() => {
+            toast.success("Time synced successfully");
+          })
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
+      }
+    });
+  };
+
   return (
     <KTCardBody className="py-4">
       <form className="form" onSubmit={formik.handleSubmit} noValidate>
@@ -186,8 +264,13 @@ const EditDevice = () => {
             </a>
           </li>
           <li className="nav-item">
-            <a id="lnkKeys" className="nav-link" data-bs-toggle="tab" href="#kt_tab_otaa_keys">
+            <a className="nav-link" data-bs-toggle="tab" href="#kt_tab_otaa_keys">
               OTAA Keys
+            </a>
+          </li>
+          <li className="nav-item">
+            <a className="nav-link" data-bs-toggle="tab" href="#kt_tab_download_links">
+              Download Links
             </a>
           </li>
         </ul>
@@ -471,6 +554,144 @@ const EditDevice = () => {
                       placeholder="Enter network key"
                       autoComplete="off"
                     />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="tab-pane fade" id="kt_tab_download_links" role="tabpanel">
+            <div className="d-flex flex-column me-n7 pe-7">
+              <div className="row">
+                {/* Download Links */}
+                <div className="col-md-12">
+                  <div className="fv-row mb-6">
+                    <label className="fw-bold fs-6 mb-5">Download Links</label>
+                    <div className="overflow-auto pb-5">
+                      <div className="notice d-flex bg-light-danger rounded border-danger border border-dashed min-w-lg-600px flex-shrink-0 p-6">
+                        <i className="ki-duotone ki-devices-2 fs-2tx text-danger me-4">
+                          <span className="path1"></span>
+                          <span className="path2"></span>
+                          <span className="path3"></span>
+                        </i>
+                        <div className="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
+                          <div className="mb-3 mb-md-0 fw-semibold">
+                            <h4 className="text-gray-900 fw-bold">Reset Key Rotation</h4>
+                            <div className="fs-6 text-gray-700 pe-7">Endpoint to send downlink data for resetting key rotation.</div>
+                          </div>
+                          <button type="button" className="btn btn-danger px-6 align-self-center text-nowrap" onClick={onClickResetKeyRotation}>
+                            Proceed{" "}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="overflow-auto pb-5">
+                      <div className="notice d-flex bg-light-warning rounded border-warning border border-dashed min-w-lg-600px flex-shrink-0 p-6">
+                        <i className="ki-duotone ki-devices-2 fs-2tx text-warning me-4">
+                          <span className="path1"></span>
+                          <span className="path2"></span>
+                          <span className="path3"></span>
+                        </i>
+                        <div className="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
+                          <div className="mb-3 mb-md-0 fw-semibold">
+                            <h4 className="text-gray-900 fw-bold">Update Frequency</h4>
+                            <div className="fs-6 text-gray-700 pe-7">Endpoint to send downlink data for updating frequency.</div>
+                          </div>
+                          <button type="button" className="btn btn-warning px-6 align-self-center text-nowrap" onClick={onClickUpdateFrequency}>
+                            Proceed{" "}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="overflow-auto pb-5">
+                      <div className="notice d-flex bg-light-dark rounded border-dark border border-dashed min-w-lg-600px flex-shrink-0 p-6">
+                        <i className="ki-duotone ki-devices-2 fs-2tx text-dark me-4">
+                          <span className="path1"></span>
+                          <span className="path2"></span>
+                          <span className="path3"></span>
+                        </i>
+                        <div className="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
+                          <div className="mb-3 mb-md-0 fw-semibold">
+                            <h4 className="text-gray-900 fw-bold">Device Reboot</h4>
+                            <div className="fs-6 text-gray-700 pe-7">Endpoint to send downlink data for device reboot.</div>
+                          </div>
+                          <a href="#" className="btn btn-dark px-6 align-self-center text-nowrap">
+                            Proceed{" "}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="overflow-auto pb-5">
+                      <div className="notice d-flex bg-light-info rounded border-info border border-dashed min-w-lg-600px flex-shrink-0 p-6">
+                        <i className="ki-duotone ki-devices-2 fs-2tx text-info me-4">
+                          <span className="path1"></span>
+                          <span className="path2"></span>
+                          <span className="path3"></span>
+                        </i>
+                        <div className="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
+                          <div className="mb-3 mb-md-0 fw-semibold">
+                            <h4 className="text-gray-900 fw-bold">Device Status</h4>
+                            <div className="fs-6 text-gray-700 pe-7">Endpoint to send downlink data for device status.</div>
+                          </div>
+                          <a href="#" className="btn btn-info px-6 align-self-center text-nowrap">
+                            Proceed{" "}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="overflow-auto pb-5">
+                      <div className="notice d-flex bg-light-primary rounded border-primary border border-dashed min-w-lg-600px flex-shrink-0 p-6">
+                        <i className="ki-duotone ki-devices-2 fs-2tx text-primary me-4">
+                          <span className="path1"></span>
+                          <span className="path2"></span>
+                          <span className="path3"></span>
+                        </i>
+                        <div className="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
+                          <div className="mb-3 mb-md-0 fw-semibold">
+                            <h4 className="text-gray-900 fw-bold">Log Level</h4>
+                            <div className="fs-6 text-gray-700 pe-7">Endpoint to set the logging level.</div>
+                          </div>
+                          <a href="#" className="btn btn-primary px-6 align-self-center text-nowrap">
+                            Proceed{" "}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="overflow-auto pb-5">
+                      <div className="notice d-flex bg-light-muted rounded border-muted border border-dashed min-w-lg-600px flex-shrink-0 p-6">
+                        <i className="ki-duotone ki-devices-2 fs-2tx text-muted me-4">
+                          <span className="path1"></span>
+                          <span className="path2"></span>
+                          <span className="path3"></span>
+                        </i>
+                        <div className="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
+                          <div className="mb-3 mb-md-0 fw-semibold">
+                            <h4 className="text-gray-900 fw-bold">Time Sync</h4>
+                            <div className="fs-6 text-gray-700 pe-7">Endpoint to send downlink data for time synchronization.</div>
+                          </div>
+                          <button type="button" className="btn btn-dark px-6 align-self-center text-nowrap" onClick={onClickSyncTime}>
+                            Proceed{" "}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="overflow-auto pb-5">
+                      <div className="notice d-flex bg-light-danger rounded border-danger border border-dashed min-w-lg-600px flex-shrink-0 p-6">
+                        <i className="ki-duotone ki-devices-2 fs-2tx text-danger me-4">
+                          <span className="path1"></span>
+                          <span className="path2"></span>
+                          <span className="path3"></span>
+                        </i>
+                        <div className="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
+                          <div className="mb-3 mb-md-0 fw-semibold">
+                            <h4 className="text-gray-900 fw-bold">Reset Device</h4>
+                            <div className="fs-6 text-gray-700 pe-7">Endpoint to send downlink data for device reset. (factory reset)</div>
+                          </div>
+                          <a href="#" className="btn btn-danger px-6 align-self-center text-nowrap">
+                            Proceed{" "}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
