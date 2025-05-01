@@ -125,7 +125,7 @@ const GroupTable = () => {
         })
       );
       if (currentPage * itemsPerPage >= historyList.length && historyList.length > 0 && total > historyList.length) {
-        setFilterGroup({ ...filterGroup, offset: Math.ceil(historyList.length / itemsPerPage) });
+        setFilterGroup({ ...filterGroup, offset: filterGroup.offset + filterGroup.limit });
       }
     }
   }, [historyList, currentPage, itemsPerPage]);

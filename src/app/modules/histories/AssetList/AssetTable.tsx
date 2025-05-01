@@ -130,7 +130,7 @@ const AssetTable = () => {
         })
       );
       if (currentPage * itemsPerPage >= historyList.length && historyList.length > 0 && total > historyList.length) {
-        setFilterAsset({ ...filterAsset, offset: Math.ceil(historyList.length / itemsPerPage) });
+        setFilterAsset({ ...filterAsset, offset: filterAsset.offset + filterAsset.limit });
       }
     }
   }, [historyList, currentPage, itemsPerPage]);

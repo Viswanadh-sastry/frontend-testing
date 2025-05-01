@@ -2,6 +2,7 @@ import axios from "axios";
 
 const API_URL = import.meta.env.VITE_APP_VAULT_API_URL;
 const USER_URL = import.meta.env.VITE_APP_USER_API_URL;
+const DOWNLINK_URL = import.meta.env.VITE_APP_DOWNLINK_API_URL;
 
 export async function getVaultToken(data: any) {
     const response = await axios.post(`${API_URL}/auth/userpass/login/${data.username}`, { password: data.password });
@@ -26,6 +27,24 @@ export async function getJWTToken(username: string, client_token: string) {
     return response.data;
 }
 
+export async function getUserList() {
+    const response = await axios.get(`${DOWNLINK_URL}/downlink/honeycomb_user_list`, {
+        headers: {
+            'Authorization': 'none',
+        }
+    });
+    return response.data;
+}
+
+export async function updateTokenList(data: any) {
+    const response = await axios.post(`${DOWNLINK_URL}/downlink/edgex_token_list_update`, data, {
+        headers: {
+            'Authorization': 'none',
+        }
+    });
+    return response.data;
+}
+
 // export async function addUpdateUser(username: string, data: any) {
 //     const response = await axios.post(`${API_URL}/auth/userpass/users/${username}`, data, {
 //         headers: {
@@ -37,15 +56,6 @@ export async function getJWTToken(username: string, client_token: string) {
 
 // export async function getUsername(username: string) {
 //     const response = await axios.get(`${API_URL}/auth/userpass/users/${username}`, {
-//         headers: {
-//             'Authorization': `Bearer ${vaultHelper.getVaultToken()}`,
-//         }
-//     });
-//     return response.data;
-// }
-
-// export async function getUserList() {
-//     const response = await axios.get(`${API_URL}/auth/userpass/users`, {
 //         headers: {
 //             'Authorization': `Bearer ${vaultHelper.getVaultToken()}`,
 //         }

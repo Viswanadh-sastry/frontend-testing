@@ -394,7 +394,75 @@ const HomePage: React.FC = () => {
               </button>
             </div>
           </div>
-          <div className="row g-5 g-xl-8 mb-5">
+          <div className="row g-3 g-lg-6 mt-2">
+            <div className="col-3">
+              <div className="card hoverable rounded-2 px-6 py-5">
+                <div className="symbol symbol-30px me-5 mb-8">
+                  <span>
+                    <i className="ki-duotone ki-notification fs-2qx text-primary">
+                      <span className="path1"></span>
+                      <span className="path2"></span>
+                    </i>
+                  </span>
+                </div>
+                <div className="m-0">
+                  <span className="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">{newNotificationCount}</span>
+                  <span className="text-gray-500 fw-semibold fs-6">New Notifications</span>
+                </div>
+              </div>
+            </div>
+            <div className="col-3">
+              <div className="card hoverable rounded-2 px-6 py-5">
+                <div className="symbol symbol-30px me-5 mb-8">
+                  <span>
+                    <i className="ki-duotone ki-notification fs-2qx text-primary">
+                      <span className="path1"></span>
+                      <span className="path2"></span>
+                    </i>
+                  </span>
+                </div>
+                <div className="m-0">
+                  <span className="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">{processedNotificationCount}</span>
+                  <span className="text-gray-500 fw-semibold fs-6">Processed Notifications</span>
+                </div>
+              </div>
+            </div>
+            <div className="col-3">
+              <div className="card hoverable rounded-2 px-6 py-5">
+                <div className="symbol symbol-30px me-5 mb-8">
+                  <span>
+                    <i className="ki-duotone ki-notification fs-2qx text-primary">
+                      <span className="path1"></span>
+                      <span className="path2"></span>
+                      <span className="path3"></span>
+                    </i>
+                  </span>
+                </div>
+                <div className="m-0">
+                  <span className="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">{escalatedNotificationCount}</span>
+                  <span className="text-gray-500 fw-semibold fs-6">Escalated Notifications</span>
+                </div>
+              </div>
+            </div>
+            <div className="col-3">
+              <div className="card hoverable rounded-2 px-6 py-5">
+                <div className="symbol symbol-30px me-5 mb-8">
+                  <span>
+                    <i className="ki-duotone ki-notification fs-2qx text-primary">
+                      <span className="path1"></span>
+                      <span className="path2"></span>
+                      <span className="path3"></span>
+                    </i>
+                  </span>
+                </div>
+                <div className="m-0">
+                  <span className="text-gray-700 fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">{newNotificationCount + processedNotificationCount + escalatedNotificationCount}</span>
+                  <span className="text-gray-500 fw-semibold fs-6">Total Notifications</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* <div className="row g-5 g-xl-8 mb-5">
             <div className="col-xl-6 col-md-6 col-sm-12">
               <div className="card hoverable mb-xl-4">
                 <div className="card-body d-flex align-items-center pt-3 pb-5">
@@ -439,7 +507,7 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* display dash border with rounded corners and put documentation buttons */}
           {/* <div className="card dash-border rounded">

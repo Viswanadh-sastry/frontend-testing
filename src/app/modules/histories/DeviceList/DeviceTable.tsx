@@ -146,7 +146,7 @@ const DeviceTable = () => {
         })
       );
       if (currentPage * itemsPerPage >= historyList.length && historyList.length > 0 && total > historyList.length) {
-        setFilterDevice({ ...filterDevice, offset: Math.ceil(historyList.length / itemsPerPage) });
+        setFilterDevice({ ...filterDevice, offset: filterDevice.offset + filterDevice.limit });
       }
     }
   }, [historyList, currentPage, itemsPerPage]);

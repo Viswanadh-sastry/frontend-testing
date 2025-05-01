@@ -1,13 +1,12 @@
 import clsx from "clsx";
 import { useFormik } from "formik";
+import { Typeahead } from "react-bootstrap-typeahead";
+import "react-bootstrap-typeahead/css/Typeahead.css";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
-import { Typeahead } from "react-bootstrap-typeahead";
-import { createUser } from "../../api/UserAPI";
 import { KTIcon, MetadataInputFields } from "../../../../../_metronic/helpers";
-import "react-bootstrap-typeahead/css/Typeahead.css";
-import { getGeneratePassword, getJWTToken, getRootToken, getVToken, updateUserPassword } from "../../api/VaultAPI";
-// import { addUpdateUser } from "../../api/VaultAPI";
+import { createUser } from "../../api/UserAPI";
+import { getGeneratePassword, getJWTToken, getRootToken, getUserList, getVToken, updateTokenList } from "../../api/VaultAPI";
 
 interface IAddUserProps {
   onCloseAddUser: () => void;
@@ -64,11 +63,16 @@ const AddUser = ({ onCloseAddUser, onGetUserList }: IAddUserProps) => {
               };
               const vToken = await getVToken(userData, rootAuth.tokens[0]).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
               await getJWTToken(username, vToken.auth.client_token).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
+              const userList = await getUserList().catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
+              // find and update the user in the list
+              const user = userList.find((user: any) => user.username === username);
+              if (user) {
+                user.token = vToken.auth.client_token;
+              }
               const params = {
-                username: username,
-                password: values.secret,
+                list: userList,
               };
-              updateUserPassword(params, rootAuth.tokens[0])
+              await updateTokenList(params)
                 .then(() => {
                   toast.success("User created successfully");
                   onCloseAddUser();

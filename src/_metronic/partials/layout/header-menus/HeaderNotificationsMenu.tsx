@@ -36,7 +36,7 @@ const HeaderNotificationsMenu: FC<HeaderNotificationsMenuProps> = ({ filterNotif
         <ul className="nav nav-line-tabs nav-line-tabs-2x nav-stretch fw-bold px-9">
           <li className="nav-item">
             <a
-              className="nav-link text-white opacity-75 opacity-state-100 pb-4 active"
+              className={`nav-link text-white opacity-75 opacity-state-100 pb-4 ${filterNotification.status === "NEW" ? "active" : ""}`}
               data-bs-toggle="tab"
               href="#kt_topbar_notifications_new"
               onClick={() => displayNotificationByStatus("NEW")}
@@ -47,7 +47,7 @@ const HeaderNotificationsMenu: FC<HeaderNotificationsMenuProps> = ({ filterNotif
 
           <li className="nav-item">
             <a
-              className="nav-link text-white opacity-75 opacity-state-100 pb-4"
+              className={`nav-link text-white opacity-75 opacity-state-100 pb-4 ${filterNotification.status === "PROCESSED" ? "active" : ""}`}
               data-bs-toggle="tab"
               href="#kt_topbar_notifications_processed"
               onClick={() => displayNotificationByStatus("PROCESSED")}
@@ -58,7 +58,7 @@ const HeaderNotificationsMenu: FC<HeaderNotificationsMenuProps> = ({ filterNotif
 
           <li className="nav-item">
             <a
-              className="nav-link text-white opacity-75 opacity-state-100 pb-4"
+              className={`nav-link text-white opacity-75 opacity-state-100 pb-4 ${filterNotification.status === "ESCALATED" ? "active" : ""}`}
               data-bs-toggle="tab"
               href="#kt_topbar_notifications_escalated"
               onClick={() => displayNotificationByStatus("ESCALATED")}
@@ -70,7 +70,7 @@ const HeaderNotificationsMenu: FC<HeaderNotificationsMenuProps> = ({ filterNotif
       </div>
 
       <div className="tab-content">
-        <div className="tab-pane fade show active" id="kt_topbar_notifications_new" role="tabpanel">
+        <div className={`tab-pane fade ${filterNotification.status === "NEW" ? "show active" : ""}`} id="kt_topbar_notifications_new" role="tabpanel">
           <div className="scroll-y mh-325px my-5 px-8">
             {notificationList.length === 0 && (
               <div className="d-flex flex-stack py-4">
@@ -102,7 +102,7 @@ const HeaderNotificationsMenu: FC<HeaderNotificationsMenuProps> = ({ filterNotif
           </div>
         </div>
 
-        <div className="tab-pane fade" id="kt_topbar_notifications_processed" role="tabpanel">
+        <div className={`tab-pane fade ${filterNotification.status === "PROCESSED" ? "show active" : ""}`} id="kt_topbar_notifications_processed" role="tabpanel">
           <div className="scroll-y mh-325px my-5 px-8">
             {notificationList.length === 0 && (
               <div className="d-flex flex-stack py-4">
@@ -134,7 +134,7 @@ const HeaderNotificationsMenu: FC<HeaderNotificationsMenuProps> = ({ filterNotif
           </div>
         </div>
 
-        <div className="tab-pane fade" id="kt_topbar_notifications_escalated" role="tabpanel">
+        <div className={`tab-pane fade ${filterNotification.status === "ESCALATED" ? "show active" : ""}`} id="kt_topbar_notifications_escalated" role="tabpanel">
           <div className="scroll-y mh-325px my-5 px-8">
             {notificationList.length === 0 && (
               <div className="d-flex flex-stack py-4">

@@ -10,7 +10,7 @@ import * as vaultHelper from "../core/VaultHelpers";
 import * as loraHelper from "../core/LORAHelpers";
 import { toAbsoluteUrl } from "../../../../_metronic/helpers";
 import { ThemeModeComponent } from "../../../../_metronic/assets/ts/layout";
-import { getJWTToken, getVaultToken } from "../../users/api/VaultAPI";
+import { getGeneratePassword, getJWTToken, getVaultToken } from "../../users/api/VaultAPI";
 
 const LORA_ACCESS_TOKEN = import.meta.env.VITE_APP_LORA_ACCESS_TOKEN;
 const LORA_TENANT_ID = import.meta.env.VITE_APP_LORA_TENANT_ID;
@@ -44,7 +44,8 @@ export function Login() {
           throw new Error("No access token found");
         }
         const username = values.identity.split("@")[0];
-        const vault = await getVaultToken({ username: username, password: values.secret });
+        const generatePassword = await getGeneratePassword(username);
+        const vault = await getVaultToken({ username: username, password: generatePassword.password });
         if (!vault.auth.client_token) {
           throw new Error("No client token found");
         }
