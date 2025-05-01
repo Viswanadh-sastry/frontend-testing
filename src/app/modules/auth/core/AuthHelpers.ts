@@ -1,4 +1,4 @@
-import { getGeneratePassword, getJWTToken, getVaultToken } from '../../users/api/VaultAPI';
+import { getJWTToken, getTokenByUsername } from '../../users/api/VaultAPI';
 import { refresh } from "../core/_requests";
 import { AuthModel } from './_models';
 import { getCred } from "./CredentialHelpers";
@@ -150,11 +150,10 @@ export function setupAxios(axios: any) {
           // Get the vault token and set it in the axios headers
           const { identity } = getCred() || {};
           const username = identity?.split("@")[0] || '';
-          const generatePassword = await getGeneratePassword(username);
-          const vault = await getVaultToken({ username: username, password: generatePassword.password });
-          const vaultToken = await getJWTToken(username, vault.auth.client_token);
+          const vault = await getTokenByUsername(username);
+          const vaultToken = await getJWTToken(username, vault.token);
           setVaultToken(vaultToken.data.token);
-          setVaultClientToken(vault.auth.client_token);
+          setVaultClientToken(vault.token);
 
           if (!originalRequest.headers.Authorization) {
             originalRequest.headers.Authorization = `Bearer ${newAuth.access_token}`;

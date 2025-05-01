@@ -18,6 +18,7 @@ import {
   getDeviceById,
   getKeysById,
   getLinkMetrics,
+  jwtReset,
   logLevel,
   rebootDevice,
   resetDevice,
@@ -303,6 +304,29 @@ const EditDevice = () => {
         deviceStatus(data)
           .then(() => {
             toast.success("Device status retrieved successfully");
+          })
+          .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
+      }
+    });
+  };
+
+  const onClickJWTReset = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Are you sure you want to reset JWT?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, reset it!",
+      cancelButtonText: "Cancel",
+      customClass: {
+        confirmButton: "btn btn-primary",
+        cancelButton: "btn btn-secondary",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        jwtReset()
+          .then(() => {
+            toast.success("JWT reset successfully");
           })
           .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
       }
@@ -787,6 +811,24 @@ const EditDevice = () => {
                             <div className="fs-6 text-gray-700 pe-7">Endpoint to send downlink data for device status.</div>
                           </div>
                           <button type="button" className="btn btn-info px-6 align-self-center text-nowrap" onClick={onClickDeviceStatus}>
+                            Proceed{" "}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="overflow-auto pb-5">
+                      <div className="notice d-flex bg-light-danger rounded border-danger border border-dashed min-w-lg-600px flex-shrink-0 p-6">
+                        <i className="ki-duotone ki-devices-2 fs-2tx text-danger me-4">
+                          <span className="path1"></span>
+                          <span className="path2"></span>
+                          <span className="path3"></span>
+                        </i>
+                        <div className="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
+                          <div className="mb-3 mb-md-0 fw-semibold">
+                            <h4 className="text-gray-900 fw-bold">JWT Reset</h4>
+                            <div className="fs-6 text-gray-700 pe-7">Endpoint to send downlink data for JWT reset.</div>
+                          </div>
+                          <button type="button" className="btn btn-danger px-6 align-self-center text-nowrap" onClick={onClickJWTReset}>
                             Proceed{" "}
                           </button>
                         </div>

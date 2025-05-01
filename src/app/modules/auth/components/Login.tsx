@@ -1,16 +1,16 @@
-import { useState } from "react";
-import * as Yup from "yup";
 import clsx from "clsx";
-import { Link, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
-import { login } from "../core/_requests";
-import * as domainHelper from "../core/DomainHelpers";
-import * as credHelper from "../core/CredentialHelpers";
-import * as vaultHelper from "../core/VaultHelpers";
-import * as loraHelper from "../core/LORAHelpers";
-import { toAbsoluteUrl } from "../../../../_metronic/helpers";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import * as Yup from "yup";
 import { ThemeModeComponent } from "../../../../_metronic/assets/ts/layout";
-import { getGeneratePassword, getJWTToken, getVaultToken } from "../../users/api/VaultAPI";
+import { toAbsoluteUrl } from "../../../../_metronic/helpers";
+import { getJWTToken, getTokenByUsername } from "../../users/api/VaultAPI";
+import { login } from "../core/_requests";
+import * as credHelper from "../core/CredentialHelpers";
+import * as domainHelper from "../core/DomainHelpers";
+import * as loraHelper from "../core/LORAHelpers";
+import * as vaultHelper from "../core/VaultHelpers";
 
 const LORA_ACCESS_TOKEN = import.meta.env.VITE_APP_LORA_ACCESS_TOKEN;
 const LORA_TENANT_ID = import.meta.env.VITE_APP_LORA_TENANT_ID;
@@ -44,17 +44,16 @@ export function Login() {
           throw new Error("No access token found");
         }
         const username = values.identity.split("@")[0];
-        const generatePassword = await getGeneratePassword(username);
-        const vault = await getVaultToken({ username: username, password: generatePassword.password });
-        if (!vault.auth.client_token) {
+        const vault = await getTokenByUsername(username);
+        if (!vault.token) {
           throw new Error("No client token found");
         }
-        const vaultToken = await getJWTToken(username, vault.auth.client_token);
+        const vaultToken = await getJWTToken(username, vault.token);
         if (!vaultToken.data.token) {
           throw new Error("No token found");
         }
         vaultHelper.setVaultToken(vaultToken.data.token);
-        vaultHelper.setVaultClientToken(vault.auth.client_token);
+        vaultHelper.setVaultClientToken(vault.token);
         const loraAuth = loraHelper.getLORAAuth();
         if (!loraAuth) {
           loraHelper.setLORAAuth({

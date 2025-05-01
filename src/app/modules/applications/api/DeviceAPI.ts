@@ -97,6 +97,11 @@ export async function deviceStatus(data: any) {
     return response.data;
 }
 
+export async function jwtReset() {
+    const response = await axios.post(`${API_DOWNLINK_URL}/downlink/jwt_rotation`, {});
+    return response.data;
+}
+
 export async function logLevel(data: any) {
     const response = await axios.post(`${API_DOWNLINK_URL}/downlink/log-level`, data);
     return response.data;

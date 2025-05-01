@@ -61,7 +61,7 @@ const AddUser = ({ onCloseAddUser, onGetUserList }: IAddUserProps) => {
                 username: username,
                 password: response.password,
               };
-              const vToken = await getVToken(userData, rootAuth.tokens[0]).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
+              const vToken = await getVToken(userData, rootAuth.root_token).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
               await getJWTToken(username, vToken.auth.client_token).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
               const userList = await getUserList().catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
               // find and update the user in the list

@@ -1,7 +1,6 @@
 import axios from "axios";
 
 const API_URL = import.meta.env.VITE_APP_VAULT_API_URL;
-const USER_URL = import.meta.env.VITE_APP_USER_API_URL;
 const DOWNLINK_URL = import.meta.env.VITE_APP_DOWNLINK_API_URL;
 
 export async function getVaultToken(data: any) {
@@ -27,6 +26,24 @@ export async function getJWTToken(username: string, client_token: string) {
     return response.data;
 }
 
+export async function getRootToken() {
+    const response = await axios.get(`${DOWNLINK_URL}/downlink/tokens`, {
+        headers: {
+            'Authorization': 'none',
+        }
+    });
+    return response.data;
+}
+
+export async function getGeneratePassword(username: string) {
+    const response = await axios.get(`${DOWNLINK_URL}/downlink/generate-password/${username}`, {
+        headers: {
+            'Authorization': 'none',
+        }
+    });
+    return response.data;
+}
+
 export async function getUserList() {
     const response = await axios.get(`${DOWNLINK_URL}/downlink/honeycomb_user_list`, {
         headers: {
@@ -38,6 +55,17 @@ export async function getUserList() {
 
 export async function updateTokenList(data: any) {
     const response = await axios.post(`${DOWNLINK_URL}/downlink/edgex_token_list_update`, data, {
+        headers: {
+            'Authorization': 'none',
+        }
+    });
+    return response.data;
+}
+
+export async function getTokenByUsername(username: string) {
+    const response = await axios.post(`${DOWNLINK_URL}/downlink/get-token`, {
+        username: username,
+    }, {
         headers: {
             'Authorization': 'none',
         }
@@ -80,23 +108,3 @@ export async function updateUserPassword(data: any, rootToken: string) {
     });
     return response.data;
 }
-
-export async function getRootToken() {
-    const response = await axios.get(`${USER_URL}/root/tokens`, {
-        headers: {
-            'Authorization': 'none',
-        }
-    });
-    return response.data;
-}
-
-export async function getGeneratePassword(username: string) {
-    const response = await axios.get(`${USER_URL}/root/generate-password/${username}`, {
-        headers: {
-            'Authorization': 'none',
-        }
-    });
-    return response.data;
-}
-
-

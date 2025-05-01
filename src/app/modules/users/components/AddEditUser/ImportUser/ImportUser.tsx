@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { createUser } from "../../../api/UserAPI";
+import { getGeneratePassword, getJWTToken, getRootToken, getUserList, getVToken, updateTokenList } from "../../../api/VaultAPI";
 
 interface IAddUserProps {
   onCloseImportUser: () => void;
@@ -79,7 +80,33 @@ const ImportUser = ({ onCloseImportUser, onGetUserList, onShowImportUser }: IAdd
               metadata, // Add the parsed metadata object
               status: "enabled",
             };
-            await createUser(userData);
+            await createUser(userData)
+              .then(async () => {
+                // Create user in vault
+                const username = row.IDENTITY.split("@")[0];
+                const rootAuth = await getRootToken().catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
+                getGeneratePassword(username)
+                  .then(async (response) => {
+                    const userData = {
+                      username: username,
+                      password: response.password,
+                    };
+                    const vToken = await getVToken(userData, rootAuth.root_token).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
+                    await getJWTToken(username, vToken.auth.client_token).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
+                    const userList = await getUserList().catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
+                    // find and update the user in the list
+                    const user = userList.find((user: any) => user.username === username);
+                    if (user) {
+                      user.token = vToken.auth.client_token;
+                    }
+                    const params = {
+                      list: userList,
+                    };
+                    await updateTokenList(params).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
+                  })
+                  .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
+              })
+              .catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
           }
 
           toast.success("User created successfully");

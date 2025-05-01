@@ -6,9 +6,9 @@ export type History = {
     name: string
     unit: string
     value: string
-    stringValue: string
-    boolValue: boolean
-    dataValue: any
+    string_value: string
+    bool_value: boolean
+    data_value: any
     sum: number
     sentAt: string
     time: string

@@ -36,17 +36,17 @@ const assetColumns: ReadonlyArray<Column<History>> = [
   },
   {
     Header: (props) => <DeviceCustomHeader tableProps={props} title="String Value" className="min-w-100px" />,
-    accessor: "stringValue",
+    accessor: "string_value",
     Cell: ({ value }) => <div className="badge badge-light-primary fw-bolder">{value}</div>,
   },
   {
     Header: (props) => <DeviceCustomHeader tableProps={props} title="Bool Value" className="min-w-50px" />,
-    accessor: "boolValue",
+    accessor: "bool_value",
     Cell: ({ value }) => <div className="badge badge-light-primary fw-bolder">{value}</div>,
   },
   {
     Header: (props) => <DeviceCustomHeader tableProps={props} title="Data Value" className="min-w-100px" />,
-    accessor: "dataValue",
+    accessor: "data_value",
     Cell: ({ value }) => <div className="badge badge-light-primary fw-bolder">{value}</div>,
   },
   {
