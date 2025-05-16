@@ -7,6 +7,8 @@ import { setVaultClientToken, setVaultToken } from "./VaultHelpers";
 
 const AUTH_LOCAL_STORAGE_KEY = 'rapid-auth'
 const USER_LOCAL_STORAGE_KEY = 'rapid-user'
+const LORA_BASE_URL = import.meta.env.VITE_APP_LORA_API_URL
+
 const getAuth = (): AuthModel | undefined => {
   if (!localStorage) {
     return
@@ -112,7 +114,7 @@ export function setupAxios(axios: any) {
       // Use Content Security Policy (CSP)
       // config.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';";
 
-      if (config.url.includes('chirp.meridiandatalabs.com')) {
+      if (config.url.includes(LORA_BASE_URL)) {
         return config;
       }
       if (dAuth && dAuth.access_token) {
@@ -173,7 +175,7 @@ export function setupAxios(axios: any) {
 
 const isLORAUnauthorized = (error: any) => {
   // Check url for LORA API
-  if (error && error.config && error.config.url && error.config.url.includes('chirp.meridiandatalabs.com') && (!localStorage.getItem("lora_unauthorized") || localStorage.getItem("lora_unauthorized") === "false")) {
+  if (error && error.config && error.config.url && error.config.url.includes(LORA_BASE_URL) && (!localStorage.getItem("lora_unauthorized") || localStorage.getItem("lora_unauthorized") === "false")) {
     localStorage.setItem("lora_unauthorized", "true");
     return true;
   }

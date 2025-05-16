@@ -83,7 +83,7 @@ export async function resetKeyRotation() {
 }
 
 export async function updateFrequency(data: any) {
-    const response = await axios.post(`${API_DOWNLINK_URL}/downlink/update-frequency`, data);
+    const response = await axios.post(`${API_DOWNLINK_URL}/downlink/update-frequency?update_frequency=${data.update_frequency}&dev_euid=${data.dev_euid}`, {});
     return response.data;
 }
 
