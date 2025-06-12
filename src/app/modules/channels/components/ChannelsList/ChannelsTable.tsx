@@ -25,6 +25,7 @@ const ChannelsTable = () => {
     name: "",
     metadata: "",
     status: "enabled",
+    sort_by: "", // ✅ Added for backend sorting
   });
   const filterThing = {
     limit: 10,

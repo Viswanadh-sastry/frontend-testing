@@ -4,6 +4,7 @@ import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { PaginationState } from "../../../../../../_metronic/helpers";
 import { getGroupList } from "../../../api/GroupAPI";
+import { SortButton } from "../../../../../reusable/SortButton/SortButton";
 
 const mappedLabel = (label: string): string => {
   if (label === "&laquo; Previous") {
@@ -18,7 +19,16 @@ const mappedLabel = (label: string): string => {
 };
 
 interface IGroupsListPaginationProps {
-  filterGroup: any;
+  filterGroup: {
+    limit: number;
+    offset: number;
+    name: string;
+    metadata: string;
+    parentID: string;
+    status: string;
+    tree: boolean;
+    sort_by: string;
+  };
   setFilterGroup: Dispatch<
     SetStateAction<{
       limit: number;
@@ -28,6 +38,7 @@ interface IGroupsListPaginationProps {
       parentID: string;
       status: string;
       tree: boolean;
+      sort_by: string;
     }>
   >;
 }

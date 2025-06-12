@@ -13,6 +13,7 @@ import { CustomRow } from "./columns/CustomRow";
 import { groupColumns } from "./columns/_columns";
 import { GroupsListLoading } from "./pagination/GroupsListLoading";
 import { GroupsListPagination } from "./pagination/GroupsListPagination";
+import { SortButton } from "../../../../reusable/SortButton/SortButton";
 
 const GroupTable: FC = () => {
   const [showAddGroup, setShowAddGroup] = useState(false);
@@ -26,6 +27,7 @@ const GroupTable: FC = () => {
     parentID: "",
     status: "enabled",
     tree: true,
+    sort_by: "", // ✅ added sort_by key
   });
 
   const groupListQuery = useQuery({

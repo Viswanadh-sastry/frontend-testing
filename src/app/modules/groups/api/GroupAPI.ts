@@ -99,5 +99,8 @@ const searchGroup = (data: any) => {
     } else {
         query += `?status=${data.status}`;
     }
+    if (data.sort_by) {
+        query += `&sort_by=${data.sort_by}`;
+    }
     return query;
 }

@@ -1,4 +1,4 @@
-import jsPDF from "jspdf";
+import jsPDF from "jspdf"; 
 import "jspdf-autotable";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -7,6 +7,7 @@ import { KTIcon } from "../../../../../_metronic/helpers";
 import { getRolePermission, MODULENAME } from "../../../auth/core/RoleHelpers";
 import { getThingListAll } from "../../api/ThingAPI";
 import { getThingChannelList } from "../../api/ThingChannelAPI";
+import { SortButton } from "../../../../reusable/SortButton/SortButton"; 
 
 interface IThingsListHeaderProps {
   onShowAddThing: () => void;
@@ -19,6 +20,7 @@ interface IThingsListHeaderProps {
       metadata: string;
       tags: string;
       status: string;
+      sort_by: string; // backend sorting support
     }>
   >;
   filterThing: {
@@ -28,6 +30,7 @@ interface IThingsListHeaderProps {
     metadata: string;
     tags: string;
     status: string;
+    sort_by: string; //  backend sorting support
   };
 }
 
@@ -366,6 +369,17 @@ const ThingsListHeader = ({ onShowAddThing, setFilterThing, onShowImportThing, f
               <div className="menu-item px-3" onClick={downloadPDF}>
                 <a className="menu-link px-3">PDF File</a>
               </div>
+            </div>
+            <div className="ms-2">
+              <SortButton
+                onSortChange={(value: string) =>
+                  setFilterThing((prev) => ({
+                    ...prev,
+                    sort_by: value,
+                  }))
+                }
+                currentSortBy={filterThing.sort_by}
+              />
             </div>
           </div>
         </div>

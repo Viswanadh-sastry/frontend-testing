@@ -8,6 +8,7 @@ import { getRolePermission, MODULENAME } from "../../../auth/core/RoleHelpers";
 import { getChannelGroupList } from "../../api/ChannelGroupAPI";
 import { getChannelListAll } from "../../api/ChannelsAPI";
 import { getChannelThingList } from "../../api/ChannelThingAPI";
+import { SortButton } from "../../../../reusable/SortButton/SortButton";
 
 interface IChannelsListHeaderProps {
   onShowAddChannel: () => void;
@@ -19,6 +20,7 @@ interface IChannelsListHeaderProps {
       name: string;
       metadata: string;
       status: string;
+      sort_by: string;
     }>
   >;
   filterChannel: {
@@ -27,6 +29,7 @@ interface IChannelsListHeaderProps {
     name: string;
     metadata: string;
     status: string;
+    sort_by: string;
   };
 }
 
@@ -48,6 +51,14 @@ const ChannelsListHeader = ({ onShowAddChannel, setFilterChannel, onShowImportCh
     }));
   };
 
+  const handleSortChange = (sort_by: string) => {
+    setFilterChannel((prevState: any) => ({
+      ...prevState,
+      sort_by: sort_by,
+      offset: 0,
+    }));
+  };
+
   const getChannelData = async () => {
     const filterChannels = {
       limit: 100,
@@ -55,6 +66,7 @@ const ChannelsListHeader = ({ onShowAddChannel, setFilterChannel, onShowImportCh
       name: filterChannel.name,
       metadata: "",
       status: filterChannel.status,
+      sort_by: filterChannel.sort_by,
     };
     const filterThing = {
       limit: 10,
@@ -382,6 +394,9 @@ const ChannelsListHeader = ({ onShowAddChannel, setFilterChannel, onShowImportCh
               <div className="menu-item px-3" onClick={downloadPDF}>
                 <a className="menu-link px-3">PDF File</a>
               </div>
+            </div>
+            <div className="ms-2">
+              <SortButton onSortChange={handleSortChange} currentSortBy={filterChannel.sort_by} />
             </div>
           </div>
         </div>

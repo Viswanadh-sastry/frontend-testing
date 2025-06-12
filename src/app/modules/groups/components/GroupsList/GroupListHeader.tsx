@@ -6,6 +6,7 @@ import * as XLSX from "xlsx";
 import { KTIcon } from "../../../../../_metronic/helpers";
 import { getRolePermission, MODULENAME } from "../../../auth/core/RoleHelpers";
 import { getGroupListAll } from "../../api/GroupAPI";
+import { SortButton } from "../../../../reusable/SortButton/SortButton";
 
 interface IGroupsListHeaderProps {
   onShowAddGroup: () => void;
@@ -19,6 +20,7 @@ interface IGroupsListHeaderProps {
       parentID: string;
       status: string;
       tree: boolean;
+      sort_by: string;
     }>
   >;
   filterGroup: {
@@ -29,6 +31,7 @@ interface IGroupsListHeaderProps {
     parentID: string;
     status: string;
     tree: boolean;
+    sort_by: string;
   };
 }
 
@@ -50,6 +53,14 @@ const GroupListHeader = ({ onShowAddGroup, setFilterGroup, onShowImportGroup, fi
     }));
   };
 
+  const handleSortChange = (sort_by: string) => {
+    setFilterGroup((prev) => ({
+      ...prev,
+      sort_by,
+      offset: 0,
+    }));
+  };
+
   const getGroupData = async () => {
     const filterGroups = {
       limit: 100,
@@ -59,8 +70,11 @@ const GroupListHeader = ({ onShowAddGroup, setFilterGroup, onShowImportGroup, fi
       parentID: "",
       status: filterGroup.status,
       tree: true,
+      sort_by: filterGroup.sort_by,
     };
-    return await getGroupListAll(filterGroups).catch((error) => toast.error(error?.response?.data?.message || "Something went wrong"));
+    return await getGroupListAll(filterGroups).catch((error) =>
+      toast.error(error?.response?.data?.message || "Something went wrong")
+    );
   };
 
   const convertToCSV = (data: any[], headerOrder: string[]): string => {
@@ -362,6 +376,9 @@ const GroupListHeader = ({ onShowAddGroup, setFilterGroup, onShowImportGroup, fi
               <div className="menu-item px-3" onClick={downloadPDF}>
                 <a className="menu-link px-3">PDF File</a>
               </div>
+            </div>
+            <div className="ms-2">
+              <SortButton onSortChange={handleSortChange} currentSortBy={filterGroup.sort_by} />
             </div>
           </div>
         </div>

@@ -17,9 +17,7 @@ export async function getChannelListAll(data: any) {
         const result = await axios.get(`${API_URL}/channels${query}`);
         response.data.groups.push(...result.data.groups);
     }
-    // sort channels by name
-    response.data.groups?.sort((a: any, b: any) => a.name.localeCompare(b.name));
-    return response.data;
+  return response.data;
 }
 
 export async function createChannel(data: any) {
@@ -84,10 +82,19 @@ const searchChannel = (data: any) => {
             query += `?metadata=${data.metadata}`;
         }
     }
-    if (query) {
-        query += `&status=${data.status}`;
-    } else {
-        query += `?status=${data.status}`;
+    if (data.status) {
+        if (query) {
+            query += `&status=${data.status}`;
+        } else {
+            query += `?status=${data.status}`;
+        }
+    }
+    if (data.sort_by) {
+        if (query) {
+            query += `&sort_by=${data.sort_by}`;
+        } else {
+            query += `?sort_by=${data.sort_by}`;
+        }
     }
     return query;
-}
+};

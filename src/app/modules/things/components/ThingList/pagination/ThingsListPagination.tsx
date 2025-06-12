@@ -27,6 +27,7 @@ interface IThingsListPaginationProps {
       metadata: string;
       tags: string;
       status: string;
+      sort_by: string;
     }>
   >;
 }

@@ -4,6 +4,7 @@ import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { PaginationState } from "../../../../../../_metronic/helpers";
 import { getChannelList } from "../../../api/ChannelsAPI";
+import { SortButton } from "../../../../../reusable/SortButton/SortButton"; // ✅ Added for backend sort
 
 const mappedLabel = (label: string): string => {
   if (label === "&laquo; Previous") {
@@ -18,7 +19,14 @@ const mappedLabel = (label: string): string => {
 };
 
 interface IChannelsListPaginationProps {
-  filterChannel: any;
+  filterChannel: {
+    limit: number;
+    offset: number;
+    name: string;
+    metadata: string;
+    status: string;
+    sort_by: string;
+  };
   setFilterChannel: Dispatch<
     SetStateAction<{
       limit: number;
@@ -26,6 +34,7 @@ interface IChannelsListPaginationProps {
       name: string;
       metadata: string;
       status: string;
+      sort_by: string;
     }>
   >;
 }

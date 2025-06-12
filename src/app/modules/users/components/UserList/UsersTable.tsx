@@ -37,7 +37,16 @@ const UsersTable = () => {
     links: [],
   });
   const [userList, setUserList] = useState<any>([]);
-  const [filterUser, setFilterUser] = useState({
+  const [filterUser, setFilterUser] = useState<{
+    limit: number;
+    offset: number;
+    name: string;
+    identity: string;
+    metadata: string;
+    tags: string;
+    status: string;
+    sort_by?: string;
+  }>({
     limit: 100,
     offset: 0,
     name: "",
@@ -94,6 +103,7 @@ const UsersTable = () => {
         setCurrentPage={setCurrentPage}
         setPagination={setPagination}
         setFilterUser={setFilterUser}
+        filterUser={filterUser}
         setUserList={setUserList}
         userList={userList}
         userListQuery={userListQuery}

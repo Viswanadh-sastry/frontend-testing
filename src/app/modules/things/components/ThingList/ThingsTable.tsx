@@ -33,6 +33,7 @@ const ThingsTable = () => {
     metadata: "",
     tags: "",
     status: "enabled",
+    sort_by: "created_at_desc", //  backend sorting
   });
 
   const onShowImportThing = () => setImportModal(true);

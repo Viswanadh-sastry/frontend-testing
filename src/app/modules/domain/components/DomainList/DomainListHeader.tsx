@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { KTIcon } from "../../../../../_metronic/helpers";
 import * as roleHelper from "../../../auth/core/RoleHelpers";
+import { SortButton } from "../../../../reusable/SortButton/SortButton";
 
 interface IDomainListHeaderProps {
   onShowAddDomain: () => void;
@@ -18,8 +19,17 @@ interface IDomainListHeaderProps {
       name: string;
       permission: string;
       status: string;
+      sort_by: string;
     }>
   >;
+  filterDomain: {
+    offset: number;
+    limit: number;
+    name: string;
+    permission: string;
+    status: string;
+    sort_by?: string;
+  };
   setDomainList: Dispatch<SetStateAction<any[]>>;
   domainList: any[];
   domainListQuery: any;
@@ -32,6 +42,7 @@ const DomainListHeader = ({
   setCurrentPage,
   setPagination,
   setFilterDomain,
+  filterDomain,
   setDomainList,
   domainList,
   domainListQuery,
@@ -46,6 +57,13 @@ const DomainListHeader = ({
     setFilterDomain((prevState: any) => ({
       ...prevState,
       status: e.target.value,
+    }));
+  };
+
+  const handleSortChange = (value: string) => {
+    setFilterDomain((prev: any) => ({
+      ...prev,
+      sort_by: value,
     }));
   };
 
@@ -351,6 +369,9 @@ const DomainListHeader = ({
               <div className="menu-item px-3" onClick={downloadPDF}>
                 <a className="menu-link px-3">PDF File</a>
               </div>
+            </div>
+             <div className="ms-2">
+               <SortButton onSortChange={handleSortChange} currentSortBy={filterDomain.sort_by} />
             </div>
           </div>
         </div>
