@@ -17,8 +17,6 @@ export async function getDomainListAll(data: any) {
         const result = await axios.get(`${API_URL}/domains?limit=${data.limit}&offset=${data.offset}${query}`);
         response.data.domains.push(...result.data.domains);
     }
-    // sort domains by name
-    response.data.domains?.sort((a: any, b: any) => a.name.localeCompare(b.name));
     return response.data;
 }
 
@@ -38,5 +36,8 @@ const searchDomain = (data: any) => {
     if (data.status) {
         query += `&status=${data.status}`;
     }
+    if (data.sort_by) {
+        query += `&sort_by=${data.sort_by}`;
+    }
     return query;
-}
+};

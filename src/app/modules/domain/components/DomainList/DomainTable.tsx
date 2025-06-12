@@ -13,6 +13,7 @@ import { DomainListHeader } from "./DomainListHeader";
 import { AddDomain } from "../AddDomain/AddDomain";
 import { getDomainListAll } from "../../api/DomainAPI";
 import { ImportDomain } from "../AddDomain/ImportDomain/ImportDomain";
+import { SortButton } from "../../../../reusable/SortButton/SortButton";
 
 const DomainTable = () => {
   const [showAddDomain, setShowAddDomain] = useState(false);
@@ -32,6 +33,7 @@ const DomainTable = () => {
     name: "",
     permission: "",
     status: "enabled",
+    sort_by: "created_at",
   });
   const domainListQuery = useQuery({
     queryKey: [`domainListQuery`, filterDomain],
@@ -81,6 +83,7 @@ const DomainTable = () => {
         setCurrentPage={setCurrentPage}
         setPagination={setPagination}
         setFilterDomain={setFilterDomain}
+        filterDomain={filterDomain}
         setDomainList={setDomainList}
         domainList={domainList}
         domainListQuery={domainListQuery}

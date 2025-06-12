@@ -2,6 +2,32 @@ import axios from "axios";
 import { getVaultToken } from "../../auth/core/VaultHelpers";
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
+const EDGEX_API_URL = import.meta.env.VITE_APP_EDGEX_API_URL;
+
+// Helper: URL-safe encoding
+const encode = (val: string) => encodeURIComponent(val);
+
+// Unified query string builder including optional sort_by
+const searchThing = (data: any): string => {
+  const params: Record<string, any> = {
+    limit: data.limit,
+    offset: data.offset,
+    name: data.name,
+    metadata: data.metadata,
+    tags: data.tags,
+    status: data.status,
+    sort_by: data.sort_by, // backend sorting param
+  };
+
+  const queryString = Object.entries(params)
+    .filter(([_, v]) => v !== undefined && v !== null && v !== "")
+    .map(([k, v]) => `${k}=${encode(String(v))}`)
+    .join("&");
+
+  return queryString ? `?${queryString}` : "";
+};
+
+//#region Thing API
 
 export async function getThingList(data: any) {
     const query = searchThing(data);
@@ -10,17 +36,21 @@ export async function getThingList(data: any) {
 }
 
 export async function getThingListAll(data: any) {
-    const query = searchThing({ ...data, limit: 100 });
-    const response = await axios.get(`${API_URL}/things${query}`);
-    const totalRecords = response.data.total;
-    for (let i = 100; i < totalRecords; i += 100) {
-        const query = searchThing({ ...data, offset: i });
-        const result = await axios.get(`${API_URL}/things${query}`);
-        response.data.things.push(...result.data.things);
-    }
-    // sort things by name
-    response.data.things?.sort((a: any, b: any) => a.name.localeCompare(b.name));
-    return response.data;
+  const baseParams = { ...data, limit: 100 };
+  const initialQuery = searchThing({ ...baseParams, offset: 0 });
+  const response = await axios.get(`${API_URL}/things${initialQuery}`);
+  const totalRecords = response.data.total;
+  const allThings = [...(response.data.things || [])];
+
+  for (let i = 100; i < totalRecords; i += 100) {
+    const paginatedQuery = searchThing({ ...baseParams, offset: i });
+    const result = await axios.get(`${API_URL}/things${paginatedQuery}`);
+    allThings.push(...(result.data.things || []));
+  }
+
+  allThings.sort((a: any, b: any) => a.name.localeCompare(b.name));
+
+  return { ...response.data, things: allThings };
 }
 
 export async function createThing(data: any) {
@@ -74,48 +104,10 @@ export async function updateThingSecret(id: string, secretData: any) {
     return response.data;
 }
 
-const searchThing = (data: any) => {
-    let query = "";
-    if (data.limit) {
-        query += `?limit=${data.limit}`;
-    }
-    if (data.offset) {
-        query += `&offset=${data.offset}`;
-    }
-    if (data.name) {
-        if (query) {
-            query += `&name=${data.name}`;
-        } else {
-            query += `?name=${data.name}`;
-        }
-    }
-    if (data.metadata) {
-        if (query) {
-            query += `&metadata=${data.metadata}`;
-        } else {
-            query += `?metadata=${data.metadata}`;
-        }
-    }
-    if (data.tags) {
-        if (query) {
-            query += `&tags=${data.tags}`;
-        } else {
-            query += `?tags=${data.tags}`;
-        }
-    }
-    if (query) {
-        query += `&status=${data.status}`;
-    } else {
-        query += `?status=${data.status}`;
-    }
-    return query;
-}
+//#endregion
 
-// EdgeX 3.1.1 Device Management Workflow API
+//#region EdgeX Device Profile
 
-const EDGEX_API_URL = import.meta.env.VITE_APP_EDGEX_API_URL;
-
-//#region Device Profile
 export async function createDeviceProfile(data: any) {
     const response = await axios.post(`${EDGEX_API_URL}/deviceprofile/uploadfile`, data, {
         headers: {

@@ -9,17 +9,17 @@ export async function getUserList(data?: any) {
 }
 
 export async function getUserListAll(data?: any) {
-    const query = searchUser({ ...data, limit: 100 });
-    const response = await axios.get(`${API_URL}/users${query}`);
-    const totalRecords = response.data.total;
-    for (let i = 100; i < totalRecords; i += 100) {
-        const query = searchUser({ ...data, offset: i });
-        const result = await axios.get(`${API_URL}/users${query}`);
-        response.data.users.push(...result.data.users);
-    }
-    // sort users by name
-    response.data.users?.sort((a: any, b: any) => a.name.localeCompare(b.name));
-    return response.data;
+  const query = searchUser({ ...data, limit: 100 });
+  const response = await axios.get(`${API_URL}/users${query}`);
+  const totalRecords = response.data.total;
+  for (let i = 100; i < totalRecords; i += 100) {
+    const query = searchUser({ ...data, offset: i });
+    const result = await axios.get(`${API_URL}/users${query}`);
+    response.data.users.push(...result.data.users);
+  }
+
+  // ❌ Removed client-side sorting to respect backend sort_by
+  return response.data;
 }
 
 export async function createUser(data: any) {
@@ -63,45 +63,21 @@ export async function updateUserTags(id: string, tags: string[]) {
 }
 
 const searchUser = (data: any) => {
-    let query = "";
-    if (data.limit) {
-        query += `?limit=${data.limit}`;
-    }
-    if (data.offset) {
-        query += `&offset=${data.offset}`;
-    }
-    if (data.name) {
-        if (query) {
-            query += `&name=${data.name}`;
-        } else {
-            query += `?name=${data.name}`;
-        }
-    }
-    if (data.identity) {
-        if (query) {
-            query += `&identity=${data.identity}`;
-        } else {
-            query += `?identity=${data.identity}`;
-        }
-    }
-    if (data.metadata) {
-        if (query) {
-            query += `&metadata=${data.metadata}`;
-        } else {
-            query += `?metadata=${data.metadata}`;
-        }
-    }
-    if (data.tags) {
-        if (query) {
-            query += `&tags=${data.tags}`;
-        } else {
-            query += `?tags=${data.tags}`;
-        }
-    }
-    if (query) {
-        query += `&status=${data.status}`;
-    } else {
-        query += `?status=${data.status}`;
-    }
-    return query;
-}
+  const params: Record<string, any> = {
+    limit: data.limit,
+    offset: data.offset,
+    name: data.name,
+    identity: data.identity,
+    metadata: data.metadata,
+    tags: data.tags,
+    status: data.status,
+    sort_by: data.sort_by, // ✅ Sorting support
+  };
+
+  const queryString = Object.entries(params)
+    .filter(([_, v]) => v !== undefined && v !== null && v !== "")
+    .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
+    .join("&");
+
+  return queryString ? `?${queryString}` : "";
+};

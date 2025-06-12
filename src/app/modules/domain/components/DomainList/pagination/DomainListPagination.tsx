@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { useEffect, useMemo } from "react";
 import { PaginationState } from "../../../../../../_metronic/helpers";
+import { SortButton } from "../../../../../reusable/SortButton/SortButton"; // ✅ Add this import
 
 const mappedLabel = (label: string): string => {
   if (label === "&laquo; Previous") {
@@ -23,9 +24,22 @@ interface IDomainListPaginationProps {
   setItemsPerPage: (itemsPerPage: any) => void;
   setPagination: (pagination: PaginationState) => void;
   setData: (data: any) => void;
+  setFilterDomain?: (filter: any) => void; // ✅ Add support for sorting
+  filterDomain?: any; // ✅ Add support for sorting
 }
 
-const DomainListPagination = ({ domainList, itemsPerPage, pagination, data, setCurrentPage, setItemsPerPage, setPagination, setData }: IDomainListPaginationProps) => {
+const DomainListPagination = ({
+  domainList,
+  itemsPerPage,
+  pagination,
+  data,
+  setCurrentPage,
+  setItemsPerPage,
+  setPagination,
+  setData,
+  setFilterDomain,
+  filterDomain,
+}: IDomainListPaginationProps) => {
   useEffect(() => {
     getLinks();
   }, [data]);

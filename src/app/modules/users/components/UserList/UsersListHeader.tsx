@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { KTIcon } from "../../../../../_metronic/helpers";
 import { getRolePermission, MODULENAME } from "../../../auth/core/RoleHelpers";
+import { SortButton } from "../../../../reusable/SortButton/SortButton";
 
 interface IUsersListHeaderProps {
   onShowAddUser: () => void;
@@ -20,8 +21,19 @@ interface IUsersListHeaderProps {
       metadata: string;
       tags: string;
       status: string;
+      sort_by?: string;
     }>
   >;
+  filterUser: {
+    limit: number;
+    offset: number;
+    name: string;
+    identity: string;
+    metadata: string;
+    tags: string;
+    status: string;
+    sort_by?: string;
+  };
   setUserList: Dispatch<SetStateAction<any[]>>;
   userList: any[];
   userListQuery: any;
@@ -34,6 +46,7 @@ const UsersListHeader = ({
   setCurrentPage,
   setPagination,
   setFilterUser,
+  filterUser,
   setUserList,
   userList,
   userListQuery,
@@ -57,6 +70,13 @@ const UsersListHeader = ({
     setFilterUser((prevState: any) => ({
       ...prevState,
       status: e.target.value,
+    }));
+  };
+
+  const handleSortChange = (value: string) => {
+    setFilterUser((prev: any) => ({
+      ...prev,
+      sort_by: value,
     }));
   };
 
@@ -171,7 +191,6 @@ const UsersListHeader = ({
       }, {} as Record<string, any>);
     });
 
-    // Create a new workbook
     const workbook = XLSX.utils.book_new();
 
     // Convert the formatted data to a worksheet with headers
@@ -293,9 +312,9 @@ const UsersListHeader = ({
                 setPagination({ ...pagination, page: 1 });
                 setSearchText(e.target.value);
                 setUserList(
-                  userListQuery.data?.users.filter((user: any) => {
-                    return user.name.toLowerCase().includes(e.target.value.toLowerCase());
-                  })
+                  userListQuery.data?.users.filter((user: any) =>
+                    user.name.toLowerCase().includes(e.target.value.toLowerCase())
+                  )
                 );
               }}
             />
@@ -336,6 +355,9 @@ const UsersListHeader = ({
               <div className="menu-item px-3" onClick={downloadPDF}>
                 <a className="menu-link px-3">PDF File</a>
               </div>
+            </div>
+            <div className="ms-2">
+              <SortButton onSortChange={handleSortChange} currentSortBy={filterUser.sort_by} />
             </div>
           </div>
         </div>
